@@ -72,4 +72,5 @@ const password=process.env.STAGING_DEMO_BUYER_PASSWORD;
   console.log("Login com API Spring + sessão Next.js: OK.");
 })().catch(e=>{console.error(e.message);process.exit(1)});
 NODE
-echo "Homologação CI OK: MySQL -> Spring -> Next -> login, sem dados pessoais reais."
+STAGING_SMOKE_URL="$URL" node deploy/smoke-marketplace.mjs
+echo "Homologação CI OK: MySQL -> Spring -> Next -> anúncios -> negociações, sem dados reais."
