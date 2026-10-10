@@ -57,8 +57,8 @@ npm run build
 ## O que ainda precisa ser construído ou validado
 
 1. **Biometria no navegador:** não há câmera funcional; exige integração segura AWS Amplify, credenciais temporárias Cognito/IAM federadas ao JWT do Auto Minas, política LGPD, alternativa acessível e testes reais com orçamento e limites definidos. Tela atual informa indisponibilidade em vez de criar sessões pagas que não podem ser concluídas.
-2. **Ações de estado pelo vendedor:** Spring ainda não oferece endpoint próprio para pausar/reativar/marcar vendido. A interface mostra apenas edição e arquivamento (histórico preservado) até o backend fornecer as rotas corretas.
-3. **Localização:** não há cidade/UF no `AnuncioRequest`/`AnuncioResponse` atual. Exibição omite localização, não gera dados falsos.
+2. **Estado dos anúncios do vendedor:** implementado na Fase 7. Pausar retira da vitrine; reativação volta para análise, nunca publicação automática; vender impede novas propostas. Resta validar UX e conflitos com moderação em homologação ampliada.
+3. **Localização declarada:** a Fase 7 adicionou cidade/UF aos DTOs e à migração V12, com filtros e preenchimento no frontend. Localização não comprova residência e anúncios legados sem preenchimento continuam sem cidade/UF.
 4. **Leitura de mensagens:** Spring não guarda `readAt`. A interface não finge notificações de não lidas ou marcação de leitura; próxima fase necessita endpoint real.
 5. **Google OAuth:** as rotas antigas do ZIP autenticavam no banco PostgreSQL paralelo; foram desativadas para não criar um segundo sistema de identidade. Somente reativar com integração oficialmente suportada pelo backend.
 6. **SMTP/Storage:** ativação de contato e recuperação de senha exigem SMTP configurado. Upload de documentos depende de storage privado cifrado e chave segura; quando desativados a API responde 503.
