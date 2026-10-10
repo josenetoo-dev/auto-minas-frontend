@@ -68,18 +68,9 @@ Neste ambiente de preparação, o acesso ao registro npm ficou indisponível: ap
 
 ## GitHub
 
-O pacote `auto-minas-frontend-integrado.zip` contém o código completo. A conexão atual com GitHub não permite criar novos repositórios. Para subir a um repositório frontend separado após criá-lo (ou ao repositório que você indicar):
+Código versionado no repositório [josenetoo-dev/auto-minas-frontend](https://github.com/josenetoo-dev/auto-minas-frontend), branch `feature/integracao-api-spring`. Pull request aberto para revisão da integração antes do merge na main.
 
-```bash
-unzip auto-minas-frontend-integrado.zip
-cd auto-minas-frontend
-git init
-git add .
-git commit -m "feat: integra frontend Auto Minas com API Spring Boot"
-git branch -M main
-git remote add origin https://github.com/SEU-USUARIO/auto-minas-frontend.git
-git push -u origin main
-```
+A CI do frontend executa testes de contrato, TypeScript, ESLint e build Next.js. **Não confundir a CI com homologação integrada**, pois o backend de teste e serviços externos não estão conectados durante a execução.
 
 Nunca versionar `.env.local`, tokens JWT, segredo AWS, dados faciais ou documentos pessoais.
 
