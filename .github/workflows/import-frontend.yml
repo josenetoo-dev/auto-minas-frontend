@@ -5,6 +5,7 @@ on:
       - integracao/frontend-spring
     paths:
       - '.transfer/frontend.tar.xz.b64'
+      - '.github/workflows/import-frontend.yml'
   workflow_dispatch:
 
 permissions:
@@ -13,7 +14,6 @@ permissions:
 jobs:
   importar:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.head_commit.message != 'feat: importar frontend integrado' }}
     steps:
       - name: Checkout da branch
         uses: actions/checkout@v4
