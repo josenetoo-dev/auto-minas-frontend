@@ -31,6 +31,16 @@ jobs:
         working-directory: auto-minas-frontend
         run: docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml config --quiet
 
+      - name: Validar configuração HTTPS e senha do Caddy
+        working-directory: auto-minas-frontend
+        run: |
+          HASH="$(docker run --rm caddy:2.10.2-alpine caddy hash-password --plaintext 'senha-exclusiva-ci')"
+          docker run --rm \
+            -e STAGING_DOMAIN=127-0-0-1.sslip.io \
+            -e STAGING_ACCESS_HASH="$HASH" \
+            -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            caddy:2.10.2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+
       - name: Compilar imagens Java e Next.js
         working-directory: auto-minas-frontend
         run: docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml build api frontend
