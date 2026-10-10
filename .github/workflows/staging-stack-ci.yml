@@ -32,6 +32,19 @@ jobs:
           ref: feature/fase-7-anuncios-localizacao-status
           path: veiculos-api
 
+      - name: Configurar Node.js para checagens de contratos
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Testar DTOs, TypeScript e ESLint
+        working-directory: auto-minas-frontend
+        run: |
+          npm install --no-audit --no-fund
+          npm test
+          npm run typecheck
+          npm run lint
+
       - name: Validar configuração Docker
         working-directory: auto-minas-frontend
         run: docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml config --quiet
