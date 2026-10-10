@@ -2,9 +2,9 @@ name: Homologação Docker (sem deploy externo)
 
 on:
   push:
-    branches: [deploy/staging-stack]
+    branches: [deploy/staging-stack, feature/fase-7-anuncios-localizacao-status]
   pull_request:
-    branches: [integracao/frontend-spring]
+    branches: [integracao/frontend-spring, deploy/staging-stack]
   workflow_dispatch:
 
 # Commits sucessivos cancelam builds anteriores, evitando gasto de minutos.
