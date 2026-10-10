@@ -22,11 +22,17 @@ STAGING_DB_PASSWORD=$(openssl rand -hex 24)
 STAGING_ROOT_PASSWORD=$(openssl rand -hex 24)
 STAGING_JWT_SECRET=$(openssl rand -hex 48)
 STAGING_STORAGE_KEY=$(openssl rand -base64 32)
+STAGING_DEMO_ADMIN_PASSWORD=$(openssl rand -hex 18)
+STAGING_DEMO_BUYER_PASSWORD=$(openssl rand -hex 18)
 STAGING_ACCESS_HASH='$ACCESS_HASH'
 EOF
 chmod 600 deploy/.env.staging
 printf '\nArquivo deploy/.env.staging criado com permissões 600.\n'
 printf 'USUÁRIO DA HOMOLOGAÇÃO: tester\n'
-printf 'SENHA DA HOMOLOGAÇÃO: %s\n\n' "$ACCESS_PASSWORD"
+printf 'SENHA DA HOMOLOGAÇÃO: %s\n' "$ACCESS_PASSWORD"
+printf 'LOGIN ADMIN: admin-demo@auto-minas.test\n'
+printf 'SENHA ADMIN: %s\n' "$(grep '^STAGING_DEMO_ADMIN_PASSWORD=' deploy/.env.staging | cut -d= -f2)"
+printf 'LOGIN COMPRADOR: comprador-demo@auto-minas.test\n'
+printf 'SENHA COMPRADOR: %s\n\n' "$(grep '^STAGING_DEMO_BUYER_PASSWORD=' deploy/.env.staging | cut -d= -f2)"
 printf 'Guarde essa senha fora do repositório. Não envie em chats públicos.\n'
 printf 'Próximo passo: docker compose --env-file deploy/.env.staging -f deploy/compose.staging.yml config --quiet\n'
