@@ -62,12 +62,12 @@ export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carI
      placeholder={opts?.placeholder} value={String(data[key]||"")}
      onChange={e=>update(key,e.target.value)} className="input-dark" /></div>
  );
- return <form onSubmit={save} className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_310px]">
-  <div className="space-y-6">
-   <section className="card-dark space-y-5 p-6">
+ return <form onSubmit={save} className="mx-auto grid w-full min-w-0 max-w-6xl gap-4 pb-5 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:pb-0 xl:grid-cols-[minmax(0,1fr)_310px]">
+  <div className="min-w-0 space-y-4 sm:space-y-6">
+   <section className="card-dark min-w-0 space-y-5 p-4 sm:p-6">
     <div><p className="text-xs font-bold uppercase tracking-[.2em] text-[#d4af37]">01 / Cadastro</p>
     <h2 className="font-display mt-2 text-2xl font-bold">Dados do veículo</h2></div>
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       <div><label htmlFor="brand" className="label-dark">Marca *</label><select required id="brand" value={data.brand} className="input-dark" onChange={e=>update("brand",e.target.value)}><option value="">Selecione</option>{BRANDS.map(x=><option key={x}>{x}</option>)}</select></div>
       {input("Modelo *","model",{required:true,placeholder:"Ex.: Onix LT"})}
       {input("Versão","version",{placeholder:"Ex.: 1.0 Flex"})}
@@ -84,21 +84,21 @@ export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carI
       <div><label className="label-dark">Condição</label><label className="mt-2 flex gap-2 text-sm text-[#9b9ba4]"><input type="checkbox" checked={data.secondHand} onChange={e=>update("secondHand",e.target.checked)}/> Segunda mão</label></div>
     </div>
    </section>
-   <section className="card-dark space-y-4 p-6"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#d4af37]">02 / Anúncio</p><h2 className="font-display text-2xl font-bold">Preço e descrição</h2>
+   <section className="card-dark min-w-0 space-y-4 p-4 sm:p-6"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#d4af37]">02 / Anúncio</p><h2 className="font-display text-2xl font-bold">Preço e descrição</h2>
     {input("Preço em reais (R$) *","price",{type:"number",min:1,required:true})}
     <div><label htmlFor="description" className="label-dark">Descrição * (até 255 caracteres)</label><textarea id="description" required minLength={20} maxLength={255} value={data.description} onChange={e=>update("description",e.target.value)} className="input-dark min-h-36" placeholder="Descreva o estado de conservação, revisões e detalhes do veículo." /></div>
-    <div className="grid gap-4 sm:grid-cols-2">{input("Documentação informada pelo anunciante","documentation",{placeholder:"A verificar"})}{input("Garantia declarada pelo anunciante","warranty",{placeholder:"Não informada"})}{input("Laudo cautelar (informação adicional)","inspectionReport",{placeholder:"Não informado"})}</div>
+    <div className="grid min-w-0 gap-4 sm:grid-cols-2">{input("Documentação informada pelo anunciante","documentation",{placeholder:"A verificar"})}{input("Garantia declarada pelo anunciante","warranty",{placeholder:"Não informada"})}{input("Laudo cautelar (informação adicional)","inspectionReport",{placeholder:"Não informado"})}</div>
     <p className="text-xs text-[#9b9ba4]">Essas informações são declarações do anunciante, não verificações oficiais. A cidade e UF informadas indicam a localização declarada do veículo, não um endereço residencial verificado.</p>
    </section>
    <section className="card-dark space-y-4 p-6"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#d4af37]">03 / Fotos</p><h2 className="font-display text-2xl font-bold">Imagens reais do veículo</h2>
-    <label className="btn-outline inline-flex cursor-pointer"><input type="file" accept="image/jpeg,image/png" multiple onChange={e=>{addPhotos(e.target.files);e.target.value="";}} className="sr-only" />Selecionar fotos JPG/PNG</label>
+    <label className="btn-outline inline-flex min-h-11 w-full cursor-pointer text-center sm:w-auto"><input type="file" accept="image/jpeg,image/png" multiple onChange={e=>{addPhotos(e.target.files);e.target.value="";}} className="sr-only" />Selecionar fotos JPG/PNG</label>
     <p className="text-xs text-[#9b9ba4]">Até 20 fotos, 5 MB cada, enviadas somente após o anúncio ser criado. Toda alteração retorna o anúncio para análise.</p>
-    <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">{data.images.map((url,i)=>!removed.includes(data.imageIds?.[i]??-1)&&<div key={url} className="relative"><img src={url} alt="Foto existente" className="h-24 w-full rounded-lg object-cover"/><button type="button" aria-label="Remover foto" className="absolute right-1 top-1 rounded bg-black/80 px-2 text-red-300" onClick={()=>setRemoved(r=>[...r,data.imageIds?.[i]??-1])}>×</button></div>)}{previews.map((url,i)=><div key={url} className="relative"><img src={url} alt="Prévia de foto nova" className="h-24 w-full rounded-lg object-cover"/><button type="button" aria-label="Remover prévia" className="absolute right-1 top-1 rounded bg-black/80 px-2 text-red-300" onClick={()=>setFiles(fs=>fs.filter((_,j)=>j!==i))}>×</button></div>)}</div>
+    <div className="grid grid-cols-2 gap-2.5 min-[380px]:grid-cols-3 sm:grid-cols-4 sm:gap-3 xl:grid-cols-5">{data.images.map((url,i)=>!removed.includes(data.imageIds?.[i]??-1)&&<div key={url} className="relative"><img src={url} alt="Foto existente" className="aspect-square w-full rounded-lg object-cover"/><button type="button" aria-label="Remover foto" className="absolute right-1 top-1 grid h-9 w-9 place-items-center rounded-lg bg-black/90 text-lg text-red-300" onClick={()=>setRemoved(r=>[...r,data.imageIds?.[i]??-1])}>×</button></div>)}{previews.map((url,i)=><div key={url} className="relative"><img src={url} alt="Prévia de foto nova" className="h-24 w-full rounded-lg object-cover"/><button type="button" aria-label="Remover prévia" className="absolute right-1 top-1 rounded bg-black/80 px-2 text-red-300" onClick={()=>setFiles(fs=>fs.filter((_,j)=>j!==i))}>×</button></div>)}</div>
    </section>
   </div>
-  <aside className="h-fit space-y-4 lg:sticky lg:top-24"><div className="card-dark space-y-4 p-6"><h2 className="font-display text-xl font-bold">Revisão antes da publicação</h2><p className="text-sm leading-relaxed text-[#9b9ba4]">Seu anúncio será salvo como <strong className="text-[#f2d87e]">PENDENTE</strong>. A equipe só poderá publicá-lo depois de analisar sua identidade, a documentação do veículo e o anúncio.</p>
+  <aside className="sticky bottom-0 z-20 -mx-4 h-fit space-y-4 border-t border-[#d4af37]/20 bg-[#08080a]/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-lg sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none lg:sticky lg:top-24"><div className="card-dark space-y-3 border-0 bg-transparent p-0 sm:space-y-4 sm:border sm:p-6"><h2 className="font-display hidden text-xl font-bold sm:block">Revisão antes da publicação</h2><p className="hidden text-sm leading-relaxed text-[#9b9ba4] sm:block">Seu anúncio será salvo como <strong className="text-[#f2d87e]">PENDENTE</strong>. A equipe só poderá publicá-lo depois de analisar sua identidade, a documentação do veículo e o anúncio.</p>
     {error&&<p role="alert" className="rounded-lg border border-red-500/40 bg-red-950/30 p-3 text-sm text-red-300">{error}</p>}
     <button type="submit" disabled={busy} className="btn-gold w-full">{busy?"Salvando…":mode==="edit"?"Salvar e solicitar nova análise":"Cadastrar anúncio para análise"}</button>
-    <p className="text-xs text-[#777782]">Sem promessa de verificação governamental. A revisão documental é realizada por pessoas.</p></div></aside>
+    <p className="hidden text-xs text-[#777782] sm:block">Sem promessa de verificação governamental. A revisão documental é realizada por pessoas.</p></div></aside>
  </form>;
 }
