@@ -1,0 +1,103 @@
+name: auto-minas-homologacao
+
+# Infraestrutura do site de TESTES: banco novo e isolado, sem portas MySQL/API públicas.
+# Rode a partir do repositório frontend, com a API clonada na pasta irmã.
+services:
+  database:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: auto_minas_staging
+      MYSQL_USER: autominas
+      MYSQL_PASSWORD: ${STAGING_DB_PASSWORD:?Execute deploy/setup-env.sh}
+      MYSQL_ROOT_PASSWORD: ${STAGING_ROOT_PASSWORD:?Execute deploy/setup-env.sh}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 25s
+    security_opt:
+      - no-new-privileges:true
+
+  api:
+    build:
+      context: ../../veiculos-api
+      dockerfile: Dockerfile.staging
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://database:3306/auto_minas_staging?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: autominas
+      DB_PASSWORD: ${STAGING_DB_PASSWORD:?}
+      FLYWAY_ENABLED: "true"
+      JWT_SECRET: ${STAGING_JWT_SECRET:?}
+      APP_PUBLIC_BASE_URL: https://${STAGING_DOMAIN:?}
+      FRONTEND_URL: https://${STAGING_DOMAIN:?}
+      VERIFICATION_STORAGE_DIR: /app/private-verification-documents
+      VERIFICATION_STORAGE_KEY: ${STAGING_STORAGE_KEY:?}
+      BIOMETRIC_ENABLED: "false"
+      CONTACT_EMAIL_ENABLED: "false"
+      PASSWORD_RESET_ENABLED: "false"
+      EMAIL_CHANGE_ENABLED: "false"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+    volumes:
+      - uploads:/app/uploads/fotos
+      - documents:/app/private-verification-documents
+    expose:
+      - "8080"
+    security_opt:
+      - no-new-privileges:true
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: Dockerfile.staging
+      args:
+        NEXT_PUBLIC_BIOMETRIC_ENABLED: "false"
+        NEXT_PUBLIC_DEPLOY_CHANNEL: "staging"
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      AUTO_MINAS_API_URL: http://api:8080
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    ports:
+      # Porta local apenas; nunca expor diretamente o Next.js na internet.
+      - "127.0.0.1:3000:3000"
+    security_opt:
+      - no-new-privileges:true
+
+  edge:
+    profiles:
+      - public
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    depends_on:
+      - frontend
+    environment:
+      STAGING_DOMAIN: ${STAGING_DOMAIN:?}
+      STAGING_ACCESS_HASH: ${STAGING_ACCESS_HASH:?}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  mysql_data:
+  uploads:
+  documents:
+  caddy_data:
+  caddy_config:
