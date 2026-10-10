@@ -86,7 +86,7 @@ export default function Header({ user, unreadCount }: Props) {
       {/* Faixa dourada superior */}
       <div className="h-[3px] bg-gradient-to-r from-[#8a6d1c] via-[#d4af37] to-[#8a6d1c]" />
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-3 sm:px-6 lg:gap-4">
-        <Logo />
+        <Logo compactOnMobile />
 
         {/* Navegação desktop */}
         <nav className="hidden items-center gap-0.5 lg:flex xl:gap-1">
