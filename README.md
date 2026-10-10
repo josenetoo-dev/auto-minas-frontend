@@ -26,7 +26,7 @@ npm run lint
 npm run build
 ```
 
-Neste ambiente de preparação, o acesso ao registro npm ficou indisponível: apenas os testes locais de contratos (5 aprovados com TypeScript global) e a análise sintática (todos os `.ts`/`.tsx`) puderam ser executados. **Não afirme que `npm run build` ou testes E2E passaram.**
+**CI GitHub Actions aprovada:** `npm test`, `npm run typecheck`, `npm run lint` e `npm run build` passaram em Node.js 22 no PR #1. [Execução registrada](https://github.com/josenetoo-dev/auto-minas-frontend/actions/runs/38064247715). **Testes E2E contra o backend real ainda não foram executados.**
 
 ## Arquitetura
 
@@ -63,25 +63,20 @@ Neste ambiente de preparação, o acesso ao registro npm ficou indisponível: ap
 5. **Google OAuth:** as rotas antigas do ZIP autenticavam no banco PostgreSQL paralelo; foram desativadas para não criar um segundo sistema de identidade. Somente reativar com integração oficialmente suportada pelo backend.
 6. **SMTP/Storage:** ativação de contato e recuperação de senha exigem SMTP configurado. Upload de documentos depende de storage privado cifrado e chave segura; quando desativados a API responde 503.
 7. **Privacidade:** texto em `/privacidade` é aviso técnico preliminar, **não** política LGPD juridicamente validada. Antes de coletar documentos reais, definir controlador, base legal, canais de titulares e descarte de dados.
-8. **Homologação:** instalar dependências, compilar Next, executar testes com MySQL restaurado, testes E2E desktop/mobile, revisão de segurança independente, cache/CDN e configuração de deploy HTTPS/headers.
+8. **Homologação:** a compilação Next já passou na CI. Restam testes com MySQL restaurado, testes E2E desktop/mobile contra a API real, revisão de segurança independente, cache/CDN e configuração de deploy HTTPS/headers.
 9. **Paginação**: vitrine consulta até dez páginas de cem registros; para produção em grande escala será necessário implementar busca/filtragem e paginação no servidor Java.
 
 ## GitHub
 
-O pacote `auto-minas-frontend.zip` contém o código completo. Para subir a um repositório frontend separado após criá-lo:
+O projeto está versionado em [josenetoo-dev/auto-minas-frontend](https://github.com/josenetoo-dev/auto-minas-frontend).
 
-```bash
-unzip auto-minas-frontend.zip -d auto-minas-frontend
-cd auto-minas-frontend
-git init
-git add .
-git commit -m "feat: integra frontend Auto Minas com API Spring Boot"
-git branch -M main
-git remote add origin https://github.com/SEU-USUARIO/auto-minas-frontend.git
-git push -u origin main
-```
+- Branch com os 67 arquivos: [`integracao/frontend-spring`](https://github.com/josenetoo-dev/auto-minas-frontend/tree/integracao/frontend-spring).
+- Revisão proposta: [PR #1](https://github.com/josenetoo-dev/auto-minas-frontend/pull/1).
+- GitHub Actions: `npm test`, `npm run typecheck`, `npm run lint` e `npm run build` passaram.
 
-Nunca versionar `.env.local`, tokens JWT, segredo AWS, dados faciais ou documentos pessoais.
+**Ainda não foi feito merge na main**, deploy ou integração ponta a ponta com uma versão implantada do backend. O backend Spring Boot também mantém PRs dependentes pendentes de integração.
+
+Nunca versionar `.env.local`, tokens JWT, segredos AWS, dados faciais ou documentos pessoais.
 
 ## Segurança de dados e expectativas
 
