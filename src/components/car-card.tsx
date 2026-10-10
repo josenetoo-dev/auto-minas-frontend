@@ -17,6 +17,7 @@ export type CarCardData = {
   state: string;
   images: string[];
   status?: string;
+  isDemo?: boolean;
 };
 
 export default function CarCard({ car }: { car: CarCardData }) {
@@ -41,6 +42,11 @@ export default function CarCard({ car }: { car: CarCardData }) {
           }`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e12]/80 via-transparent to-transparent" />
+        {car.isDemo && (
+          <span className="absolute right-3 top-3 rounded-md border border-[#d4af37]/60 bg-[#15120a]/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.13em] text-[#e7c96c]">
+            DEMO
+          </span>
+        )}
         {sold && (
           <span className="absolute left-3 top-3 rounded-md bg-black/80 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-red-400 ring-1 ring-red-500/50">
             Vendido
