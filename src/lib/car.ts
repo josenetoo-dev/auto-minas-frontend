@@ -10,7 +10,7 @@ export type BackendAd = {
 export type CarData = {
  id:number;userId:number;name:string; brand:string;model:string;version:string;year:number;price:number;mileageKm:number;
  fuel:string;transmission:string;color:string;description:string;images:string[];imageIds:number[];
- status:string; statusApi:AdStatus; createdAt:string; city:string;state:string;vehicleId:number|null;rejectionReason:string|null;
+ status:string; statusApi:AdStatus; isDemo?:boolean; createdAt:string; city:string;state:string;vehicleId:number|null;rejectionReason:string|null;
  category:string;secondHand:boolean;documentation:string;warranty:string;inspectionReport:string;
 };
 export type BackendPhoto = {id:number;url:string;ordem:number;tipoFoto:string;anuncioId:number};
@@ -35,7 +35,7 @@ export function fromBackendAd(ad:BackendAd, photos:BackendPhoto[]=[]):CarData {
   year:ad.ano,price:Number(ad.preco),mileageKm:ad.quilometragem,
   fuel:ad.combustivel.toLowerCase(),transmission:ad.cambio.toLowerCase(),color:ad.cor,
   description:ad.descricao, images:imgs,imageIds:photos.map(p=>p.id),status:fromApiStatus[ad.status]||"pendente",
-  statusApi:ad.status, createdAt:ad.criadoEm,city:"",state:"",vehicleId:ad.veiculoId,rejectionReason:ad.motivoRejeicao??null,
+  statusApi:ad.status, isDemo:ad.codigo?.startsWith("DEMO-") ?? false, createdAt:ad.criadoEm,city:"",state:"",vehicleId:ad.veiculoId,rejectionReason:ad.motivoRejeicao??null,
   category:ad.categoria,secondHand:ad.segundaMao,documentation:ad.documentacao,warranty:ad.garantia,inspectionReport:ad.laudoCautelar||"",
  };
 }
