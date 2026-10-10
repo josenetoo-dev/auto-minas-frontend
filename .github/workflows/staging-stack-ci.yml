@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: josenetoo-dev/veiculos-api
-          ref: deploy/staging-stack
+          ref: feature/fase-7-anuncios-localizacao-status
           path: veiculos-api
 
       - name: Validar configuração Docker
