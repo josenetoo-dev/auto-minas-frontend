@@ -17,8 +17,8 @@ export default function VerificationsDashboard(){
  async function reload(){const page=await call<{content:Case[]}>("/v1/verificacoes/minhas?page=0&size=100");setCases(page.content);
   const entries=await Promise.all(page.content.map(async c=>[c.id,await call<Evidence[]>(`/v1/verificacoes/${c.id}/evidencias`).catch(()=>[])] as const));
   setDocs(Object.fromEntries(entries));}
- useEffect(()=>{void reload().catch(e=>setErr(e instanceof Error?e.message:"Falha de conexão"));},[]);
- useEffect(()=>{const id=new URLSearchParams(window.location.search).get("veiculo");if(id&&/^\d+$/.test(id))setVehicleId(id);},[]);
+ useEffect(()=>{const timer=window.setTimeout(()=>{void reload().catch(e=>setErr(e instanceof Error?e.message:"Falha de conexão"));},0);return()=>window.clearTimeout(timer);},[]);
+ useEffect(()=>{const timer=window.setTimeout(()=>{const id=new URLSearchParams(window.location.search).get("veiculo");if(id&&/^\d+$/.test(id))setVehicleId(id);},0);return()=>window.clearTimeout(timer);},[]);
  async function act(path:string,method="POST",body?:BodyInit){setBusy(true);setErr("");setOk("");try{await call(path,method,body);await reload();setOk("Solicitação registrada.");}catch(e){setErr(e instanceof Error?e.message:"Falha de conexão");}finally{setBusy(false);}}
  async function upload(id:number,kind:string,file?:File){if(!file)return;if(!["image/jpeg","image/png"].includes(file.type)||file.size>5*1024*1024){setErr("Documento precisa ser JPG ou PNG com até 5 MB.");return;}
   const form=new FormData();form.append("arquivo",file);form.append("tipo",kind);await act(`/v1/verificacoes/${id}/evidencias`,"POST",form);}
