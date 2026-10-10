@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { publicCars } from "@/lib/car";
 import CarCard from "@/components/car-card";
 import CarFilters from "@/components/car-filters";
@@ -106,9 +107,9 @@ export default async function CarrosPage({
           <p className="mt-2 text-sm text-[#9b9ba4]">
             Tente ajustar os filtros ou buscar por outro modelo.
           </p>
-          <a href="/carros" className="btn-outline mt-6">
+          <Link href="/carros" className="btn-outline mt-6">
             Limpar filtros
-          </a>
+          </Link>
         </div>
       )}
     </div>
