@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 type FilterState = {
   q: string;
   brand: string;
+  city: string;
+  state: string;
   fuel: string;
   transmission: string;
   minPrice: string;
@@ -67,6 +69,8 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
   const activeCount =
     (state.q ? 1 : 0) +
     (state.brand ? 1 : 0) +
+    (state.city ? 1 : 0) +
+    (state.state ? 1 : 0) +
     (state.fuel ? 1 : 0) +
     (state.transmission ? 1 : 0) +
     (state.minPrice || state.maxPrice ? 1 : 0) +
@@ -158,6 +162,22 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
             </select>
           </div>
           <div>
+            <label htmlFor="filter-city" className="label-dark">Cidade</label>
+            <input id="filter-city" type="text" className="input-dark"
+              placeholder="Buscar cidade"
+              value={state.city} onChange={e=>setState(prev=>({...prev,city:e.target.value}))}
+              onBlur={()=>apply({city:state.city.trim()})}
+              onKeyDown={e=>{if(e.key==="Enter"){e.preventDefault();apply({city:state.city.trim()});}}}/>
+          </div>
+          <div>
+            <label htmlFor="filter-state" className="label-dark">Estado (UF)</label>
+            <select id="filter-state" className="input-dark" value={state.state}
+              onChange={e=>apply({state:e.target.value})}>
+              <option value="">Todos os estados</option>
+              {["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"].map(uf=><option key={uf} value={uf}>{uf}</option>)}
+            </select>
+          </div>
+          <div>
             <label className="label-dark">Combustível</label>
             <select
               value={state.fuel}
@@ -235,7 +255,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
           <button
             type="button"
             onClick={() => {
-              setState({ q: "", brand: "", fuel: "", transmission: "", minPrice: "", maxPrice: "", yearMin: "", sort: state.sort });
+              setState({ q: "", brand: "", city: "", state: "", fuel: "", transmission: "", minPrice: "", maxPrice: "", yearMin: "", sort: state.sort });
               router.replace("/carros", { scroll: false });
             }}
             className="text-sm font-semibold text-[#f2d87e] hover:underline"
