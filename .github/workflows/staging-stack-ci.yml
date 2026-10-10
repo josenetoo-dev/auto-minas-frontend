@@ -7,6 +7,11 @@ on:
     branches: [integracao/frontend-spring]
   workflow_dispatch:
 
+# Commits sucessivos cancelam builds anteriores, evitando gasto de minutos.
+concurrency:
+  group: staging-stack-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
