@@ -23,12 +23,27 @@ if [ "$ready" -ne 1 ]; then
 fi
 
 echo "Saúde frontend + API: OK"
-curl -fsS --max-time 15 "$URL/carros" -o /tmp/auto-minas-carros.html
-if ! grep -q '\[DEMO\]' /tmp/auto-minas-carros.html; then
-  echo "Falha: vitrine não mostrou os anúncios de exemplo vindos do MySQL."
+# O seed e o SSR podem concluir após a primeira resposta de health.
+vitrine_ok=0
+for i in $(seq 1 30); do
+  curl -fsS --max-time 15 "$URL/carros" -o /tmp/auto-minas-carros.html || true
+  if grep -q 'DEMO' /tmp/auto-minas-carros.html; then
+    vitrine_ok=1
+    break
+  fi
+  sleep 2
+done
+if [ "$vitrine_ok" -ne 1 ]; then
+  echo "Falha: vitrine não mostrou anúncios fictícios após 60 segundos."
+  echo "Quantidade de anúncios no MySQL (sem dados pessoais):"
+  docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml exec -T database sh -c \
+    'MYSQL_PWD="$MYSQL_PASSWORD" mysql -N -u"$MYSQL_USER" auto_minas_staging -e "SELECT COUNT(*) FROM anuncio;"' || true
+  echo "Resposta da API interna (primeiros 500 caracteres):"
+  docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml exec -T frontend node -e \
+    'fetch("http://api:8080/v1/anuncio?size=5").then(r=>r.text()).then(t=>console.log(t.slice(0,500))).catch(e=>console.error(e.message))' || true
   exit 1
 fi
-echo "Vitrine: dados fictícios retornados da API e renderizados via Next.js."
+echo "Vitrine: anúncios fictícios retornados da API e renderizados via Next.js."
 
 STAGING_SMOKE_URL="$URL" node - <<'NODE'
 const url=process.env.STAGING_SMOKE_URL;
