@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   },
   description:
     "Auto Minas: marketplace de veículos com análise documental e moderação humana de anúncios.",
+  robots: process.env.NEXT_PUBLIC_DEPLOY_CHANNEL === "staging"
+    ? { index: false, follow: false, nocache: true }
+    : undefined,
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
@@ -30,6 +33,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         />
       </head>
       <body className="min-h-screen bg-[#08080a] text-[#f4f3ee] antialiased">
+        {process.env.NEXT_PUBLIC_DEPLOY_CHANNEL === "staging" && (
+          <div role="note" className="border-b border-[#b89534]/25 bg-[#211b0f] px-4 py-2 text-center text-[11px] font-medium tracking-wide text-[#e8d5a1] sm:text-xs">
+            <strong className="mr-2 uppercase tracking-[0.16em]">Auto Minas · Homologação</strong>
+            Ambiente de testes com dados fictícios. Não envie documentos pessoais reais.
+          </div>
+        )}
         <Header
           user={
             session
