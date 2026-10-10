@@ -2,9 +2,9 @@ name: Homologação Docker (sem deploy externo)
 
 on:
   push:
-    branches: [deploy/staging-stack]
+    branches: [deploy/staging-stack, feature/fase-7-anuncios-localizacao-status]
   pull_request:
-    branches: [integracao/frontend-spring]
+    branches: [integracao/frontend-spring, deploy/staging-stack]
   workflow_dispatch:
 
 # Commits sucessivos cancelam builds anteriores, evitando gasto de minutos.
@@ -29,8 +29,21 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: josenetoo-dev/veiculos-api
-          ref: deploy/staging-stack
+          ref: feature/fase-7-anuncios-localizacao-status
           path: veiculos-api
+
+      - name: Configurar Node.js para checagens de contratos
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Testar DTOs, TypeScript e ESLint
+        working-directory: auto-minas-frontend
+        run: |
+          npm install --no-audit --no-fund
+          npm test
+          npm run typecheck
+          npm run lint
 
       - name: Validar configuração Docker
         working-directory: auto-minas-frontend

@@ -30,14 +30,28 @@ test('valid image URLs are proxied to same origin and arbitrary domains are neve
  assert.deepEqual(c.images,['/api/media/00000000-0000-4000-8000-000000000001.png']);assert.deepEqual(Array.from(c.imageIds),[12,13]);
 });
 test('ad creation payload uses names and enums of AnuncioRequest exactly',()=>{
- const p=apiAdPayload({brand:'Chevrolet',model:'Onix',version:'LT',year:2022,price:64900,mileageKm:58000,fuel:'flex',transmission:'manual',color:'Branco',description:'Carro revisado e em boas condições.'});
+ const p=apiAdPayload({brand:'Chevrolet',model:'Onix',version:'LT',year:2022,price:64900,mileageKm:58000,fuel:'flex',transmission:'manual',color:'Branco',city:'Várzea da Palma',state:'MG',description:'Carro revisado e em boas condições.'});
  assert.equal(p.combustivel,'FLEX');assert.equal(p.cambio,'MANUAL');assert.equal(p.quilometragem,58000);
  assert.equal(p.preco,64900);assert.equal(p.categoria,'SEMINOVOS');assert.equal(p.titulo,'Chevrolet Onix 2022');
- assert.equal(p.documentacao,'A verificar');
+ assert.equal(p.documentacao,'A verificar');assert.equal(p.cidade,'Várzea da Palma');assert.equal(p.uf,'MG');
 });
 test('unsupported CVT is rejected (no fake backend enum)',()=>{
- assert.throws(()=>apiAdPayload({brand:'Chevrolet',model:'Onix',version:'LT',year:2022,price:64900,mileageKm:58000,fuel:'flex',transmission:'cvt',color:'Branco',description:'Carro revisado e em boas condições.'}),/não suportado/);
+ assert.throws(()=>apiAdPayload({brand:'Chevrolet',model:'Onix',version:'LT',year:2022,price:64900,mileageKm:58000,fuel:'flex',transmission:'cvt',color:'Branco',city:'Várzea da Palma',state:'MG',description:'Carro revisado e em boas condições.'}),/não suportado/);
 });
+test('real listing location is mapped, legacy remains unknown',()=>{
+ const c=fromBackendAd({...ad,cidade:'Várzea da Palma',uf:'MG'});
+ assert.equal(c.city,'Várzea da Palma');assert.equal(c.state,'MG');
+});
+
+test('UF must be real and city cannot be missing',()=>{
+ const base={brand:'Chevrolet',model:'Onix',year:2022,price:64900,mileageKm:58000,
+  fuel:'flex',transmission:'manual',color:'Branco',
+  description:'Anúncio de veículo somente para testes de integração',state:'MG'};
+ assert.throws(()=>apiAdPayload({...base,city:''}),/cidade e UF/);
+ assert.throws(()=>apiAdPayload({...base,city:'Pirapora',state:'ZZ'}),/cidade e UF/);
+ assert.equal(apiAdPayload({...base,city:'Pirapora',state:'MG'}).cidade,'Pirapora');
+});
+
 test('the frontend does not contain the original PostgreSQL Drizzle schema',()=>{
  assert.equal(fs.existsSync('src/db/schema.ts'),false);
 });

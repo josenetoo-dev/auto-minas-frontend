@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BRANDS, FUEL_OPTIONS, TRANSMISSION_OPTIONS } from "@/lib/constants";
 
-export type SellFormData={brand:string;model:string;version:string;year:string;price:string;mileageKm:string;fuel:string;transmission:string;color:string;description:string;category:string;secondHand:boolean;documentation:string;warranty:string;inspectionReport:string;images:string[];imageIds?:number[]};
-const EMPTY:SellFormData={brand:"",model:"",version:"",year:String(new Date().getFullYear()),price:"",mileageKm:"",fuel:"",transmission:"",color:"",description:"",category:"SEMINOVOS",secondHand:true,documentation:"A verificar",warranty:"Não informada",inspectionReport:"",images:[]};
+export type SellFormData={brand:string;model:string;version:string;year:string;price:string;mileageKm:string;fuel:string;transmission:string;color:string;city:string;state:string;description:string;category:string;secondHand:boolean;documentation:string;warranty:string;inspectionReport:string;images:string[];imageIds?:number[]};
+const EMPTY:SellFormData={brand:"",model:"",version:"",year:String(new Date().getFullYear()),price:"",mileageKm:"",fuel:"",transmission:"",color:"",city:"",state:"MG",description:"",category:"SEMINOVOS",secondHand:true,documentation:"A verificar",warranty:"Não informada",inspectionReport:"",images:[]};
+const UF_LIST=["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"] as const;
 const MAX_FILE=5*1024*1024;
 export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carId?:number;initial?:Partial<SellFormData>}) {
  const router=useRouter();
@@ -73,6 +74,10 @@ export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carI
       {input("Ano *","year",{type:"number",min:1900,max:new Date().getFullYear()+1,required:true})}
       {input("Quilometragem *","mileageKm",{type:"number",min:0,required:true})}
       {input("Cor *","color",{required:true})}
+      {input("Cidade onde está o veículo *","city",{required:true,placeholder:"Ex.: Várzea da Palma"})}
+      <div><label htmlFor="state" className="label-dark">UF *</label><select id="state" required className="input-dark" value={data.state} onChange={e=>update("state",e.target.value)}>
+        <option value="">Selecione</option>{UF_LIST.map(uf=><option key={uf} value={uf}>{uf}</option>)}
+      </select></div>
       <div><label htmlFor="fuel" className="label-dark">Combustível *</label><select required id="fuel" className="input-dark" value={data.fuel} onChange={e=>update("fuel",e.target.value)}><option value="">Selecione</option>{FUEL_OPTIONS.map(x=><option key={x.value} value={x.value}>{x.label}</option>)}</select></div>
       <div><label htmlFor="transmission" className="label-dark">Câmbio *</label><select required id="transmission" className="input-dark" value={data.transmission} onChange={e=>update("transmission",e.target.value)}><option value="">Selecione</option>{TRANSMISSION_OPTIONS.filter(x=>x.value!=="cvt").map(x=><option key={x.value} value={x.value}>{x.label}</option>)}</select></div>
       <div><label htmlFor="category" className="label-dark">Categoria</label><select id="category" className="input-dark" value={data.category} onChange={e=>update("category",e.target.value)}><option value="SEMINOVOS">Seminovos</option><option value="PREMIUM">Premium</option><option value="BLINDADOS">Blindados</option><option value="MOTOS">Motos</option><option value="CONSIGNACAO">Consignação</option></select></div>
@@ -83,7 +88,7 @@ export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carI
     {input("Preço em reais (R$) *","price",{type:"number",min:1,required:true})}
     <div><label htmlFor="description" className="label-dark">Descrição * (até 255 caracteres)</label><textarea id="description" required minLength={20} maxLength={255} value={data.description} onChange={e=>update("description",e.target.value)} className="input-dark min-h-36" placeholder="Descreva o estado de conservação, revisões e detalhes do veículo." /></div>
     <div className="grid gap-4 sm:grid-cols-2">{input("Documentação informada pelo anunciante","documentation",{placeholder:"A verificar"})}{input("Garantia declarada pelo anunciante","warranty",{placeholder:"Não informada"})}{input("Laudo cautelar (informação adicional)","inspectionReport",{placeholder:"Não informado"})}</div>
-    <p className="text-xs text-[#9b9ba4]">Essas informações são declarações do anunciante, não verificações oficiais. O backend ainda não tem campos próprios de cidade e UF.</p>
+    <p className="text-xs text-[#9b9ba4]">Essas informações são declarações do anunciante, não verificações oficiais. A cidade e UF informadas indicam a localização declarada do veículo, não um endereço residencial verificado.</p>
    </section>
    <section className="card-dark space-y-4 p-6"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#d4af37]">03 / Fotos</p><h2 className="font-display text-2xl font-bold">Imagens reais do veículo</h2>
     <label className="btn-outline inline-flex cursor-pointer"><input type="file" accept="image/jpeg,image/png" multiple onChange={e=>{addPhotos(e.target.files);e.target.value="";}} className="sr-only" />Selecionar fotos JPG/PNG</label>

@@ -33,6 +33,8 @@ export default async function CarrosPage({
   const sp = await searchParams;
   const q = str(sp.q)?.trim() || undefined;
   const brand = str(sp.brand) || undefined;
+  const city = str(sp.city)?.trim() || undefined;
+  const state = str(sp.state) || undefined;
   const fuel = str(sp.fuel) || undefined;
   const transmission = str(sp.transmission) || undefined;
   const minPrice = num(sp.minPrice);
@@ -44,7 +46,10 @@ export default async function CarrosPage({
   const filtered = (cars || []).filter((c) => {
     const text = `${c.brand} ${c.model} ${c.version}`.toLocaleLowerCase("pt-BR");
     return (!q || text.includes(q.toLocaleLowerCase("pt-BR"))) &&
-      (!brand || c.brand === brand) && (!fuel || c.fuel === fuel) &&
+      (!brand || c.brand === brand) &&
+      (!city || c.city.toLocaleLowerCase("pt-BR").includes(city.toLocaleLowerCase("pt-BR"))) &&
+      (!state || c.state === state) &&
+      (!fuel || c.fuel === fuel) &&
       (!transmission || c.transmission === transmission) &&
       (minPrice === undefined || c.price >= minPrice) &&
       (maxPrice === undefined || c.price <= maxPrice) &&
@@ -71,6 +76,8 @@ export default async function CarrosPage({
         initial={{
           q: q ?? "",
           brand: brand ?? "",
+          city: city ?? "",
+          state: state ?? "",
           fuel: fuel ?? "",
           transmission: transmission ?? "",
           minPrice: minPrice !== undefined ? String(minPrice) : "",
