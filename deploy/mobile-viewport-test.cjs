@@ -85,8 +85,9 @@ async function main() {
         const conversation = page.locator("aside button").first();
         if (await conversation.count()) {
           await conversation.click();
-          expect(await page.getByRole("textbox", { name: "Mensagem para negociação" }).isVisible(),
-            "Compositor do chat inacessível no celular");
+          const composer = page.getByRole("textbox", { name: "Mensagem para negociação" });
+          await composer.waitFor({ state: "visible", timeout: 10000 });
+          expect(await composer.isVisible(), "Compositor do chat inacessível no celular");
           await inspect(page, "conversa", width);
         }
       }
