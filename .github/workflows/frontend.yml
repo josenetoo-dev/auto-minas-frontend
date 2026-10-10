@@ -1,0 +1,34 @@
+name: Frontend validation
+
+on:
+  push:
+    branches: [feature/integracao-api-spring]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  next-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Contract tests
+        run: npm test
+      - name: TypeScript
+        run: npm run typecheck
+      - name: ESLint
+        run: npm run lint
+      - name: Production build (no backend calls)
+        env:
+          AUTO_MINAS_API_URL: http://localhost:8080
+        run: npm run build
