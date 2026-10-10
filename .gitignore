@@ -6,3 +6,9 @@ node_modules/
 *.log
 .DS_Store
 *.tsbuildinfo
+
+# Secrets and generated passwords for public homologation
+deploy/.env.staging
+deploy/.env.staging.*
+!deploy/.env.staging.example
+deploy/.staging-access.txt
