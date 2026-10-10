@@ -65,11 +65,6 @@ export default function Header({ user, unreadCount }: Props) {
   }, []);
 
   useEffect(() => {
-    setMenuOpen(false);
-    setUserOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     const dismiss = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setMenuOpen(false);
@@ -148,10 +143,12 @@ export default function Header({ user, unreadCount }: Props) {
                   <div className="p-1.5">
                     <Link
                       href="/conta"
+                      onClick={() => setUserOpen(false)}
                       className="block rounded-lg px-3 py-2.5 text-sm font-medium text-[#9b9ba4] hover:bg-white/5 hover:text-[#f4f3ee]"
                     >Minha conta e verificações</Link>
                     <Link
                       href="/meus-anuncios"
+                      onClick={() => setUserOpen(false)}
                       className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                         isActive("/meus-anuncios") ? "bg-[#d4af37]/10 text-[#f2d87e]" : "text-[#9b9ba4] hover:bg-white/5 hover:text-[#f4f3ee]"
                       }`}
@@ -163,6 +160,7 @@ export default function Header({ user, unreadCount }: Props) {
                     </Link>
                     <Link
                       href="/vender"
+                      onClick={() => setUserOpen(false)}
                       className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-[#9b9ba4] transition-colors hover:bg-white/5 hover:text-[#f4f3ee]"
                     >
                       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
