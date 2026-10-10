@@ -33,7 +33,7 @@ async function forward(request:Request,ctx:Context) {
   const bytes=await upstream.arrayBuffer();
   const replyHeaders=new Headers({"Cache-Control":"no-store"});
   if(upstream.headers.get("content-type"))replyHeaders.set("Content-Type",upstream.headers.get("content-type")!);
-  return new Response(bytes.length?bytes:null,{status:upstream.status,headers:replyHeaders});
+  return new Response(bytes.byteLength ? bytes : null,{status:upstream.status,headers:replyHeaders});
  }catch {return clientError(new BackendError(503,"API indisponível."));}
 }
 export const GET=forward;
