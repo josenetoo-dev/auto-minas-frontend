@@ -55,11 +55,6 @@ export default function Header({ user, unreadCount }: Props) {
     href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 
   useEffect(() => {
-    setMenuOpen(false);
-    setUserOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     function onClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setUserOpen(false);
@@ -215,6 +210,7 @@ export default function Header({ user, unreadCount }: Props) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => { setMenuOpen(false); setUserOpen(false); }}
                   className={`flex items-center justify-between rounded-lg px-4 py-2.5 text-sm font-semibold ${
                     active ? "bg-[#d4af37]/10 text-[#f2d87e]" : "text-[#9b9ba4]"
                   }`}
