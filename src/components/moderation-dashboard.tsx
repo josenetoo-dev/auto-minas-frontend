@@ -15,7 +15,7 @@ export default function ModerationDashboard({role}:{role:"ADMIN"|"REVIEWER"}){
  async function load(){const [a,v,d]=await Promise.all([
   api<{content:Ad[]}>("/v1/moderacao/anuncios?page=0&size=100"),api<{content:Verification[]}>("/v1/verificacoes/revisao/pendentes?page=0&size=100"),
   api<{content:Report[]}>("/v1/denuncias/revisao/pendentes?page=0&size=100")]);setAds(a.content);setVer(v.content);setReports(d.content);}
- useEffect(()=>{void load().catch(e=>setError(e instanceof Error?e.message:"Falha de conexão"));},[]);
+ useEffect(()=>{const timer=window.setTimeout(()=>{void load().catch(e=>setError(e instanceof Error?e.message:"Falha de conexão"));},0);return()=>window.clearTimeout(timer);},[]);
  async function decide(url:string,justification?:string){setBusy(true);setError("");setSuccess("");try{await api(url,"POST",justification===undefined?undefined:{motivo:justification});await load();setSuccess("Decisão registrada e auditada.");}catch(e){setError(e instanceof Error?e.message:"Erro");}finally{setBusy(false);}}
  async function showDocs(id:number){try{const docs=await api<Evidence[]>(`/v1/verificacoes/${id}/evidencias`);setEvidence(x=>({...x,[id]:docs}));}catch(e){setError(e instanceof Error?e.message:"Erro");}}
  async function download(id:number,doc:Evidence){try{const r=await fetch(`/api/backend/v1/verificacoes/${id}/evidencias/${doc.id}/arquivo`);if(!r.ok)throw new Error("Acesso negado");const url=URL.createObjectURL(await r.blob());const a=document.createElement("a");a.href=url;a.download=`evidencia-${id}-${doc.id}`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(e){setError(e instanceof Error?e.message:"Erro");}}
