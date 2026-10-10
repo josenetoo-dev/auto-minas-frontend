@@ -1,0 +1,20 @@
+# Entrada HTTPS para avaliadores: nunca deixar Next/API/MySQL expostos fora deste proxy.
+# STAGING_DOMAIN deve ser um DNS público válido, como IP-PUBLICO.sslip.io.
+{$STAGING_DOMAIN} {
+    encode zstd gzip
+
+    # Nenhum visitante entra sem a senha de homologação.
+    basic_auth {
+        tester {$STAGING_ACCESS_HASH}
+    }
+
+    header {
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        X-Frame-Options "DENY"
+        X-Robots-Tag "noindex, nofollow, noarchive"
+        -Server
+    }
+
+    reverse_proxy frontend:3000
+}
