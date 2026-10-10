@@ -35,9 +35,17 @@ for i in $(seq 1 30); do
 done
 if [ "$vitrine_ok" -ne 1 ]; then
   echo "Falha: vitrine não mostrou anúncios fictícios após 60 segundos."
+  echo "Estado renderizado do frontend:"
+  grep -oE 'A API está indisponível|Nenhum veículo encontrado|DEMO|Comprar carro' /tmp/auto-minas-carros.html | sort -u | head -10 || true
+  echo "API_URL configurada no processo Next (sem segredos):"
+  docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml exec -T frontend \
+    node -e 'console.log(process.env.AUTO_MINAS_API_URL)' || true
   echo "Quantidade de anúncios no MySQL (sem dados pessoais):"
   docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml exec -T database sh -c \
     'MYSQL_PWD="$MYSQL_PASSWORD" mysql -N -u"$MYSQL_USER" auto_minas_staging -e "SELECT COUNT(*) FROM anuncio;"' || true
+  echo "Página API com size=100 (status HTTP e quantidade; mesma consulta que o Next usa):"
+  docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml exec -T frontend node -e \
+    'fetch("http://api:8080/v1/anuncio?page=0&size=100").then(async r=>{let j=await r.json();console.log("HTTP",r.status,"anuncios",j.content?.length,"totalPages",j.totalPages)}).catch(e=>console.error(e.message))' || true
   echo "Resposta da API interna (primeiros 500 caracteres):"
   docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml exec -T frontend node -e \
     'fetch("http://api:8080/v1/anuncio?size=5").then(r=>r.text()).then(t=>console.log(t.slice(0,500))).catch(e=>console.error(e.message))' || true
