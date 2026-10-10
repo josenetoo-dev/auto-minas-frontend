@@ -9,9 +9,14 @@ export async function PATCH(request:Request,context:Ctx){
  if(!id)return NextResponse.json({error:"Anúncio inválido"},{status:400});
  try {
   const body=await request.json();
-  // The Spring API doesn't expose owner status transitions. Never fabricate success.
-  if(Object.keys(body).length===1&&body.status)
-   return NextResponse.json({error:"Alteração de status indisponível nesta versão da API."},{status:501});
+  // Apenas ações permitidas ao proprietário, validadas novamente pelo Spring.
+  if(Object.keys(body).length===1 && typeof body.status==="string"){
+   const transitions:Record<string,string>={pausado:"pausar",pendente:"reativar",vendido:"vendido"};
+   const suffix=transitions[body.status.toLowerCase()];
+   if(!suffix)return NextResponse.json({error:"Transição de status inválida."},{status:400});
+   const updated=await privateApi<BackendAd>(`/v1/anuncio/${id}/${suffix}`,{method:"POST"});
+   return NextResponse.json({ok:true,id:updated.id,status:updated.status});
+  }
   const ad=await privateApi<BackendAd>(`/v1/anuncio/${id}`,{method:"PUT",body:JSON.stringify(apiAdPayload(body))});
   return NextResponse.json({ok:true,id:ad.id,status:ad.status});
  }catch(e){return clientError(e);}
