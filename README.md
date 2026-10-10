@@ -2,7 +2,7 @@
 
 Interface para o marketplace Auto Minas. Projeto derivado do ZIP enviado pelo usuário, **agora conectado ao backend Spring Boot** como única fonte de dados. Não usa PostgreSQL/Drizzle próprio, tokens de sessão paralelos, logins demo nem uploads fora da API.
 
-**Este projeto NÃO está pronto para lançar publicamente sem homologação.** A API precisa integrar os PRs dependentes #1–#10 do repositório [`josenetoo-dev/veiculos-api`](https://github.com/josenetoo-dev/veiculos-api). Os PRs ainda não foram integrados na `main` e as migrations V1–V11 precisam ser testadas com cópia restaurada do banco original antes da implantação.
+**Este projeto NÃO está pronto para lançar publicamente sem homologação.** A API precisa integrar os PRs dependentes #1–#12 do repositório [`josenetoo-dev/veiculos-api`](https://github.com/josenetoo-dev/veiculos-api). Os PRs ainda não foram integrados na `main` e as migrations V1–V12 precisam ser testadas com cópia restaurada do banco original antes da implantação.
 
 ## Executar no computador
 
@@ -66,6 +66,12 @@ npm run build
 8. **Homologação:** a compilação Next já passou na CI. Restam testes com MySQL restaurado, testes E2E desktop/mobile contra a API real, revisão de segurança independente, cache/CDN e configuração de deploy HTTPS/headers.
 9. **Paginação**: vitrine consulta até dez páginas de cem registros; para produção em grande escala será necessário implementar busca/filtragem e paginação no servidor Java.
 
+## Evolução da Fase 7 — revisão sem cloud paga
+
+O backend (PR #12) inclui endpoints que permitem ao proprietário pausar, solicitar reativação **pendente de moderação** e marcar anúncio como vendido, com auditoria e preservação de histórico. A migration V12 adiciona cidade/UF sem apagar registros antigos. O frontend (PR #4) conecta essas operações e atualiza filtros, formulários, cards e detalhes.
+
+A stack Docker permanece disponível em `deploy/compose.staging.yml`; para testar a Fase 7, use as branches `feature/fase-7-anuncios-localizacao-status` **em ambos os repositórios**. A CI também executa um teste E2E do vendedor no banco descartável.
+
 ## GitHub
 
 O projeto está versionado em [josenetoo-dev/auto-minas-frontend](https://github.com/josenetoo-dev/auto-minas-frontend).
@@ -74,7 +80,7 @@ O projeto está versionado em [josenetoo-dev/auto-minas-frontend](https://github
 - Revisão proposta: [PR #1](https://github.com/josenetoo-dev/auto-minas-frontend/pull/1).
 - GitHub Actions: `npm test`, `npm run typecheck`, `npm run lint` e `npm run build` passaram.
 
-**Ainda não foi feito merge na main**, deploy ou integração ponta a ponta com uma versão implantada do backend. O backend Spring Boot também mantém PRs dependentes pendentes de integração.
+**Ainda não foi feito merge na main**, deploy ou integração ponta a ponta com uma versão implantada do backend. O backend Spring Boot também mantém PRs dependentes pendentes de integração. A Fase 7 usa branches `feature/fase-7-anuncios-localizacao-status` nos dois repositórios.
 
 Nunca versionar `.env.local`, tokens JWT, segredos AWS, dados faciais ou documentos pessoais.
 
