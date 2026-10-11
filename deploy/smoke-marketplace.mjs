@@ -4,7 +4,8 @@
  * Node 22 nativo, sem dependências de teste extras.
  */
 const base=process.env.STAGING_SMOKE_URL || "http://127.0.0.1:3000";
-if (process.env.STAGING_SMOKE_ALLOW_MUTATIONS !== "CI_EPHEMERAL_ONLY" ||
+if (process.env.GITHUB_ACTIONS !== "true" ||
+    process.env.STAGING_SMOKE_ALLOW_MUTATIONS !== "CI_EPHEMERAL_ONLY" ||
     base !== "http://127.0.0.1:3000") {
   throw new Error("Smoke de negócio altera dados: permitido somente na CI efêmera (loopback).");
 }
