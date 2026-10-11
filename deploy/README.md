@@ -19,6 +19,24 @@ Navegador (HTTPS) → Caddy (login de avaliador) → Next.js 16 (BFF) → Spring
 - `BIOMETRIC_ENABLED=false`, `CONTACT_EMAIL_ENABLED=false`, `EMAIL_CHANGE_ENABLED=false` e `PASSWORD_RESET_ENABLED=false` impedem custo e operações que exigem serviços externos. Pode testar propostas, chat, cadastro de anúncio e revisão documental com imagens **fictícias**. Cadastro novo permanece pendente enquanto SMTP estiver desativado; a conta de comprador sintética já inicia ativa para ensaiar fluxos.
 - O hash da senha do Caddy, a chave AES privada, o JWT, as senhas de banco/admin/comprador são produzidos **localmente** e ficam apenas em `deploy/.env.staging` (ignorado pelo Git).
 
+### Comandos simplificados para quem administra a homologação
+
+Depois de clonar **as branches `main`** dos dois repositórios lado a lado, no diretório `auto-minas-frontend`:
+
+```bash
+bash deploy/manage.sh prepare localhost    # Somente na primeira execução; guarde credenciais
+bash deploy/manage.sh check                # Valida segredos e compose, não sobe containers
+bash deploy/manage.sh start-local          # Inicia MySQL + Spring + Next
+bash deploy/manage.sh health               # Consulte quando serviços estiverem prontos
+bash deploy/manage.sh status
+bash deploy/manage.sh logs
+bash deploy/manage.sh stop                 # Preserva os volumes do banco e as imagens
+```
+
+Para um domínio apontado para a VM, use `bash deploy/manage.sh prepare DOMINIO.sslip.io` **em uma instalação nova**, seguida de `STAGING_PUBLIC_CONFIRM=HOMOLOGACAO_SEM_DADOS_REAIS bash deploy/manage.sh start-public`. Essa confirmação impede publicação acidental. Não converta um banco existente entre domínios sobrescrevendo `.env.staging`.
+
+**Atenção:** `deploy/smoke-test.sh` e `deploy/smoke-marketplace.mjs` alteram status e criam anúncios/propostas. Foram bloqueados fora da CI descartável. Para checar o servidor, use `manage.sh health` (somente leitura).
+
 ## 1. Colocar para rodar num computador (primeiro teste)
 
 Requisitos: Git, Docker com plugin `docker compose`, OpenSSL, pelo menos **8–12 GB livres em disco** para imagens e banco, acesso à internet no primeiro build. Não é necessário configurar AWS, e-mail ou comprar domínio.
@@ -39,15 +57,13 @@ Abra **http://localhost:3000** no computador. O script imprime quatro pares de c
 
 Pode levar vários minutos no primeiro build. A API só inicia **depois do MySQL**, aplica Flyway no banco descartável da stack e o Next.js conversa com a API pelo nome de rede interna `api`.
 
-## 2. URL pública provisória, sem máquina Oracle
+## 2. Testar o site sem expor os dados
 
-Se o Auto Minas está rodando localmente e você quiser mostrar a interface por HTTPS sem abrir portas do roteador, use **Cloudflare Quick Tunnel** com restrição de e-mail, a partir da máquina local. **Atualize o `cloudflared`**: a opção `--allowed-mail` foi introduzida em outubro de 2026.
+**Nunca exponha diretamente a porta 3000 por túnel público.** Ela contorna a autenticação extra que o Caddy aplica aos avaliadores. Quick Tunnels simples também não criam uma política de identidade por si só.
 
-```bash
-cloudflared tunnel --url http://localhost:3000 --allowed-mail 'seu-email@exemplo.com'
-```
+Para testar no próprio computador, mantenha a stack em loopback: `bash deploy/manage.sh start-local` e abra `http://127.0.0.1:3000`.
 
-Receberá um endereço temporário `trycloudflare.com`. A máquina, o Docker e o túnel devem ficar ligados. **Não é hospedagem contínua de produção**: o endereço muda, não há garantia de disponibilidade, e o fluxo de autenticação depende do e-mail configurado. Não remova `--allowed-mail` ao expor a stack. Nunca use a opção rápida para documentos pessoais reais.
+Para acesso remoto dos avaliadores, utilize o Caddy com HTTPS e senha externa de homologação, por meio de uma VM com DNS apontado corretamente (seção 3). Alternativamente, configure uma solução de túnel **com autenticação no provedor** antes de publicar qualquer endereço. Não substitua proteção real por URL difícil de adivinhar.
 
 ## 3. HTTPS público persistente em Oracle Always Free (preferencial)
 
