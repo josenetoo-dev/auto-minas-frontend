@@ -73,6 +73,9 @@ async function main() {
         expect(await menu.getAttribute("aria-expanded") === "false",
           "Escape não atualizou aria-expanded em " + width + "px");
       }
+      await page.goto(BASE + "/feira", { waitUntil: "domcontentloaded" });
+      await page.getByRole("heading", { name: /Conheça o Auto Minas/ }).waitFor({ state: "visible" });
+      await inspect(page, "roteiro-feira", width);
       await page.goto(BASE + "/carros", { waitUntil: "domcontentloaded" });
       await inspect(page, "carros", width);
       if (width <= 390) {

@@ -16,7 +16,7 @@ export async function createSession(accessToken: string) {
   const me = await backendFetch<{id:number;email:string;nome:string;role:SessionPayload["role"];status:SessionPayload["status"]}>("/v1/usuario/me", {}, accessToken);
   if (!me.id) throw new Error("A API não retornou uma identidade válida.");
   (await cookies()).set(SESSION_COOKIE, accessToken, {
-    httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 3,
+    httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 30,
   });
   return toSession(me);
 }

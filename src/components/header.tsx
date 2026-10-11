@@ -123,6 +123,10 @@ export default function Header({ user, unreadCount }: Props) {
           {user ? (
             <div className="relative" ref={menuRef}>
               <button
+                type="button"
+                aria-label={userOpen ? "Fechar menu da conta" : "Abrir menu da conta"}
+                aria-expanded={userOpen}
+                aria-controls="auto-minas-account-menu"
                 onClick={() => setUserOpen((v) => !v)}
                 className="flex items-center gap-2 rounded-full border border-[#26262e] bg-[#101014] py-1 pl-1 pr-3 transition-colors hover:border-[#d4af37]/60"
               >
@@ -135,7 +139,7 @@ export default function Header({ user, unreadCount }: Props) {
                 </svg>
               </button>
               {userOpen && (
-                <div className="absolute right-0 z-50 mt-2 w-[min(15rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-[#26262e] bg-[#101014] shadow-2xl shadow-black/60 animate-fade-up">
+                <div id="auto-minas-account-menu" className="absolute right-0 z-50 mt-2 w-[min(15rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-[#26262e] bg-[#101014] shadow-2xl shadow-black/60 animate-fade-up">
                   <div className="border-b border-[#26262e] px-4 py-3">
                     <p className="truncate text-sm font-semibold text-[#f4f3ee]">{user.name}</p>
                     <p className="text-[11px] uppercase tracking-wider text-[#d4af37]">Minha conta</p>

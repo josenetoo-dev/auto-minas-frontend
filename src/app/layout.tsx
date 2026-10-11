@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { getSession } from "@/lib/auth";
@@ -37,6 +38,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <div role="note" className="border-b border-[#b89534]/25 bg-[#211b0f] px-4 py-2 text-center text-[11px] font-medium tracking-wide text-[#e8d5a1] sm:text-xs">
             <strong className="mr-2 uppercase tracking-[0.16em]">Auto Minas · Homologação</strong>
             Ambiente de testes com dados fictícios. Não envie documentos pessoais reais.
+            <Link href="/feira" className="ml-2 inline-flex min-h-6 items-center font-semibold text-[#f2d87e] underline underline-offset-2 hover:text-white">
+              Roteiro de demonstração →
+            </Link>
           </div>
         )}
         <Header

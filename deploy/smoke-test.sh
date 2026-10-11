@@ -2,6 +2,15 @@
 # Teste de fumaça em stack de HOMOLOGAÇÃO. Requer apenas curl, node e Docker Compose.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+# Este teste CRIA anúncios, propostas e altera status: somente runner efêmero.
+[ "${GITHUB_ACTIONS:-}" = "true" ] && [ "${STAGING_SMOKE_ALLOW_MUTATIONS:-}" = "CI_EPHEMERAL_ONLY" ] && [ ! -e deploy/.env.staging ] || {
+  echo "Bloqueado: smoke-test modifica dados. Use apenas na CI descartável." >&2
+  exit 2
+}
+[ "${STAGING_TEST_URL:-http://127.0.0.1:3000}" = "http://127.0.0.1:3000" ] || {
+  echo "Bloqueado: smoke-test somente na URL loopback do runner." >&2
+  exit 2
+}
 set -a
 # Somente arquivo local para CI: nunca usar segredos reais nos logs.
 source deploy/.env.staging.example

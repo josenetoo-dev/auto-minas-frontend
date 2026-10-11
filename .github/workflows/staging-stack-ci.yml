@@ -70,6 +70,8 @@ jobs:
 
       - name: Testes de fumaça integrados (sem AWS, SMTP ou dados reais)
         working-directory: auto-minas-frontend
+        env:
+          STAGING_SMOKE_ALLOW_MUTATIONS: CI_EPHEMERAL_ONLY
         run: bash deploy/smoke-test.sh
 
       - name: Instalar navegador de teste (somente CI)

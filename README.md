@@ -24,6 +24,10 @@ npm run dev
 
 Abra `http://localhost:3000`. A interface depende da API real: sem backend funcional não inventa anúncios ou sessões.
 
+Em homologação, o roteiro `/feira` orienta visitantes a testar vitrine, negociações, cadastro e moderação sem expor senhas. O banner do staging oferece acesso ao roteiro.
+
+O script `bash deploy/manage.sh --help` apresenta comandos de operação. O script de smoke de negócio altera dados e, por segurança, só executa em um runner efêmero do GitHub Actions.
+
 ## Homologação completa e gratuita quando existir um host
 
 Leia **[deploy/README.md](deploy/README.md)** para preparar Next.js, Spring, MySQL e Caddy em Docker, com dados `[DEMO]`, senha de avaliador, HTTPS e volumes privados.
@@ -42,6 +46,7 @@ Os workflows em `.github/workflows/` verificam contratos, build, integração, t
 | Propostas e mensagens | `/chat`, `/chat/[id]` |
 | Conta, e-mail e recuperação | `/conta`, `/recuperar-senha` |
 | Verificação documental e revisão humana | `/verificacoes`, `/moderacao` |
+| Roteiro guiado da feira (somente staging) | `/feira` |
 | Privacidade (texto preliminar) | `/privacidade` |
 
 ## Limites antes de produção com usuários reais

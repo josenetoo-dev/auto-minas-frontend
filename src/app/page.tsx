@@ -107,6 +107,15 @@ export default async function HomePage() {
             </svg>
           </Link>
         </div>
+        {cars && featured.length === 0 && (
+          <div role="status" className="rounded-2xl border border-[#d4af37]/20 bg-[#141419] px-6 py-10 text-center">
+            <p className="font-display text-xl font-bold text-[#f4f3ee]">Nenhum veículo publicado por enquanto</p>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#a8a8b0]">
+              Os anúncios só aparecem depois de passar pela moderação. Explore novamente mais tarde ou cadastre seu veículo para avaliação.
+            </p>
+            <Link href="/vender" className="btn-outline mt-6">Anunciar meu veículo</Link>
+          </div>
+        )}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((car) => (
             <CarCard key={car.id} car={car} />
