@@ -53,18 +53,25 @@ async function main() {
         hasTouch: width <= 390,
       });
       const page = await context.newPage();
+      console.log("Validando responsividade: " + width + "px");
       await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
       await inspect(page, "inicio", width);
       if (width <= 768) {
-        const menu = page.getByRole("button", { name: "Abrir menu" });
-        expect(await menu.isVisible(), "Menu ausente em " + width + "px");
+        // O nome acessível muda de "Abrir menu" para "Fechar menu" após o clique.
+        // Um seletor pelo nome antigo deixa de localizar o mesmo botão.
+        const menu = page.locator('button[aria-controls="auto-minas-mobile-menu"]');
+        await menu.waitFor({ state: "visible", timeout: 10000 });
+        expect(await menu.getAttribute("aria-expanded") === "false",
+          "Menu deveria iniciar fechado em " + width + "px");
         await menu.click();
         const nav = page.locator("#auto-minas-mobile-menu");
-        expect(await nav.isVisible(), "Menu não abriu em " + width + "px");
+        await nav.waitFor({ state: "visible", timeout: 10000 });
         expect(await menu.getAttribute("aria-expanded") === "true",
           "Menu não anunciou aria-expanded em " + width + "px");
         await page.keyboard.press("Escape");
-        expect(!(await nav.isVisible()), "Escape não fechou o menu");
+        await nav.waitFor({ state: "hidden", timeout: 10000 });
+        expect(await menu.getAttribute("aria-expanded") === "false",
+          "Escape não atualizou aria-expanded em " + width + "px");
       }
       await page.goto(BASE + "/carros", { waitUntil: "domcontentloaded" });
       await inspect(page, "carros", width);
