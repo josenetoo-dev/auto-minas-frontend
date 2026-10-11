@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { safeNextPath } from "@/lib/redirect";
 
 type Mode = "login" | "register";
 
@@ -52,7 +53,7 @@ export default function AuthForm({
         setFormError(data.error ?? "Algo deu errado. Tente novamente.");
         return;
       }
-      const redirect = data.redirect && data.redirect.startsWith("/") ? data.redirect : "/conta";
+      const redirect = safeNextPath(data.redirect, "/conta");
       router.push(redirect);
       router.refresh();
     } catch {
