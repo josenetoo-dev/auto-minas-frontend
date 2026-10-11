@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 # Este teste CRIA anúncios, propostas e altera status: somente runner efêmero.
-[ "${STAGING_SMOKE_ALLOW_MUTATIONS:-}" = "CI_EPHEMERAL_ONLY" ] || {
+[ "${GITHUB_ACTIONS:-}" = "true" ] && [ "${STAGING_SMOKE_ALLOW_MUTATIONS:-}" = "CI_EPHEMERAL_ONLY" ] && [ ! -e deploy/.env.staging ] || {
   echo "Bloqueado: smoke-test modifica dados. Use apenas na CI descartável." >&2
   exit 2
 }
