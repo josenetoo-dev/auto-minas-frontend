@@ -4,6 +4,10 @@
  * Node 22 nativo, sem dependências de teste extras.
  */
 const base=process.env.STAGING_SMOKE_URL || "http://127.0.0.1:3000";
+if (process.env.STAGING_SMOKE_ALLOW_MUTATIONS !== "CI_EPHEMERAL_ONLY" ||
+    base !== "http://127.0.0.1:3000") {
+  throw new Error("Smoke de negócio altera dados: permitido somente na CI efêmera (loopback).");
+}
 const buyerPassword=process.env.STAGING_DEMO_BUYER_PASSWORD;
 const adminPassword=process.env.STAGING_DEMO_ADMIN_PASSWORD;
 const sellerPassword=process.env.STAGING_DEMO_SELLER_PASSWORD;
