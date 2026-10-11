@@ -2,7 +2,7 @@ name: Homologação Docker (sem deploy externo)
 
 on:
   push:
-    branches: [deploy/staging-stack, feature/fase-7-anuncios-localizacao-status, ui/responsividade-mobile]
+    branches: [main, deploy/staging-stack, feature/fase-7-anuncios-localizacao-status, ui/responsividade-mobile]
   pull_request:
     branches: [main, integracao/frontend-spring, deploy/staging-stack, feature/fase-7-anuncios-localizacao-status]
   workflow_dispatch:
@@ -29,8 +29,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: josenetoo-dev/veiculos-api
-          # Snapshot do backend sob revisão. Atualizar após novos commits no PR consolidado do backend.
-          ref: eec049c5f3807f93d7b52f7e3fb91be4e2e8a40d
+          # Ambos os projetos integrados: validar sempre o backend da main.
+          ref: main
           path: veiculos-api
 
       - name: Configurar Node.js para checagens de contratos

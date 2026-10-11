@@ -12,7 +12,7 @@ Navegador (HTTPS) → Caddy (login de avaliador) → Next.js 16 (BFF) → Spring
 
 - Somente o Caddy publica 80/443 em `--profile public`. Next.js oferece porta 3000 **somente em 127.0.0.1** para testes locais/túnel. API e MySQL não publicam portas.
 - Next.js usa build de produção em modo `standalone` com Node 22; Java 21 é compilado por Maven num contêiner. Imagens multiarch para `amd64` e `arm64`.
-- MySQL usa **volume separado**, criado vazio e migrado pela API com Flyway V1–V11. **NUNCA** apontar o compose para o banco real nem transportar dados reais para ele.
+- MySQL usa **volume separado**, criado vazio e migrado pela API com Flyway V1–V12. **NUNCA** apontar o compose para o banco real nem transportar dados reais para ele.
 - App usa `SPRING_PROFILES_ACTIVE=staging` (não `local`) e `ddl-auto=validate`, com `STAGING_DEMO_ENABLED=true`.
 - Cinco anúncios `[DEMO]` e três contas sintéticas (admin, comprador e vendedor) são inseridos **apenas** com o perfil `staging & !prod`; senha aleatória gerada em `.env.staging`. Os anúncios de exemplo são marcados como ativos para testar a vitrine e **não comprovam revisão documental oficial**.
 - Proteção extra: senha Caddy com hash bcrypt, `X-Robots-Tag: noindex`, tag de homologação no topo e bloqueio de indexação. HTTPS automático via Caddy.
@@ -25,8 +25,8 @@ Requisitos: Git, Docker com plugin `docker compose`, OpenSSL, pelo menos **8–1
 
 ```bash
 mkdir auto-minas-lab && cd auto-minas-lab
-git clone --branch deploy/staging-stack https://github.com/josenetoo-dev/auto-minas-frontend.git
-git clone --branch deploy/staging-stack https://github.com/josenetoo-dev/veiculos-api.git
+git clone --branch main https://github.com/josenetoo-dev/auto-minas-frontend.git
+git clone --branch main https://github.com/josenetoo-dev/veiculos-api.git
 cd auto-minas-frontend
 bash deploy/setup-env.sh localhost
 docker compose --env-file deploy/.env.staging -f deploy/compose.staging.yml config --quiet
@@ -35,13 +35,13 @@ docker compose --env-file deploy/.env.staging -f deploy/compose.staging.yml ps
 curl -fsS http://127.0.0.1:3000/api/health
 ```
 
-Abra **http://localhost:3000** no computador. O script imprime três pares de credenciais: acesso de homologação (para quando habilitar HTTPS), admin e comprador. Guarde em local privado.
+Abra **http://localhost:3000** no computador. O script imprime quatro pares de credenciais: acesso de homologação (quando habilitar HTTPS), admin, comprador e vendedor. Guarde em local privado.
 
 Pode levar vários minutos no primeiro build. A API só inicia **depois do MySQL**, aplica Flyway no banco descartável da stack e o Next.js conversa com a API pelo nome de rede interna `api`.
 
 ## 2. URL pública provisória, sem máquina Oracle
 
-Se o Auto Minas está rodando localmente e você quiser mostrar a interface por HTTPS sem abrir portas do roteador, use **Cloudflare Quick Tunnel** com restrição de e-mail, a partir da máquina local:
+Se o Auto Minas está rodando localmente e você quiser mostrar a interface por HTTPS sem abrir portas do roteador, use **Cloudflare Quick Tunnel** com restrição de e-mail, a partir da máquina local. **Atualize o `cloudflared`**: a opção `--allowed-mail` foi introduzida em outubro de 2026.
 
 ```bash
 cloudflared tunnel --url http://localhost:3000 --allowed-mail 'seu-email@exemplo.com'
@@ -71,7 +71,7 @@ O Caddy tenta emitir um certificado HTTPS gratuito para o domínio que aponta à
 
 ## 4. Atualização, backup e rollback
 
-Para atualizar o código (sem tocar em `main`):
+Para atualizar um ambiente de testes a partir da `main` já integrada:
 
 ```bash
 git -C ../veiculos-api pull --ff-only
@@ -85,6 +85,6 @@ Este ambiente deve ser descartável, mas ainda assim faça backup dos dados de h
 
 ## 5. O que a CI verifica e o que não verifica
 
-`.github/workflows/staging-stack-ci.yml` compila imagens, sobe MySQL, Spring e Next em runners descartáveis do GitHub, verifica `GET /api/health`, a vitrine `[DEMO]` e login de comprador fictício. A CI **não hospeda o site** nem prova disponibilidade externa, funcionamento real da AWS, SMTP, documentos oficiais ou comportamento para usuários reais.
+`.github/workflows/staging-stack-ci.yml` compila imagens, sobe MySQL, Spring e Next em runners descartáveis do GitHub, verifica `GET /api/health`, vitrine `[DEMO]`, logins sintéticos, criação pendente de anúncio, propostas, mensagens, pausa, reativação e venda. Também executa Chromium em resoluções mobile e desktop. A CI **não hospeda o site** nem prova disponibilidade externa, funcionamento real da AWS, SMTP, documentos oficiais ou comportamento para usuários reais.
 
-Os PRs originais do backend #1–#10 permanecem separados, encadeados e não integrados à `main`. A branch `deploy/staging-stack` é derivada do PR #10 e deve ser usada **somente para homologação**, sem fazer merge inadvertido na `main`.
+Em 11/10/2026, as implementações dos PRs consolidados [backend #13](https://github.com/josenetoo-dev/veiculos-api/pull/13) e [frontend #6](https://github.com/josenetoo-dev/auto-minas-frontend/pull/6) foram integradas à `main`. Os PRs anteriores são histórico de desenvolvimento, não etapas adicionais de merge. O workflow testa a stack sem realizar deploy externo.
