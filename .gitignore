@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.env
+.env.*.local
+!.env.example
+*.log
+.DS_Store
+*.tsbuildinfo
+
+# Secrets and generated passwords for public homologation
+deploy/.env.staging
+deploy/.env.staging.*
+!deploy/.env.staging.example
+deploy/.staging-access.txt

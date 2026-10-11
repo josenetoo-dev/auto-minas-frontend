@@ -1,0 +1,106 @@
+name: Homologação Docker (sem deploy externo)
+
+on:
+  push:
+    branches: [deploy/staging-stack, feature/fase-7-anuncios-localizacao-status, ui/responsividade-mobile]
+  pull_request:
+    branches: [main, integracao/frontend-spring, deploy/staging-stack, feature/fase-7-anuncios-localizacao-status]
+  workflow_dispatch:
+
+# Commits sucessivos cancelam builds anteriores, evitando gasto de minutos.
+concurrency:
+  group: staging-stack-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validar-stack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout frontend
+        uses: actions/checkout@v4
+        with:
+          path: auto-minas-frontend
+
+      - name: Checkout backend correspondente
+        uses: actions/checkout@v4
+        with:
+          repository: josenetoo-dev/veiculos-api
+          # Snapshot do backend sob revisão. Atualizar após novos commits no PR consolidado do backend.
+          ref: eec049c5f3807f93d7b52f7e3fb91be4e2e8a40d
+          path: veiculos-api
+
+      - name: Configurar Node.js para checagens de contratos
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Testar DTOs, TypeScript e ESLint
+        working-directory: auto-minas-frontend
+        run: |
+          npm install --no-audit --no-fund
+          npm test
+          npm run typecheck
+          npm run lint
+
+      - name: Validar configuração Docker
+        working-directory: auto-minas-frontend
+        run: docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml config --quiet
+
+      - name: Validar configuração HTTPS e senha do Caddy
+        working-directory: auto-minas-frontend
+        run: |
+          HASH="$(docker run --rm caddy:2.10.2-alpine caddy hash-password --plaintext 'senha-exclusiva-ci')"
+          docker run --rm \
+            -e STAGING_DOMAIN=127-0-0-1.sslip.io \
+            -e STAGING_ACCESS_HASH="$HASH" \
+            -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            caddy:2.10.2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+
+      - name: Compilar imagens Java e Next.js
+        working-directory: auto-minas-frontend
+        run: docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml build api frontend
+
+      - name: Iniciar MySQL, API e frontend no runner descartável
+        working-directory: auto-minas-frontend
+        run: docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml up -d database api frontend
+
+      - name: Testes de fumaça integrados (sem AWS, SMTP ou dados reais)
+        working-directory: auto-minas-frontend
+        run: bash deploy/smoke-test.sh
+
+      - name: Instalar navegador de teste (somente CI)
+        working-directory: auto-minas-frontend
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+
+      - name: Validar layouts mobile e tablet no Chromium
+        working-directory: auto-minas-frontend
+        env:
+          STAGING_DEMO_BUYER_PASSWORD: DO_NOT_USE_SAMPLE_IN_PUBLIC
+        run: node deploy/mobile-viewport-test.cjs
+
+      - name: Anexar capturas apenas se houver falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: viewport-screenshots-${{ github.run_id }}
+          path: auto-minas-frontend/mobile-screenshots/*.png
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Diagnóstico ao falhar
+        if: failure()
+        working-directory: auto-minas-frontend
+        run: |
+          docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml ps
+          docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml logs --tail=100 api frontend database
+
+      - name: Encerrar e descartar banco efêmero
+        if: always()
+        working-directory: auto-minas-frontend
+        run: docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml down -v --remove-orphans
