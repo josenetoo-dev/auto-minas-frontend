@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { backendFetch, clientError, sameOrigin } from "@/lib/backend";
 import { createSession } from "@/lib/auth";
+import { safeNextPath } from "@/lib/redirect";
 export async function POST(request:Request) {
  if(!sameOrigin(request))return NextResponse.json({error:"Origem não permitida"},{status:403});
  try {
@@ -10,7 +11,7 @@ export async function POST(request:Request) {
    method:"POST",body:JSON.stringify({email:body.email.trim().toLowerCase(),senha:body.password})
   });
   await createSession(result.token);
-  const next=body.next?.startsWith("/")&&!body.next.startsWith("//")?body.next:"/conta";
+  const next = safeNextPath(body.next, "/conta");
   return NextResponse.json({ok:true,redirect:next});
  }catch(e){return clientError(e);}
 }
