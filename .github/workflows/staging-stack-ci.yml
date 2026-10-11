@@ -30,7 +30,7 @@ jobs:
         with:
           repository: josenetoo-dev/veiculos-api
           # Snapshot do backend sob revisão. Atualizar após novos commits no PR consolidado do backend.
-          ref: e7ae47748587f176f376f4958ac2c55f5ed26994
+          ref: eec049c5f3807f93d7b52f7e3fb91be4e2e8a40d
           path: veiculos-api
 
       - name: Configurar Node.js para checagens de contratos
