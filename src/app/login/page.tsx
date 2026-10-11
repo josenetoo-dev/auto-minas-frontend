@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import AuthForm from "@/components/auth-form";
 import Logo from "@/components/logo";
+import { safeNextPath } from "@/lib/redirect";
 
 export const metadata: Metadata = {
   title: "Entrar",
@@ -13,7 +14,7 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
   const { next, error } = await searchParams;
-  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const safeNext = safeNextPath(next);
 
   return (
     <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-2">
