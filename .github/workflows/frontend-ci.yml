@@ -19,6 +19,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Validar sintaxe dos scripts de deploy
+        run: |
+          bash -n deploy/manage.sh deploy/setup-env.sh deploy/smoke-test.sh
+          bash deploy/manage.sh --help
       - name: Configurar Node
         uses: actions/setup-node@v4
         with:
