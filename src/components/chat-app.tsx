@@ -85,7 +85,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
 
   // Auto-scroll para a última mensagem
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    bottomRef.current?.scrollIntoView({ behavior: "auto", block: "nearest" });
   }, [thread?.messages.length, activeId]);
 
   function openConversation(id: number) {
@@ -141,10 +141,10 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
   const myRole = thread?.conversation.myRole;
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-7xl flex-col sm:px-4 sm:py-4">
-      <div className="card-dark grid flex-1 overflow-hidden md:grid-cols-[330px_1fr]">
+    <div className="mx-auto flex h-[calc(100dvh-4rem)] min-h-[360px] max-w-7xl flex-col sm:h-[min(780px,calc(100dvh-7rem))] sm:min-h-[450px] sm:px-4 sm:py-4">
+      <div className="card-dark grid min-h-0 min-w-0 flex-1 overflow-hidden md:grid-cols-[minmax(245px,310px)_minmax(0,1fr)] lg:grid-cols-[330px_minmax(0,1fr)]">
         {/* Lista de conversas */}
-        <aside className={`${activeId ? "hidden md:flex" : "flex"} flex-col border-r border-[#26262e]`}>
+        <aside className={`${activeId ? "hidden md:flex" : "flex"} min-h-0 min-w-0 flex-col border-r border-[#26262e]`}>
           <div className="border-b border-[#26262e] px-5 py-4">
             <h1 className="font-display text-lg font-bold text-[#f4f3ee]">
               Negociações <span className="gold-text">do Auto Minas</span>
@@ -156,7 +156,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
             </p>
           </div>
 
-          <div className="nice-scroll flex-1 overflow-y-auto">
+          <div className="nice-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain">
             {conversations.length === 0 && (
               <div className="px-5 py-10 text-center">
                 <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[#d4af37]/10">
@@ -213,15 +213,15 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
         </aside>
 
         {/* Janela da conversa */}
-        <section className={`${activeId ? "flex" : "hidden md:flex"} min-w-0 flex-col`}>
+        <section className={`${activeId ? "flex" : "hidden md:flex"} min-h-0 min-w-0 flex-col`}>
           {thread && other ? (
             <>
               {/* Cabeçalho da thread */}
-              <div className="flex items-center gap-3 border-b border-[#26262e] px-4 py-3">
+              <div className="flex min-w-0 items-center gap-2 border-b border-[#26262e] px-3 py-3 sm:gap-3 sm:px-4">
                 <button
                   type="button"
                   onClick={() => setActiveId(null)}
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#26262e] text-[#9b9ba4] hover:text-[#f4f3ee] md:hidden"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-[#26262e] text-[#9b9ba4] hover:text-[#f4f3ee] md:hidden"
                   aria-label="Voltar"
                 >
                   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -259,7 +259,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
               </div>
 
               {/* Mensagens */}
-              <div className="nice-scroll flex-1 space-y-3 overflow-y-auto bg-[#0b0b0e] px-4 py-5">
+              <div className="nice-scroll min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain bg-[#0b0b0e] px-3 py-4 sm:px-4 sm:py-5">
                 {thread.messages.length === 0 && (
                   <div className="py-10 text-center">
                     <p className="text-sm text-[#9b9ba4]">
@@ -271,7 +271,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
                   const mine = m.senderId === meId;
                   return (
                     <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-[78%] sm:max-w-[65%] ${mine ? "items-end" : "items-start"} flex flex-col`}>
+                      <div className={`max-w-[88%] min-w-0 sm:max-w-[70%] lg:max-w-[65%] ${mine ? "items-end" : "items-start"} flex flex-col`}>
                         <div
                           className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                             mine
@@ -297,10 +297,11 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
               </div>
 
               {/* Input */}
-              <form onSubmit={send} className="border-t border-[#26262e] bg-[#0e0e12] p-3">
+              <form onSubmit={send} className="shrink-0 border-t border-[#26262e] bg-[#0e0e12] px-2.5 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] sm:p-3">
                 {sendError && <p className="mb-2 px-1 text-xs text-red-400">{sendError}</p>}
                 <div className="flex items-end gap-2">
                   <textarea
+                    aria-label="Mensagem para negociação"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -311,7 +312,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
                     }}
                     rows={1}
                     placeholder="Escreva sua mensagem…"
-                    className="input-dark max-h-32 min-h-[44px] flex-1 resize-none py-3"
+                    className="input-dark max-h-32 min-h-[44px] min-w-0 flex-1 resize-none py-3"
                   />
                   <button
                     type="submit"

@@ -262,3 +262,21 @@ select.input-dark option {
     radial-gradient(1100px 500px at 20% 10%, rgba(212, 175, 55, 0.12), transparent 60%),
     linear-gradient(180deg, rgba(8, 8, 10, 0.35) 0%, rgba(8, 8, 10, 0.65) 60%, var(--bg) 100%);
 }
+
+/* Mobile touch targets, viewport sizing, keyboard access and motion preferences. */
+html, body { max-width: 100%; }
+body { overflow-x: clip; }
+button, a, select, input, textarea { -webkit-tap-highlight-color: transparent; }
+button, select { touch-action: manipulation; }
+:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
+.input-dark { min-width: 0; }
+@media (max-width: 639px) {
+  .input-dark { font-size: 16px; } /* avoids unwanted iOS Safari zoom */
+  .btn-gold, .btn-outline, .btn-ghost { min-height: 44px; }
+  .card-dark { border-radius: 0.875rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-fade-up, .pulse-gold { animation: none; }
+  .card-dark-hover, .btn-gold, .btn-outline, .btn-ghost { transition: none; transform: none; }
+}

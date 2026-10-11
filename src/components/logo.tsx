@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-export default function Logo({ size = "md" }: { size?: "md" | "lg" }) {
+export default function Logo({ size = "md", compactOnMobile = false }: { size?: "md" | "lg"; compactOnMobile?: boolean }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5 shrink-0" aria-label="Auto Minas — Página inicial">
+    <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2.5" aria-label="Auto Minas — Página inicial">
       <span
         className={`grid place-items-center rounded-xl bg-gradient-to-br from-[#f2d87e] via-[#d4af37] to-[#8a6d1c] shadow-[0_0_20px_rgba(212,175,55,0.35)] ${
           size === "lg" ? "h-11 w-11" : "h-9 w-9"
@@ -22,7 +22,7 @@ export default function Logo({ size = "md" }: { size?: "md" | "lg" }) {
           <path d="M7 8.5h.01M17 8.5h.01" />
         </svg>
       </span>
-      <span className="flex flex-col leading-none">
+      <span className={`${compactOnMobile ? "hidden min-[430px]:flex" : "flex"} min-w-0 flex-col leading-none`}>
         <span
           className={`font-display font-bold tracking-wide gold-text ${
             size === "lg" ? "text-3xl" : "text-xl"

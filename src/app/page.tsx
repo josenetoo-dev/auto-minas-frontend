@@ -22,9 +22,9 @@ export default async function HomePage() {
           style={{ backgroundImage: "linear-gradient(125deg, #08080a 10%, #272014 55%, #08080a 100%)" }}
         />
         <div className="hero-overlay absolute inset-0" />
-        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-4 pb-24 pt-20 text-center sm:px-6 sm:pt-28">
-          <span className="badge-gold animate-fade-up">Marketplace de veículos Auto Minas</span>
-          <h1 className="font-display mt-6 max-w-3xl animate-fade-up text-4xl font-bold leading-tight text-[#f4f3ee] sm:text-6xl">
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-4 pb-16 pt-14 text-center sm:px-6 sm:pb-24 sm:pt-28">
+          <span className="badge-gold max-w-full animate-fade-up px-3 text-center text-[10px] leading-snug sm:text-xs">Marketplace de veículos Auto Minas</span>
+          <h1 className="font-display mt-5 max-w-3xl animate-fade-up text-[clamp(2rem,9vw,3rem)] font-bold leading-tight text-[#f4f3ee] sm:mt-6 sm:text-6xl">
             O seu próximo carro está aqui,{" "}
             <span className="gold-text italic">com estilo</span>
           </h1>
@@ -36,7 +36,7 @@ export default async function HomePage() {
             <SearchBox />
           </div>
 
-          <div className="mt-14 grid w-full max-w-3xl grid-cols-3 gap-4 animate-fade-up">
+          <div className="mt-10 grid w-full max-w-3xl grid-cols-1 gap-2.5 animate-fade-up min-[430px]:grid-cols-3 sm:mt-14 sm:gap-4">
             {[
               { value: cars ? String(total) : "—", label: "Carros à venda" },
               { value: "Humana", label: "Revisão dos anúncios" },
@@ -44,24 +44,24 @@ export default async function HomePage() {
             ].map((s) => (
               <div
                 key={s.label}
-                className="rounded-2xl border border-white/10 bg-black/40 px-4 py-5 backdrop-blur-md"
+                className="min-w-0 rounded-xl border border-white/10 bg-black/40 px-3 py-3 backdrop-blur-md sm:rounded-2xl sm:px-4 sm:py-5"
               >
-                <p className="gold-text font-display text-3xl font-bold">{s.value}</p>
-                <p className="mt-1 text-xs font-medium uppercase tracking-wider text-[#9b9ba4]">
+                <p className="gold-text font-display text-2xl font-bold break-words sm:text-3xl">{s.value}</p>
+                <p className="mt-1 text-[10px] font-medium uppercase tracking-wide text-[#9b9ba4] sm:text-xs sm:tracking-wider">
                   {s.label}
                 </p>
               </div>
             ))}
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4 animate-fade-up">
-            <Link href="/carros" className="btn-gold px-8 py-3.5">
+          <div className="mt-10 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 animate-fade-up sm:mt-12 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <Link href="/carros" className="btn-gold w-full px-5 py-3.5 sm:w-auto sm:px-8">
               Explorar veículos
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
             </Link>
-            <Link href="/vender" className="btn-outline px-8 py-3.5">
+            <Link href="/vender" className="btn-outline w-full px-5 py-3.5 sm:w-auto sm:px-8">
               Vender meu carro
             </Link>
           </div>
@@ -88,12 +88,12 @@ export default async function HomePage() {
 
       {/* DESTAQUES */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
-        <div className="mb-8 flex items-end justify-between">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3 sm:mb-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#d4af37]">
               Seleção especial
             </p>
-            <h2 className="font-display mt-2 text-3xl font-bold text-[#f4f3ee]">
+            <h2 className="font-display mt-2 text-[clamp(1.5rem,6vw,1.875rem)] font-bold text-[#f4f3ee]">
               Destaques <span className="gold-text">da semana</span>
             </h2>
           </div>
@@ -121,7 +121,7 @@ export default async function HomePage() {
             <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#d4af37]">
               Simples assim
             </p>
-            <h2 className="font-display mt-2 text-3xl font-bold text-[#f4f3ee]">
+            <h2 className="font-display mt-2 text-[clamp(1.5rem,6vw,1.875rem)] font-bold text-[#f4f3ee]">
               Como funciona a <span className="gold-text">Auto Minas</span>
             </h2>
           </div>

@@ -64,6 +64,17 @@ export default function Header({ user, unreadCount }: Props) {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
+  useEffect(() => {
+    const dismiss = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        setUserOpen(false);
+      }
+    };
+    document.addEventListener("keydown", dismiss);
+    return () => document.removeEventListener("keydown", dismiss);
+  }, []);
+
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
@@ -74,11 +85,11 @@ export default function Header({ user, unreadCount }: Props) {
     <header className="sticky top-0 z-50 border-b border-[#26262e]/80 bg-[#08080a]/90 backdrop-blur-xl">
       {/* Faixa dourada superior */}
       <div className="h-[3px] bg-gradient-to-r from-[#8a6d1c] via-[#d4af37] to-[#8a6d1c]" />
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-        <Logo />
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-3 sm:px-6 lg:gap-4">
+        <Logo compactOnMobile />
 
         {/* Navegação desktop */}
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-0.5 lg:flex xl:gap-1">
           {NAV.map((item) => {
             if (item.needsAuth && !user) return null;
             const active = isActive(item.href);
@@ -86,7 +97,7 @@ export default function Header({ user, unreadCount }: Props) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
+                className={`relative flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[13px] font-semibold xl:px-3 xl:text-sm transition-all ${
                   active
                     ? "text-[#f2d87e] bg-[#d4af37]/10"
                     : "text-[#9b9ba4] hover:text-[#f4f3ee] hover:bg-white/5"
@@ -108,7 +119,7 @@ export default function Header({ user, unreadCount }: Props) {
           })}
         </nav>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-2.5">
           {user ? (
             <div className="relative" ref={menuRef}>
               <button
@@ -116,7 +127,7 @@ export default function Header({ user, unreadCount }: Props) {
                 className="flex items-center gap-2 rounded-full border border-[#26262e] bg-[#101014] py-1 pl-1 pr-3 transition-colors hover:border-[#d4af37]/60"
               >
                 <Avatar name={user.name} url={user.avatarUrl} />
-                <span className="hidden max-w-32 truncate text-sm font-medium text-[#f4f3ee] sm:block">
+                <span className="hidden max-w-20 truncate text-sm font-medium text-[#f4f3ee] sm:block xl:max-w-32">
                   {user.name.split(" ")[0]}
                 </span>
                 <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-[#9b9ba4]" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -124,7 +135,7 @@ export default function Header({ user, unreadCount }: Props) {
                 </svg>
               </button>
               {userOpen && (
-                <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-[#26262e] bg-[#101014] shadow-2xl shadow-black/60 animate-fade-up">
+                <div className="absolute right-0 z-50 mt-2 w-[min(15rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-[#26262e] bg-[#101014] shadow-2xl shadow-black/60 animate-fade-up">
                   <div className="border-b border-[#26262e] px-4 py-3">
                     <p className="truncate text-sm font-semibold text-[#f4f3ee]">{user.name}</p>
                     <p className="text-[11px] uppercase tracking-wider text-[#d4af37]">Minha conta</p>
@@ -132,10 +143,12 @@ export default function Header({ user, unreadCount }: Props) {
                   <div className="p-1.5">
                     <Link
                       href="/conta"
+                      onClick={() => setUserOpen(false)}
                       className="block rounded-lg px-3 py-2.5 text-sm font-medium text-[#9b9ba4] hover:bg-white/5 hover:text-[#f4f3ee]"
                     >Minha conta e verificações</Link>
                     <Link
                       href="/meus-anuncios"
+                      onClick={() => setUserOpen(false)}
                       className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                         isActive("/meus-anuncios") ? "bg-[#d4af37]/10 text-[#f2d87e]" : "text-[#9b9ba4] hover:bg-white/5 hover:text-[#f4f3ee]"
                       }`}
@@ -147,6 +160,7 @@ export default function Header({ user, unreadCount }: Props) {
                     </Link>
                     <Link
                       href="/vender"
+                      onClick={() => setUserOpen(false)}
                       className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-[#9b9ba4] transition-colors hover:bg-white/5 hover:text-[#f4f3ee]"
                     >
                       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -183,8 +197,11 @@ export default function Header({ user, unreadCount }: Props) {
           {/* Hamburguer mobile */}
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            className="grid h-9 w-9 place-items-center rounded-lg border border-[#26262e] text-[#f4f3ee] md:hidden"
-            aria-label="Abrir menu"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-[#26262e] text-[#f4f3ee] lg:hidden"
+            aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={menuOpen}
+            aria-controls="auto-minas-mobile-menu"
+            type="button"
           >
             {menuOpen ? (
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -201,7 +218,7 @@ export default function Header({ user, unreadCount }: Props) {
 
       {/* Menu mobile */}
       {menuOpen && (
-        <nav className="border-t border-[#26262e] bg-[#0c0c10] px-4 py-3 md:hidden animate-fade-up">
+        <nav id="auto-minas-mobile-menu" aria-label="Navegação para celular" className="nice-scroll max-h-[min(70dvh,540px)] overflow-y-auto border-t border-[#26262e] bg-[#0c0c10] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 lg:hidden animate-fade-up">
           <div className="flex flex-col gap-1">
             {NAV.map((item) => {
               if (item.needsAuth && !user) return null;
@@ -211,7 +228,7 @@ export default function Header({ user, unreadCount }: Props) {
                   key={item.href}
                   href={item.href}
                   onClick={() => { setMenuOpen(false); setUserOpen(false); }}
-                  className={`flex items-center justify-between rounded-lg px-4 py-2.5 text-sm font-semibold ${
+                  className={`flex items-center justify-between rounded-lg px-4 py-3 text-sm font-semibold ${
                     active ? "bg-[#d4af37]/10 text-[#f2d87e]" : "text-[#9b9ba4]"
                   }`}
                 >
@@ -230,7 +247,7 @@ export default function Header({ user, unreadCount }: Props) {
             {user && (
               <Link
                 href="/meus-anuncios"
-                className={`rounded-lg px-4 py-2.5 text-sm font-semibold ${
+                className={`rounded-lg px-4 py-3 text-sm font-semibold ${
                   isActive("/meus-anuncios") ? "bg-[#d4af37]/10 text-[#f2d87e]" : "text-[#9b9ba4]"
                 }`}
               >
@@ -240,7 +257,7 @@ export default function Header({ user, unreadCount }: Props) {
             {user && (
               <button
                 onClick={logout}
-                className="rounded-lg px-4 py-2.5 text-left text-sm font-semibold text-red-400"
+                className="rounded-lg px-4 py-3 text-left text-sm font-semibold text-red-400"
               >
                 Sair
               </button>

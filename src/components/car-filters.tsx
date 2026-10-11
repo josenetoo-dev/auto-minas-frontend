@@ -87,20 +87,20 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
           </svg>
           <input
             type="text"
-            value={state.q}
+            value={typing ?? state.q}
             onChange={(e) => setTyping(e.target.value)}
             placeholder="Buscar marca, modelo ou versão…"
-            className="input-dark pl-10"
+            className="input-dark min-h-11 pl-10"
           />
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:flex-nowrap sm:gap-3">
           <label className="hidden text-xs font-semibold uppercase tracking-wider text-[#9b9ba4] sm:block">
             Ordenar
           </label>
           <select
             value={state.sort}
             onChange={(e) => apply({ sort: e.target.value })}
-            className="input-dark w-full sm:w-56"
+            className="input-dark min-h-11 w-full sm:w-48 lg:w-56"
           >
             <option value="recentes">Mais recentes</option>
             <option value="menor-preco">Menor preço</option>
@@ -110,7 +110,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="btn-outline relative px-4 py-2.5 text-sm"
+            className="btn-outline relative shrink-0 px-3 py-2.5 text-sm sm:px-4"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 6h16M7 12h10M10 18h4" />
@@ -126,7 +126,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
       </div>
 
       {/* Chips de preço rápido */}
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="nice-scroll -mx-4 mt-4 flex snap-x gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
         {PRICE_RANGES.map((r) => {
           const active = state.minPrice === r.min && state.maxPrice === r.max;
           return (
@@ -134,20 +134,20 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
               key={r.label}
               type="button"
               onClick={() => setPriceRange(r.min, r.max)}
-              className={`chip ${active ? "chip-active" : ""}`}
+              className={`chip shrink-0 snap-start ${active ? "chip-active" : ""}`}
             >
               {r.label}
             </button>
           );
         })}
-        <button type="button" onClick={() => apply({ minPrice: "", maxPrice: "" })} className="chip">
+        <button type="button" onClick={() => apply({ minPrice: "", maxPrice: "" })} className="chip shrink-0 snap-start">
           Qualquer preço
         </button>
       </div>
 
       {/* Painel expandível */}
       {open && (
-        <div className="mt-4 grid gap-4 border-t border-[#26262e] pt-4 animate-fade-up sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid min-w-0 gap-4 border-t border-[#26262e] pt-4 animate-fade-up sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <label className="label-dark">Marca</label>
             <select
@@ -218,14 +218,14 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
           </div>
           <div className="sm:col-span-2 lg:col-span-4">
             <label className="label-dark">Preço (R$)</label>
-            <div className="flex gap-3">
+            <div className="flex min-w-0 flex-wrap gap-2 sm:flex-nowrap sm:gap-3">
               <input
                 type="number"
                 min="0"
                 placeholder="Mínimo"
                 value={state.minPrice}
                 onChange={(e) => apply({ minPrice: e.target.value })}
-                className="input-dark"
+                className="input-dark min-w-[110px] flex-1"
               />
               <input
                 type="number"
@@ -233,7 +233,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
                 placeholder="Máximo"
                 value={state.maxPrice}
                 onChange={(e) => apply({ maxPrice: e.target.value })}
-                className="input-dark"
+                className="input-dark min-w-[110px] flex-1"
               />
               <button
                 type="button"
@@ -247,7 +247,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
         </div>
       )}
 
-      <div className="mt-4 flex items-center justify-between border-t border-[#26262e] pt-3.5">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#26262e] pt-3.5">
         <p className="text-sm text-[#9b9ba4]">
           <span className="font-bold text-[#f2d87e]">{total}</span> veículo{total === 1 ? "" : "s"} encontrado{total === 1 ? "" : "s"}
         </p>

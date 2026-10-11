@@ -2,9 +2,9 @@ name: Homologação Docker (sem deploy externo)
 
 on:
   push:
-    branches: [deploy/staging-stack, feature/fase-7-anuncios-localizacao-status]
+    branches: [deploy/staging-stack, feature/fase-7-anuncios-localizacao-status, ui/responsividade-mobile]
   pull_request:
-    branches: [integracao/frontend-spring, deploy/staging-stack]
+    branches: [integracao/frontend-spring, deploy/staging-stack, feature/fase-7-anuncios-localizacao-status]
   workflow_dispatch:
 
 # Commits sucessivos cancelam builds anteriores, evitando gasto de minutos.
@@ -70,6 +70,27 @@ jobs:
       - name: Testes de fumaça integrados (sem AWS, SMTP ou dados reais)
         working-directory: auto-minas-frontend
         run: bash deploy/smoke-test.sh
+
+      - name: Instalar navegador de teste (somente CI)
+        working-directory: auto-minas-frontend
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+
+      - name: Validar layouts mobile e tablet no Chromium
+        working-directory: auto-minas-frontend
+        env:
+          STAGING_DEMO_BUYER_PASSWORD: DO_NOT_USE_SAMPLE_IN_PUBLIC
+        run: node deploy/mobile-viewport-test.cjs
+
+      - name: Anexar capturas apenas se houver falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: viewport-screenshots-${{ github.run_id }}
+          path: auto-minas-frontend/mobile-screenshots/*.png
+          if-no-files-found: ignore
+          retention-days: 3
 
       - name: Diagnóstico ao falhar
         if: failure()
