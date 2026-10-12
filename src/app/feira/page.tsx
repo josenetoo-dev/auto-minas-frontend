@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -39,6 +40,32 @@ export default function FeiraPage() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/carros" className="btn-gold">Começar pela vitrine</Link>
             <Link href="/login" className="btn-outline">Entrar com conta de testes</Link>
+          </div>
+        </div>
+      </section>
+      <section aria-labelledby="banner-feira" className="mx-auto max-w-6xl px-4 pt-10 sm:px-6">
+        <div className="grid items-center gap-8 rounded-2xl border border-[#26262e] bg-[#101014] p-5 sm:p-8 lg:grid-cols-[minmax(0,380px)_1fr]">
+          <figure className="mx-auto w-full max-w-[380px] overflow-hidden rounded-xl border border-[#d4af37]/25 bg-black">
+            <Image
+              src="/banners/auto-minas-feira-vertical.webp"
+              alt="Arte de apresentação Auto Minas com carro amarelo, garagem escura e chamada aproxime o celular"
+              width={800}
+              height={1423}
+              sizes="(max-width: 640px) 90vw, 380px"
+              className="h-auto w-full"
+            />
+          </figure>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#d4af37]">Material da feira</p>
+            <h2 id="banner-feira" className="font-display mt-3 text-2xl font-bold text-[#f4f3ee] sm:text-3xl">Da apresentação para a experiência</h2>
+            <p className="mt-4 text-sm leading-relaxed text-[#b9b9c0]">
+              Esta é a arte do nosso estande. Explore o marketplace, use uma conta fictícia e acompanhe a demonstração das etapas de segurança e negociação.
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-[#9b9ba4]">
+              Os ícones de consulta de CPF/veículo na arte representam objetivos do projeto:
+              consultas oficiais automáticas ainda não foram integradas. A chamada NFC refere-se à interação física com o material da feira.
+            </p>
+            <Link href="/carros" className="btn-gold mt-6">Conhecer os veículos</Link>
           </div>
         </div>
       </section>
