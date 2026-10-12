@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { publicCars } from "@/lib/car";
 import CarCard from "@/components/car-card";
 import { BRANDS } from "@/lib/constants";
@@ -66,6 +67,23 @@ export default async function HomePage() {
             </Link>
           </div>
         </div>
+      </section>
+
+      {/* BANNER INSTITUCIONAL — arte aprovada para a apresentação */}
+      <section aria-label="Apresentação visual do Auto Minas" className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 sm:pt-16">
+        <figure className="overflow-hidden rounded-2xl border border-[#d4af37]/25 bg-[#0e0e12] shadow-[0_16px_60px_-30px_rgba(212,175,55,0.2)]">
+          <Image
+            src="/banners/auto-minas-home-horizontal.webp"
+            alt="Banner Auto Minas em preto e dourado com veículo em uma garagem e ilustração do foco em segurança"
+            width={1200}
+            height={675}
+            sizes="(max-width: 768px) 100vw, 1200px"
+            className="h-auto w-full object-contain"
+          />
+          <figcaption className="border-t border-[#26262e] px-4 py-3 text-xs leading-relaxed text-[#9b9ba4] sm:px-6">
+            Arte institucional do projeto. A análise documental é humana; consultas oficiais automáticas a bases de veículos e CPF ainda não estão disponíveis.
+          </figcaption>
+        </figure>
       </section>
 
       {/* MARCAS */}
