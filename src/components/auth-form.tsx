@@ -44,7 +44,7 @@ export default function AuthForm({
           body: JSON.stringify(
             mode === "login"
               ? { email, password, next }
-              : { name, email, phone, password },
+              : { name, email, phone, password, next },
           ),
         },
       );
