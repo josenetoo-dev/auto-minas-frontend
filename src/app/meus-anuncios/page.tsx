@@ -20,7 +20,7 @@ export default async function MyAds(){
    <p className="mt-2 text-xs text-[#9b9ba4]">{statusText[c.status]||c.status} · Criado em {formatDate(c.createdAt)}</p>
    <p className="mt-1 text-xs text-[#9b9ba4]">Localização do veículo: {c.city && c.state ? `${c.city}/${c.state}` : "Não informada"}</p>
    {c.rejectionReason&&<p className="my-2 rounded border border-amber-500/40 bg-amber-950/20 p-3 text-sm text-amber-200">Motivo da rejeição: {c.rejectionReason}</p>}
-   {salesByAd.get(c.id)&&<p className="mt-2 rounded-lg border border-[#d4af37]/20 bg-[#d4af37]/[.05] p-3 text-xs leading-5 text-[#d6d6dc]">Venda declarada: {formatPrice(salesByAd.get(c.id)!.valorFinal)} · comissão {salesByAd.get(c.id)!.comissaoPercentual.toLocaleString("pt-BR",{minimumFractionDigits:2})}% ({formatPrice(salesByAd.get(c.id)!.comissaoCalculada)}) · pendente de conferência e cobrança externa.</p>}
+   {salesByAd.get(c.id)&&<p className="mt-2 rounded-lg border border-[#d4af37]/20 bg-[#d4af37]/[.05] p-3 text-xs leading-5 text-[#d6d6dc]">Venda declarada: {formatPrice(salesByAd.get(c.id)!.valorFinal)}</p>}
    {c.vehicleId&&<Link href={`/verificacoes?veiculo=${c.vehicleId}`} className="mt-2 inline-block text-sm text-[#f2d87e] underline">Enviar/verificar documentos do veículo</Link>}
    </div><div className="min-w-0 w-full border-t border-[#26262e] pt-3 sm:w-auto sm:shrink-0 sm:border-0 sm:pt-0"><CarOwnerActions carId={c.id} status={c.status}/></div>
   </article>)}

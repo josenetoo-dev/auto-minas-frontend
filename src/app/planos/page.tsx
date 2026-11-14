@@ -4,7 +4,7 @@ import { commercialPlans } from "@/lib/commercial";
 import PlanCard from "@/components/plan-card";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Planos para anunciar", description: "Planos mensais Auto Minas e comissões por venda declarada." };
+export const metadata: Metadata = { title: "Planos para anunciar", description: "Planos mensais Auto Minas." };
 
 export default async function PlanosPage() {
   const plans = await commercialPlans().catch(() => null);

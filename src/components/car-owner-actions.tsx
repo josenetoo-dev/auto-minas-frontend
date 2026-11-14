@@ -8,7 +8,7 @@ export default function CarOwnerActions({carId,status}:{carId:number;status:stri
  async function transition(target:"pausado"|"pendente"|"vendido"){
   let salePayload:{valorFinal:number;dataVenda:string}|null=null;
   if(target==="vendido"){
-   const amount=window.prompt("Informe o valor final da negociação (R$). A cobrança da comissão será externa e não ocorre nesta tela.");
+   const amount=window.prompt("Informe o valor final da negociação (R$).");
    if(amount===null)return;
    const normalized=amount.trim().replace(/^R\$\s*/i,"").replace(/\s/g,"");
    const value=Number(normalized.includes(",")?normalized.replace(/\./g,"").replace(",","."):normalized);

@@ -36,7 +36,7 @@ export default function SellerPlanFlow({ plan, contract }: Props) {
     </section>
     <aside className="card-dark h-fit space-y-5 p-5 sm:p-6 lg:sticky lg:top-24">
       <div><p className="text-xs font-semibold uppercase tracking-wider text-[#9999a2]">Plano selecionado</p><h2 className="font-display mt-2 text-2xl font-bold text-[#f4f3ee]">{plan.nome}</h2></div>
-      <div className="border-y border-white/[.08] py-4"><p className="font-display text-3xl font-bold">R$ {Number(plan.mensalidade).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}<span className="ml-1 text-sm font-medium text-[#92929d]">/ mês</span></p><p className="mt-2 text-sm text-[#b9b9c1]">Comissão: {Number(plan.comissaoPercentual).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}%</p></div>
+      <div className="border-y border-white/[.08] py-4"><p className="font-display text-3xl font-bold">R$ {Number(plan.mensalidade).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}<span className="ml-1 text-sm font-medium text-[#92929d]">/ mês</span></p></div>
       <p className="text-sm leading-6 text-[#a9a9b2]">A mensalidade será cobrada externamente quando o processo estiver disponível. Pagamento ainda não habilitado.</p>
       <button type="button" onClick={registerIntent} disabled={busy || !!intent || !accepted} className="btn-gold min-h-12 w-full">{intent ? "Intenção registrada" : busy ? "Registrando…" : accepted ? "Registrar intenção demonstrativa" : "Confirme a etapa demonstrativa acima"}</button>
       {intent && <div role="status" className="rounded-xl border border-amber-500/25 bg-amber-950/15 p-4 text-sm leading-6 text-amber-100">Intenção registrada ({intent.status}). A assinatura permanece não paga e inativa; nenhum cartão ou pagamento foi processado.</div>}
