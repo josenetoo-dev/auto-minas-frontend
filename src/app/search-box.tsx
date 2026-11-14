@@ -17,7 +17,7 @@ export default function SearchBox() {
     router.push(`/carros?${params.toString()}`);
   }
   return <form onSubmit={submit} className="market-search">
-    <div className="mb-5 flex gap-6 border-b border-[#d0c6b2]">{[["CARRO", "Carros"], ["MOTO", "Motos"]].map(([value, label]) => <button key={value} type="button" onClick={() => setTipo(value)} aria-pressed={tipo === value} className={`min-h-11 border-b-2 pb-3 text-sm font-semibold ${tipo === value ? "border-[#76602e] text-[#27251f]" : "border-transparent text-[#827967]"}`}>{label}</button>)}</div>
+    <div className="mb-5 flex gap-6 border-b border-[#d0c6b2]">{[["CARRO", "Carros"], ["MOTO", "Motos"]].map(([value, label]) => <button key={value} type="button" onClick={() => setTipo(value)} aria-pressed={tipo === value} className={`min-h-11 border-b-2 pb-3 text-sm font-semibold ${tipo === value ? "border-[#76602e] text-[#27251f]" : "border-transparent text-[#645a48]"}`}>{label}</button>)}</div>
     <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,.7fr)_70px]">
       <label className="market-search-label">O que você procura?<input value={q} onChange={event => setQ(event.target.value)} placeholder="Marca, modelo ou versão" className="market-search-input" /></label>
       <label className="market-search-label">Onde?<input value={city} onChange={event => setCity(event.target.value)} placeholder="Sua cidade" className="market-search-input" /></label>

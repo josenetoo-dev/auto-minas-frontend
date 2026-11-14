@@ -13,7 +13,7 @@ export default async function Account() {
       <header><p className="market-eyebrow">Seu espaço no Auto Minas</p><h1 className="market-title mt-5">Olá, <em>{firstName}.</em></h1><p className="mt-5 text-sm text-[#aaa69e]">Sua próxima negociação começa aqui.</p></header>
       <div className="mt-10 grid items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         <section className="market-paper-card">
-          <p className="text-[11px] uppercase tracking-[.2em] text-[#746650]">Seu próximo passo</p>
+          <p className="text-[11px] uppercase tracking-[.2em] text-[#63553e]">Seu próximo passo</p>
           <h2 className="mt-5 font-display text-3xl text-[#29251e]">Um novo destino para o seu carro.</h2>
           <p className="mt-4 max-w-sm text-sm leading-7 text-[#675f51]">Escolha entre um anúncio avulso e uma assinatura para seu negócio. Prepare os dados, envie para análise e acompanhe tudo por aqui.</p>
           <Link href="/planos" className="mt-8 flex min-h-12 items-center justify-between border-t border-[#c8bda6] pt-5 text-sm font-semibold text-[#30291e]">Escolher como anunciar <span aria-hidden="true">↗</span></Link>

@@ -12,11 +12,11 @@ export default async function PlanosPage() {
     <header className="max-w-3xl"><p className="market-eyebrow">Uma escolha para o seu momento</p><h1 className="market-title mt-5">Você quer vender um carro<br /><em>ou movimentar seu estoque?</em></h1><p className="mt-6 max-w-xl text-sm leading-7 text-[#aaa69e]">Escolha a modalidade de anúncio. A negociação do veículo acontece diretamente entre comprador e vendedor, sem comissão sobre a venda.</p></header>
     <div className="mt-12 grid gap-6 lg:grid-cols-2">
       <section id="avulso" className="market-paper-card scroll-mt-28">
-        <p className="text-[11px] font-semibold uppercase tracking-[.2em] text-[#746650]">Pessoa física · Venda ocasional</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[.2em] text-[#63553e]">Pessoa física · Venda ocasional</p>
         <h2 className="mt-5 font-display text-4xl text-[#28251d]">Anúncio avulso</h2>
         <p className="mt-4 max-w-sm text-sm leading-7 text-[#675f51]">Para quem quer vender um veículo e seguir em frente.</p>
         <ul className="mt-7 space-y-4 border-y border-[#cbbfa7] py-6 text-sm text-[#4d4537]"><li>Um veículo por contratação</li><li>Pagamento único, sem renovação automática</li><li>Chat e propostas em um só lugar</li><li>Revisão do anúncio antes da publicação</li></ul>
-        <p className="mt-6 text-xs leading-6 text-[#716551]">Modalidade em preparação. Preço e prazo de exposição serão informados antes da contratação. Você já pode preparar seu anúncio para análise.</p>
+        <p className="mt-6 text-xs leading-6 text-[#63553e]">Modalidade em preparação. Preço e prazo de exposição serão informados antes da contratação. Você já pode preparar seu anúncio para análise.</p>
         <Link href="/vender?modalidade=avulso" className="mt-7 flex min-h-12 items-center justify-between rounded-lg bg-[#282820] px-5 text-sm font-semibold text-[#f1e7d1] hover:bg-[#414035]">Preparar meu anúncio <span aria-hidden="true">↗</span></Link>
       </section>
       <section className="market-business-card">

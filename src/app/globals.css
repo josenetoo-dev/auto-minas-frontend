@@ -289,7 +289,7 @@ button, select { touch-action: manipulation; }
 .market-heading { font-family: Georgia, serif; font-size: clamp(1.8rem,3vw,2.65rem); line-height: 1.2; font-weight: 400; letter-spacing: -.025em; color: #eee5d3; }
 .market-eyebrow { font-size: .65rem; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: #bca675; }
 .market-search { padding: 1.5rem; background: #eee6d4; color: #302b23; border: 1px solid #faf1dc; border-radius: 1rem; box-shadow: 0 16px 50px -28px #000,0 4px 0 #bbae92; }
-.market-search-label { display: block; min-width: 0; font-size: .65rem; font-weight: 600; color: #766c5c; }
+.market-search-label { display: block; min-width: 0; font-size: .65rem; font-weight: 600; color: #645a48; }
 .market-search-input { display: block; width: 100%; min-width: 0; padding: .7rem 0 .5rem; background: transparent; color: #302b23; font-size: .85rem; font-weight: 400; border-bottom: 1px solid #c6bba6; outline-offset: 4px; }
 .market-search-input::placeholder { color: #635a4b; }
 .market-brand { display: inline-flex; min-height: 40px; align-items: center; padding: .4rem .8rem; border: 1px solid #2a2a28; border-radius: 6px; color: #c5c0b5; font-size: .75rem; transition: border-color .2s; }

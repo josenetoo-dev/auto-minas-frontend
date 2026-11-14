@@ -114,7 +114,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
     const tempId = -Date.now();
     const temp: ChatMessageDTO = { id: tempId, senderId: meId, content: selectedFile ? `Imagem: ${selectedFile.name}` : content, createdAt: new Date().toISOString(), readAt: null };
     setThread((prev) => (prev ? { ...prev, messages: [...prev.messages, temp] } : prev));
-    setInput("");
+    if (!selectedFile) setInput("");
     try {
       let res:Response;
       if(selectedFile){const form=new FormData();form.set("file",selectedFile);res=await fetch(`/api/conversations/${activeId}/attachments`,{method:"POST",body:form});}
@@ -318,13 +318,13 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
                 <div ref={bottomRef} />
               </div>
 
-              {selectedFile && <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-2 text-xs text-[#c5c2b9]"><span className="truncate">Imagem selecionada: {selectedFile.name}</span><button type="button" onClick={()=>setSelectedFile(null)} className="min-h-11 shrink-0 underline">Remover imagem</button></div>}
+              {selectedFile && <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-2 text-xs text-[#c5c2b9]"><span className="truncate">Imagem selecionada: {selectedFile.name}. O texto será enviado separadamente.</span><button type="button" onClick={()=>setSelectedFile(null)} className="min-h-11 shrink-0 underline">Remover imagem</button></div>}
               {/* Input */}
               <form onSubmit={send} className="shrink-0 border-t border-[#26262e] bg-[#0e0e12] px-2.5 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] sm:p-3">
                 {sendError && <p role="alert" className="mb-2 px-1 text-xs text-red-300">{sendError}</p>}
                 <div className="flex items-end gap-2">
                   <label className="grid h-11 w-11 shrink-0 cursor-pointer focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#f2d87e] place-items-center rounded-xl border border-[#26262e] text-[#d4af37] hover:border-[#d4af37]/60" aria-label="Anexar imagem">
-                    <input type="file" aria-label="Selecionar imagem para enviar" accept="image/jpeg,image/png" className="sr-only" onChange={event=>{const file=event.target.files?.[0];if(!file)return;if(!["image/jpeg","image/png"].includes(file.type)){setSendError("Escolha uma imagem JPEG ou PNG.");return;}if(file.size>4*1024*1024){setSendError("A imagem deve ter no máximo 4 MiB.");return;}setSelectedFile(file);setSendError("");event.target.value="";}} />
+                    <input type="file" aria-label="Selecionar imagem para enviar" accept="image/jpeg,image/png" className="sr-only" onChange={event=>{const file=event.target.files?.[0];if(!file)return;if(!["image/jpeg","image/png"].includes(file.type)){setSelectedFile(null);setSendError("Escolha uma imagem JPEG ou PNG.");return;}if(file.size>4*1024*1024){setSelectedFile(null);setSendError("A imagem deve ter no máximo 4 MiB.");return;}setSelectedFile(file);setSendError("");event.target.value="";}} />
                     <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
                   </label>
                   <textarea

@@ -63,6 +63,16 @@ async function main() {
       const page = await context.newPage();
       console.log("Validando responsividade: " + width + "px");
       await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
+      if (width === 390) {
+        await page.keyboard.press("Tab");
+        expect(await page.evaluate(() => document.activeElement?.getAttribute("href")) === "#conteudo-principal", "O primeiro Tab deve oferecer salto ao conteúdo");
+        await page.keyboard.press("Enter");
+        expect(await page.evaluate(() => document.activeElement?.id) === "conteudo-principal", "O salto deve mover o foco para o conteúdo");
+        await page.getByRole("button", { name: "Personalizar", exact:true }).click();
+        await page.getByRole("dialog", { name:"Preferências de cookies" }).waitFor();
+        await page.keyboard.press("Escape");
+        await page.getByRole("dialog", { name:"Preferências de cookies" }).waitFor({state:"hidden"});
+      }
       await page.getByRole("button", { name: "Somente necessários", exact:true }).click();
       await inspect(page, "inicio", width);
       if (width <= 768) {
@@ -119,6 +129,14 @@ async function main() {
           await composer.waitFor({ state: "visible", timeout: 10000 });
           expect(await composer.isVisible(), "Compositor do chat inacessível no celular");
           await inspect(page, "conversa", width);
+        }
+      }
+      if (width === 1280) {
+        for (const path of ["/privacidade","/termos","/cookies","/reembolsos","/legal"]) {
+          await page.goto(BASE + path);
+          await page.getByRole("heading", {level:1}).waitFor();
+          const report=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa","wcag22aa"]).analyze();
+          expect(report.violations.length===0,"Acessibilidade "+path+": "+JSON.stringify(report.violations.map(item=>({id:item.id,nodes:item.nodes.map(node=>node.target)}))));
         }
       }
       await context.close();
