@@ -95,6 +95,24 @@ try {
   expectCode(message,200,"Mensagem vinculada à proposta");
   if(!message.json?.ok)throw new Error("Mensagem não foi confirmada");
 
+  const attachmentForm=new FormData();
+  attachmentForm.set("file",new Blob([Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGO8st6cARtgwio6aCUAXZAByo07EaIAAAAASUVORK5CYII=","base64")],{type:"image/png"}),"teste.png");
+  const imageResponse=await fetch(base+"/api/conversations/"+proposal.json.id+"/attachments",{method:"POST",headers:{Origin:base,Cookie:buyer},body:attachmentForm});
+  if(imageResponse.status!==200)throw new Error("Envio de imagem privada falhou com HTTP "+imageResponse.status);
+  const imageResult=await imageResponse.json();
+  const download=await request(imageResult.message.attachment.url,{cookie:buyer});
+  expectCode(download,200,"Participante pode baixar imagem privada");
+  const outsiderDownload=await request(imageResult.message.attachment.url,{cookie:admin});
+  expectCode(outsiderDownload,403,"Não participante não pode baixar imagem privada");
+  const privacy=await request("/api/privacy/requests",{method:"POST",cookie:buyer});
+  expectCode(privacy,202,"Registrar pedido de exclusão");
+  const repeatedPrivacy=await request("/api/privacy/requests",{method:"POST",cookie:buyer});
+  expectCode(repeatedPrivacy,202,"Repetir pedido pendente");
+  if(repeatedPrivacy.json.id!==privacy.json.id)throw new Error("Pedido repetido não foi idempotente");
+  const otherPrivacy=await request("/api/privacy/requests",{cookie:seller});
+  expectCode(otherPrivacy,200,"Consultar privacidade de outra conta");
+  if(otherPrivacy.json.content.some(item=>item.id===privacy.json.id))throw new Error("Vazamento de protocolo privado");
+
   const conversations=await request("/api/conversations",{cookie:buyer});
   expectCode(conversations,200,"Histórico de propostas");
   if(!Array.isArray(conversations.json?.conversations) ||

@@ -62,7 +62,7 @@ test("signup logs in the newly registered account and establishes its session", 
   const response = await POST(new Request("http://localhost/api/auth/signup", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ name: "Teste", email: "teste@example.com", phone: "31999999999", password: "senhaTeste123" }),
+    body: JSON.stringify({ name: "Teste", email: "teste@example.com", phone: "31999999999", password: "senhaTeste123", termsAccepted: true, next: "/vender" }),
   }));
   const body = await response.json();
 
@@ -73,7 +73,7 @@ test("signup logs in the newly registered account and establishes its session", 
     value: "issued-jwt",
     options: { httpOnly: true, sameSite: "lax", secure: false, path: "/", maxAge: 1800 },
   });
-  assert.equal(body.redirect, "/conta");
+  assert.equal(body.redirect, "/");
 });
 
 test("email confirmation replaces the revoked JWT without logging the user out", () => {

@@ -27,11 +27,11 @@ export default function CarCard({ car }: { car: CarCardData }) {
   return (
     <Link
       href={`/carros/${car.id}`}
-      className={`card-dark card-dark-hover group flex flex-col overflow-hidden ${
+      className={`vehicle-card card-dark card-dark-hover group flex flex-col overflow-hidden ${
         sold ? "opacity-70" : ""
       }`}
     >
-      <div className="relative aspect-[16/10] overflow-hidden bg-[#16161c]">
+      <div className="vehicle-card-media relative aspect-[16/10] overflow-hidden bg-[#16161c]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={image}
@@ -67,7 +67,7 @@ export default function CarCard({ car }: { car: CarCardData }) {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-1.5 p-4">
+      <div className="vehicle-card-info flex flex-1 flex-col gap-1.5 p-4">
         <h3 className="font-display text-lg font-bold leading-snug text-[#f4f3ee]">
           {car.brand} {car.model}{" "}
           <span className="font-sans text-sm font-medium text-[#9b9ba4]">{car.year}</span>
@@ -76,7 +76,7 @@ export default function CarCard({ car }: { car: CarCardData }) {
           <p className="truncate text-xs text-[#9b9ba4]">{car.version}</p>
         )}
         <p className="gold-text font-display text-xl font-bold">{formatPrice(car.price)}</p>
-        <div className="mt-auto flex items-center justify-between pt-2 text-xs text-[#9b9ba4]">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-[#9b9ba4]">
           <span className="flex items-center gap-1.5">
             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-[#d4af37]/80" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="9" />

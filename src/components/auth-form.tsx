@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { safeNextPath } from "@/lib/redirect";
 
 type Mode = "login" | "register";
@@ -20,6 +21,7 @@ export default function AuthForm({
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const pageError =
@@ -44,7 +46,7 @@ export default function AuthForm({
           body: JSON.stringify(
             mode === "login"
               ? { email, password, next }
-              : { name, email, phone, password, next },
+              : { name, email, phone, password, next, termsAccepted },
           ),
         },
       );
@@ -54,6 +56,7 @@ export default function AuthForm({
         return;
       }
       const redirect = safeNextPath(data.redirect, "/conta");
+      if (mode === "register") { window.location.assign("/"); return; }
       router.push(redirect);
       router.refresh();
     } catch {
@@ -101,7 +104,7 @@ export default function AuthForm({
             : "Cadastre-se para vender seu carro e conversar com vendedores."}
         </p>
 
-        <p className="my-5 text-sm text-[#9b9ba4]">Autenticação segura pela API do Auto Minas. Novas contas precisam confirmar o e-mail.</p>
+        <p className="my-5 text-sm text-[#9b9ba4]">Ao criar sua conta, você já entra no Auto Minas. A confirmação de e-mail libera as etapas de publicação.</p>
 
         {(pageError || formError) && (
           <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
@@ -151,6 +154,7 @@ export default function AuthForm({
               minLength={8}
             />
           </div>
+          {mode === "register" && <div className="space-y-3"><p className="text-xs leading-6 text-[#b7b3a9]">Nome, e-mail e telefone são usados para sua conta e contato nas negociações. Não envie documentos neste formulário.</p><label className="flex items-start gap-3 text-sm leading-6"><input type="checkbox" required checked={termsAccepted} onChange={event => setTermsAccepted(event.target.checked)} className="mt-1 h-5 w-5 shrink-0 accent-[#d4af37]" /><span>Li e concordo com os <Link href="/termos" target="_blank" rel="noopener" className="underline">Termos de uso</Link> e tomei conhecimento do <Link href="/privacidade" target="_blank" rel="noopener" className="underline">Aviso de privacidade</Link>.</span></label><p className="text-xs text-[#b7b3a9]">Cookies opcionais são uma escolha separada.</p></div>}
           <button type="submit" className="btn-gold w-full" disabled={loading}>
             {loading ? (
               <span className="flex items-center gap-2">
@@ -160,12 +164,12 @@ export default function AuthForm({
             ) : mode === "login" ? (
               "Entrar na minha conta"
             ) : (
-              "Criar conta e vender meu carro"
+              "Criar conta e entrar"
             )}
           </button>
         </form>
 
-        <p className="mt-5 text-center text-xs text-[#5c5c66]">
+        <p className="mt-5 text-center text-xs text-[#a5a5ad]">
           {mode === "login" ? "Ainda não tem conta? " : "Já tem conta? "}
           <button
             type="button"

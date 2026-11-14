@@ -6,7 +6,7 @@ import { BRANDS, FUEL_OPTIONS, TRANSMISSION_OPTIONS } from "@/lib/constants";
 export type SellFormData={brand:string;model:string;version:string;year:string;price:string;mileageKm:string;fuel:string;transmission:string;color:string;city:string;state:string;description:string;category:string;secondHand:boolean;documentation:string;warranty:string;inspectionReport:string;images:string[];imageIds?:number[]};
 const EMPTY:SellFormData={brand:"",model:"",version:"",year:String(new Date().getFullYear()),price:"",mileageKm:"",fuel:"",transmission:"",color:"",city:"",state:"MG",description:"",category:"SEMINOVOS",secondHand:true,documentation:"A verificar",warranty:"Não informada",inspectionReport:"",images:[]};
 const UF_LIST=["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"] as const;
-const MAX_FILE=5*1024*1024;
+const MAX_FILE=4*1024*1024;
 export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carId?:number;initial?:Partial<SellFormData>}) {
  const router=useRouter();
  const [data,setData]=useState<SellFormData>({...EMPTY,...initial});
@@ -22,7 +22,7 @@ export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carI
   if(!selected)return;
   const next=Array.from(selected);
   if(next.some(f=>!["image/jpeg","image/png"].includes(f.type)||f.size<=0||f.size>MAX_FILE)){
-    setError("Envie apenas JPG ou PNG de até 5 MB por imagem.");return;
+    setError("Envie apenas JPG ou PNG de até 4 MiB por imagem.");return;
   }
   if(files.length+next.length+data.images.length-removed.length>20){setError("O limite é 20 fotos por anúncio.");return;}
   setFiles(list=>[...list,...next]);setError("");
@@ -47,10 +47,11 @@ export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carI
     const response=await fetch(`/api/cars/${id}/photos?fotoId=${photoId}`,{method:"DELETE"});
     if(!response.ok)throw new Error("Anúncio salvo, mas uma imagem antiga não pôde ser removida.");
    }
-   for(let index=0;index<files.length;index+=10){
-    const form=new FormData();for(const file of files.slice(index,index+10))form.append("fotos",file);
+   for(const file of files){
+    const form=new FormData();form.append("fotos",file);
     const response=await fetch(`/api/cars/${id}/photos`,{method:"POST",body:form});
-    if(!response.ok){const json=await response.json().catch(()=>({}));throw new Error(json.error||"Anúncio salvo, mas uma foto não pôde ser enviada.");}
+    if(!response.ok){const json=await response.json().catch(()=>({}));throw new Error(json.error||"Anúncio salvo, mas uma foto não pôde ser enviada. Use imagens de até 4 MiB.");}
+    setFiles(current=>current.filter(item=>item!==file));
    }
    router.push(`/meus-anuncios?salvo=${id}`);router.refresh();
   }catch(err){setError((err instanceof Error?err.message:"Falha de conexão.")+(id?" Os dados salvos estão em Meus anúncios.":""));}
@@ -92,13 +93,13 @@ export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carI
    </section>
    <section className="card-dark space-y-4 p-6"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#d4af37]">03 / Fotos</p><h2 className="font-display text-2xl font-bold">Imagens reais do veículo</h2>
     <label className="btn-outline inline-flex min-h-11 w-full cursor-pointer text-center sm:w-auto"><input type="file" accept="image/jpeg,image/png" multiple onChange={e=>{addPhotos(e.target.files);e.target.value="";}} className="sr-only" />Selecionar fotos JPG/PNG</label>
-    <p className="text-xs text-[#9b9ba4]">Até 20 fotos, 5 MB cada, enviadas somente após o anúncio ser criado. Toda alteração retorna o anúncio para análise.</p>
-    <div className="grid grid-cols-2 gap-2.5 min-[380px]:grid-cols-3 sm:grid-cols-4 sm:gap-3 xl:grid-cols-5">{data.images.map((url,i)=>!removed.includes(data.imageIds?.[i]??-1)&&<div key={url} className="relative"><img src={url} alt="Foto existente" className="aspect-square w-full rounded-lg object-cover"/><button type="button" aria-label="Remover foto" className="absolute right-1 top-1 grid h-9 w-9 place-items-center rounded-lg bg-black/90 text-lg text-red-300" onClick={()=>setRemoved(r=>[...r,data.imageIds?.[i]??-1])}>×</button></div>)}{previews.map((url,i)=><div key={url} className="relative"><img src={url} alt="Prévia de foto nova" className="h-24 w-full rounded-lg object-cover"/><button type="button" aria-label="Remover prévia" className="absolute right-1 top-1 rounded bg-black/80 px-2 text-red-300" onClick={()=>setFiles(fs=>fs.filter((_,j)=>j!==i))}>×</button></div>)}</div>
+    <p className="text-xs text-[#9b9ba4]">Até 20 fotos, 4 MiB cada, enviadas somente após o anúncio ser criado. Toda alteração retorna o anúncio para análise.</p>
+    <div className="grid grid-cols-2 gap-2.5 min-[380px]:grid-cols-3 sm:grid-cols-4 sm:gap-3 xl:grid-cols-5">{data.images.map((url,i)=>!removed.includes(data.imageIds?.[i]??-1)&&<div key={url} className="relative"><img src={url} alt={`Foto ${i+1} do veículo ${data.brand} ${data.model}`} className="aspect-square w-full rounded-lg object-cover"/><button type="button" aria-label="Remover foto" className="absolute right-1 top-1 grid h-9 w-9 place-items-center rounded-lg bg-black/90 text-lg text-red-300" onClick={()=>setRemoved(r=>[...r,data.imageIds?.[i]??-1])}>×</button></div>)}{previews.map((url,i)=><div key={url} className="relative"><img src={url} alt={`Prévia ${i+1} da foto selecionada para o anúncio`} className="h-24 w-full rounded-lg object-cover"/><button type="button" aria-label="Remover prévia" className="absolute right-1 top-1 rounded bg-black/80 px-2 text-red-300" onClick={()=>setFiles(fs=>fs.filter((_,j)=>j!==i))}>×</button></div>)}</div>
    </section>
   </div>
   <aside className="sticky bottom-0 z-20 -mx-4 h-fit space-y-4 border-t border-[#d4af37]/20 bg-[#08080a]/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-lg sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none lg:sticky lg:top-24"><div className="card-dark space-y-3 border-0 bg-transparent p-0 sm:space-y-4 sm:border sm:p-6"><h2 className="font-display hidden text-xl font-bold sm:block">Revisão antes da publicação</h2><p className="hidden text-sm leading-relaxed text-[#9b9ba4] sm:block">Seu anúncio será salvo como <strong className="text-[#f2d87e]">PENDENTE</strong>. A equipe só poderá publicá-lo depois de analisar sua identidade, a documentação do veículo e o anúncio.</p>
     {error&&<p role="alert" className="rounded-lg border border-red-500/40 bg-red-950/30 p-3 text-sm text-red-300">{error}</p>}
     <button type="submit" disabled={busy} className="btn-gold w-full">{busy?"Salvando…":mode==="edit"?"Salvar e solicitar nova análise":"Cadastrar anúncio para análise"}</button>
-    <p className="hidden text-xs text-[#777782] sm:block">Sem promessa de verificação governamental. A revisão documental é realizada por pessoas.</p></div></aside>
+    <p className="hidden text-xs text-[#a5a5ad] sm:block">Sem promessa de verificação governamental. A revisão documental é realizada por pessoas.</p></div></aside>
  </form>;
 }

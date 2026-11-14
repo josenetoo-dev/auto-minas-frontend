@@ -19,7 +19,7 @@ test("anonymous users retain the selected plan through login and registration", 
   assert.match(page, /\/login\?next=\$\{encodeURIComponent\(`\/vender\/planos\?plano=\$\{plan\.codigo\}`\)\}/);
   assert.match(login, /safeNextPath\(next\)/);
   assert.match(authForm, /\? \{ email, password, next \}/);
-  assert.match(authForm, /: \{ name, email, phone, password, next \}/);
+  assert.match(authForm, /: \{ name, email, phone, password, next, termsAccepted \}/);
 });
 
 test("demonstrative acceptance is local and never calls the backend acceptance route", () => {

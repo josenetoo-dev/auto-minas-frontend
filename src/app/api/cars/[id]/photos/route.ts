@@ -9,8 +9,8 @@ export async function POST(request:Request,context:Ctx){
  try {
   const token=await getApiToken();if(!token)return NextResponse.json({error:"Entre na conta"},{status:401});
   const body=await request.formData();const files=body.getAll("fotos");
-  if(!files.length||files.length>10||files.some(x=>!(x instanceof File)||x.size<=0||x.size>5*1024*1024||!["image/jpeg","image/png"].includes(x.type)))
-   return NextResponse.json({error:"Envie até 10 fotos por lote, JPG/PNG, com até 5 MB cada."},{status:400});
+  if(!files.length||files.length>1||files.some(x=>!(x instanceof File)||x.size<=0||x.size>4*1024*1024||!["image/jpeg","image/png"].includes(x.type)))
+   return NextResponse.json({error:"Envie uma foto JPG/PNG por requisição, com até 4 MiB."},{status:400});
   const multipart=new FormData();for(const file of files)multipart.append("fotos",file);
   const result=await backendFetch<BackendPhoto[]>(`/v1/anuncio/${id}/fotos`,{method:"POST",body:multipart},token);
   return NextResponse.json({photos:result},{status:201});
