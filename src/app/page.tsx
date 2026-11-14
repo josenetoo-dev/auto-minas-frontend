@@ -13,17 +13,17 @@ export default async function HomePage() {
     <section className="market-hero">
       <div aria-hidden="true" className="market-hero-art" />
       <div className="market-hero-shade" aria-hidden="true" />
-      <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-14 sm:px-8 sm:pt-20 lg:pb-24">
+      <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-10 sm:px-8 sm:pt-14 lg:pb-16">
         <div className="max-w-xl">
           <p className="market-eyebrow">Auto Minas · Encontre o seu caminho</p>
-          <h1 className="market-title mt-6">Seu próximo<br />capítulo começa<br /><em>na garagem.</em></h1>
-          <p className="mt-6 max-w-sm text-sm leading-7 text-[#b7b3a9] sm:text-base">Encontre seu próximo veículo. Ou dê ao seu uma nova história, negociando direto com quem vai dirigir.</p>
+          <h1 className="market-title mt-6">Seu próximo carro.<br /><em>Uma nova história.</em></h1>
+          <p className="mt-6 max-w-lg text-sm leading-7 text-[#b7b3a9] sm:text-base">Encontre seu próximo veículo. Ou dê ao seu uma nova história, negociando direto com quem vai dirigir.</p>
           <div className="mt-7 flex flex-wrap items-center gap-5">
             <Link href="/carros" className="btn-gold">Explorar veículos <span aria-hidden="true">↗</span></Link>
             <Link href="/planos" className="inline-flex min-h-11 items-center gap-2 text-sm text-[#e8ddc7] hover:text-white">Quero anunciar <span aria-hidden="true">→</span></Link>
           </div>
         </div>
-        <div className="relative mt-12 max-w-3xl lg:mt-16"><SearchBox /></div>
+        <div className="relative mt-8 max-w-3xl lg:mt-10"><SearchBox /></div>
         <p className="mt-5 text-xs tracking-wide text-[#b7b3a9]">Revisão humana · Negociação direta · Sem comissão sobre a venda</p>
       </div>
     </section>
