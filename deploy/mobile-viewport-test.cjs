@@ -128,6 +128,10 @@ async function main() {
           const composer = page.getByRole("textbox", { name: "Mensagem para negociação" });
           await composer.waitFor({ state: "visible", timeout: 10000 });
           expect(await composer.isVisible(), "Compositor do chat inacessível no celular");
+          await page.waitForFunction(() => {
+            const box = document.querySelector('[aria-label="Mensagem para negociação"]')?.getBoundingClientRect();
+            return box && box.top >= 0 && box.bottom <= window.innerHeight;
+          }, {timeout:10000});
           await inspect(page, "conversa", width);
         }
       }

@@ -41,6 +41,25 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
   const [deletingMessage, setDeletingMessage] = useState<number | null>(null);
   const [clientNow, setClientNow] = useState<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const workspaceRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const workspace = workspaceRef.current;
+    if (!workspace) return;
+    const resize = () => {
+      const top = workspace.getBoundingClientRect().top + window.scrollY;
+      workspace.style.height = `${Math.max(300, window.innerHeight - top)}px`;
+    };
+    const observer = new ResizeObserver(resize);
+    const main = workspace.closest("main");
+    if (main) {
+      let sibling = main.previousElementSibling;
+      while (sibling) { observer.observe(sibling); sibling = sibling.previousElementSibling; }
+    }
+    window.addEventListener("resize", resize);
+    resize();
+    return () => { observer.disconnect(); window.removeEventListener("resize", resize); };
+  }, []);
 
   useEffect(() => {
     const update = () => setClientNow(Date.now());
@@ -161,7 +180,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
   const myRole = thread?.conversation.myRole;
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-4rem)] min-h-[360px] max-w-7xl flex-col sm:h-[min(780px,calc(100dvh-7rem))] sm:min-h-[450px] sm:px-4 sm:py-4">
+    <div ref={workspaceRef} className="mx-auto flex h-[calc(100dvh-4rem)] min-h-[300px] max-w-7xl flex-col sm:max-h-[780px] sm:px-4 sm:py-4">
       <div className="card-dark grid min-h-0 min-w-0 flex-1 overflow-hidden md:grid-cols-[minmax(245px,310px)_minmax(0,1fr)] lg:grid-cols-[330px_minmax(0,1fr)]">
         {/* Lista de conversas */}
         <aside className={`${activeId ? "hidden md:flex" : "flex"} min-h-0 min-w-0 flex-col border-r border-[#26262e]`}>
