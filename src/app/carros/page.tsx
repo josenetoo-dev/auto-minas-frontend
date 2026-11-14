@@ -48,12 +48,9 @@ export default async function CarrosPage({
   const results = catalog?.cars ?? [];
   const brands = [...BRANDS];
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6">
       {/* Cabeçalho da página */}
-      <div className="mb-8">
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#d4af37]">
-          Vitrine de veículos
-        </p>
+      <div className="mb-4">
         <h1 className="font-display mt-2 text-3xl font-bold text-[#f4f3ee] sm:text-4xl">
           Comprar <span className="gold-text">veículos</span>
         </h1>
