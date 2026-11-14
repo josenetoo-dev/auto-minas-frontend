@@ -7,7 +7,7 @@ export function proxy(request:NextRequest) {
  if(!PROTECTED.some(p=>path===p||path.startsWith(p+"/")))return NextResponse.next();
  if(!request.cookies.get(SESSION_COOKIE)?.value){
   const url=new URL("/login",request.url);
-  url.searchParams.set("next",path);
+  url.searchParams.set("next",path + request.nextUrl.search);
   return NextResponse.redirect(url);
  }
  return NextResponse.next();

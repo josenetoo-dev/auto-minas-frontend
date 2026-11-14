@@ -25,6 +25,7 @@ export default function EmailActivation() {
         body: body ? JSON.stringify(body) : undefined,
       });
       const json = res.status === 204 ? {} : await res.json().catch(() => ({}));
+      if (res.status === 503) throw new Error("O envio de e-mail está temporariamente indisponível. Sua conta continua conectada; tente novamente mais tarde.");
       if (!res.ok) throw new Error(json.detail || json.error || "Não foi possível concluir a solicitação.");
 
       if (confirming) {
@@ -32,7 +33,7 @@ export default function EmailActivation() {
         router.replace(json.redirect);
         router.refresh();
       } else {
-        setText("Código enviado, quando o envio SMTP estiver configurado. Consulte sua caixa postal.");
+        setText("Código enviado. Consulte sua caixa de entrada e a pasta de spam.");
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha de conexão");
@@ -44,7 +45,7 @@ export default function EmailActivation() {
   return (
     <div className="card-dark space-y-4 border border-amber-500/20 p-6">
       <h2 className="font-display text-2xl font-bold">Confirme seu e-mail</h2>
-      <p className="text-sm text-[#9b9ba4]">Sua conta precisa de um e-mail confirmado para solicitar revisões e anunciar veículos.</p>
+      <p className="text-sm text-[#9b9ba4]">Você já está conectado. Confirme seu e-mail para solicitar revisões e publicar veículos.</p>
       <button onClick={() => call("solicitar")} disabled={busy} className="btn-outline">Enviar código por e-mail</button>
       <div className="flex flex-col gap-2 sm:flex-row">
         <input className="input-dark flex-1" placeholder="Código recebido" aria-label="Código de ativação" value={code} onChange={e => setCode(e.target.value)} />

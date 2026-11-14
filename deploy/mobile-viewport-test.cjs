@@ -73,6 +73,14 @@ async function main() {
         expect(await menu.getAttribute("aria-expanded") === "false",
           "Escape não atualizou aria-expanded em " + width + "px");
       }
+      await page.goto(BASE + "/planos", { waitUntil: "domcontentloaded" });
+      await page.getByRole("heading", { name: "Anúncio avulso", exact: true }).waitFor();
+      await page.getByRole("heading", { name: "Assinatura mensal", exact: true }).waitFor();
+      await inspect(page, "modalidades", width);
+      await page.getByRole("link", { name: /Preparar meu anúncio/ }).click();
+      await page.waitForURL("**/login?**");
+      expect(new URL(page.url()).searchParams.get("next") === "/vender?modalidade=avulso",
+        "A modalidade avulsa deve ser preservada ao entrar ou criar conta");
       await page.goto(BASE + "/feira", { waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: /Conheça o Auto Minas/ }).waitFor({ state: "visible" });
       await inspect(page, "roteiro-feira", width);
@@ -85,6 +93,9 @@ async function main() {
       }
       await login(context, "comprador-demo@auto-minas.test",
         process.env.STAGING_DEMO_BUYER_PASSWORD);
+      await page.goto(BASE + "/conta", { waitUntil: "domcontentloaded" });
+      await page.getByRole("heading", { name: /Olá,/ }).waitFor();
+      await inspect(page, "conta", width);
       await page.goto(BASE + "/vender", { waitUntil: "domcontentloaded" });
       await inspect(page, "vender", width);
       await page.goto(BASE + "/meus-anuncios", { waitUntil: "domcontentloaded" });

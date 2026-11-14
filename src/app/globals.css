@@ -280,3 +280,31 @@ button, select { touch-action: manipulation; }
   .animate-fade-up, .pulse-gold { animation: none; }
   .card-dark-hover, .btn-gold, .btn-outline, .btn-ghost { transition: none; transform: none; }
 }
+
+/* Marketplace: dark surroundings, warm paper surfaces and restrained gold. */
+.market-hero { position: relative; overflow: hidden; background: #0b0c0e; }
+.market-hero-art { position: absolute; inset: 0 0 0 34%; background: url('/banners/auto-minas-home-horizontal.webp') right center / auto 100% no-repeat; opacity: .72; }
+.market-hero-shade { position: absolute; inset: 0; background: linear-gradient(90deg,#0b0c0e 5%,#0b0c0e 32%,rgba(11,12,14,.95) 46%,rgba(11,12,14,.2) 85%),linear-gradient(0deg,#0b0c0e,transparent 30%); }
+.market-title { font-family: "Playfair Display", Georgia, serif; font-size: clamp(2.7rem,5.2vw,4.7rem); line-height: 1.1; font-weight: 400; letter-spacing: -.045em; color: #efe6d5; }
+.market-title em { color: #d7b777; font-weight: 400; }
+.market-heading { font-family: "Playfair Display", Georgia, serif; font-size: clamp(1.8rem,3vw,2.65rem); line-height: 1.2; font-weight: 400; letter-spacing: -.025em; color: #eee5d3; }
+.market-eyebrow { font-size: .65rem; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: #bca675; }
+.market-search { padding: 1.5rem; background: #eee6d4; color: #302b23; border: 1px solid #faf1dc; border-radius: 1rem; box-shadow: 0 16px 50px -28px #000,0 4px 0 #bbae92; }
+.market-search-label { display: block; min-width: 0; font-size: .65rem; font-weight: 600; color: #766c5c; }
+.market-search-input { display: block; width: 100%; min-width: 0; padding: .7rem 0 .5rem; background: transparent; color: #302b23; font-size: .85rem; font-weight: 400; border-bottom: 1px solid #c6bba6; outline-offset: 4px; }
+.market-search-input::placeholder { color: #7b7264; }
+.market-brand { display: inline-flex; min-height: 40px; align-items: center; padding: .4rem .8rem; border: 1px solid #2a2a28; border-radius: 6px; color: #c5c0b5; font-size: .75rem; transition: border-color .2s; }
+.market-brand:hover { border-color: #b89c62; color: #f4e6c6; }
+.market-text-link { display: inline-flex; min-height: 44px; align-items: center; gap: 1.5rem; color: #d7bd87; font-size: .8rem; }
+.market-text-link:hover { color: #fff2d3; }
+.market-paper-card { padding: clamp(1.5rem,4vw,2.6rem); border: 1px solid #f5ead3; border-radius: 1rem; background: #ede4cf; box-shadow: inset 4px 0 #c3ac78,0 4px 0 #aa9e86; }
+.market-business-card { padding: clamp(1.5rem,4vw,2.6rem); border: 1px solid #38342a; border-radius: 1rem; background: radial-gradient(ellipse at top right,#2b2518,transparent 65%),#111215; }
+.account-workspace { position: relative; overflow: hidden; background: radial-gradient(ellipse at 100% 0,rgba(146,109,45,.15),transparent 55%); }
+.account-shortcut { display: flex; min-height: 100%; flex-direction: column; gap: 1rem; padding: 1.5rem; border: 1px solid #2c2d2b; border-radius: 1rem; background: #111316; transition: border-color .2s, transform .2s; }
+.account-shortcut:hover { border-color: #9f8756; transform: translateY(-2px); }
+@media(max-width:639px) {
+  .market-hero-art { inset: 0; opacity: .25; background-position: 68% top; background-size: auto 65%; }
+  .market-hero-shade { background: linear-gradient(90deg,rgba(11,12,14,.95),rgba(11,12,14,.55)),linear-gradient(0deg,#0b0c0e 10%,transparent 80%); }
+  .market-search { padding: 1.2rem; }
+}
+@media(prefers-reduced-motion:reduce) { .account-shortcut { transition: none; } }

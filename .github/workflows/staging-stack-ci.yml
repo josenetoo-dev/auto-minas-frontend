@@ -86,8 +86,8 @@ jobs:
           STAGING_DEMO_BUYER_PASSWORD: DO_NOT_USE_SAMPLE_IN_PUBLIC
         run: node deploy/mobile-viewport-test.cjs
 
-      - name: Anexar capturas apenas se houver falha
-        if: failure()
+      - name: Anexar capturas da revisão visual
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: viewport-screenshots-${{ github.run_id }}

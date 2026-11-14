@@ -3,236 +3,54 @@ import Image from "next/image";
 import { featuredCars } from "@/lib/car";
 import CarCard from "@/components/car-card";
 import { BRANDS } from "@/lib/constants";
+import SearchBox from "./search-box";
 
 export const dynamic = "force-dynamic";
 
-import SearchBox from "./search-box";
-
 export default async function HomePage() {
   const featured = await featuredCars(6).catch(() => null);
-
-  return (
-    <div>
-      {!featured && <div role="alert" className="border-b border-amber-500/30 bg-amber-950/30 px-4 py-3 text-center text-sm text-amber-200">A API Auto Minas está indisponível. Não é possível carregar anúncios agora.</div>}
-      {/* HERO */}
-      <section className="relative overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "linear-gradient(125deg, #08080a 10%, #272014 55%, #08080a 100%)" }}
-        />
-        <div className="hero-overlay absolute inset-0" />
-        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-4 pb-16 pt-14 text-center sm:px-6 sm:pb-24 sm:pt-28">
-          <span className="badge-gold max-w-full animate-fade-up px-3 text-center text-[10px] leading-snug sm:text-xs">Marketplace de veículos Auto Minas</span>
-          <h1 className="font-display mt-5 max-w-3xl animate-fade-up text-[clamp(2rem,9vw,3rem)] font-bold leading-tight text-[#f4f3ee] sm:mt-6 sm:text-6xl">
-            O seu próximo carro está aqui,{" "}
-            <span className="gold-text italic">com estilo</span>
-          </h1>
-          <p className="mt-5 max-w-xl animate-fade-up text-base text-[#b9b9c0] sm:text-lg">
-            Encontre veículos e envie propostas aos vendedores. Anúncios passam por revisão antes de serem publicados.
-          </p>
-
-          <div className="mt-10 w-full max-w-2xl animate-fade-up">
-            <SearchBox />
-          </div>
-
-          <div className="mt-10 grid w-full max-w-3xl grid-cols-1 gap-2.5 animate-fade-up min-[430px]:grid-cols-3 sm:mt-14 sm:gap-4">
-            {[
-              { value: featured ? String(featured.length) : "—", label: "Veículos em destaque" },
-              { value: "Humana", label: "Revisão dos anúncios" },
-              { value: "Segurança", label: "Verificação documental" },
-            ].map((s) => (
-              <div
-                key={s.label}
-                className="min-w-0 rounded-xl border border-white/10 bg-black/40 px-3 py-3 backdrop-blur-md sm:rounded-2xl sm:px-4 sm:py-5"
-              >
-                <p className="gold-text font-display text-2xl font-bold break-words sm:text-3xl">{s.value}</p>
-                <p className="mt-1 text-[10px] font-medium uppercase tracking-wide text-[#9b9ba4] sm:text-xs sm:tracking-wider">
-                  {s.label}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 animate-fade-up sm:mt-12 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-            <Link href="/carros" className="btn-gold w-full px-5 py-3.5 sm:w-auto sm:px-8">
-              Explorar veículos
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
-            </Link>
-            <Link href="/vender" className="btn-outline w-full px-5 py-3.5 sm:w-auto sm:px-8">
-              Vender meu carro
-            </Link>
+  return <div className="market-home">
+    <section className="market-hero">
+      <div aria-hidden="true" className="market-hero-art" />
+      <div className="market-hero-shade" aria-hidden="true" />
+      <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-14 sm:px-8 sm:pt-20 lg:pb-24">
+        <div className="max-w-xl">
+          <p className="market-eyebrow">Auto Minas · Encontre o seu caminho</p>
+          <h1 className="market-title mt-6">Seu próximo<br />capítulo começa<br /><em>na garagem.</em></h1>
+          <p className="mt-6 max-w-sm text-sm leading-7 text-[#b7b3a9] sm:text-base">Encontre seu próximo veículo. Ou dê ao seu uma nova história, negociando direto com quem vai dirigir.</p>
+          <div className="mt-7 flex flex-wrap items-center gap-5">
+            <Link href="/carros" className="btn-gold">Explorar veículos <span aria-hidden="true">↗</span></Link>
+            <Link href="/planos" className="inline-flex min-h-11 items-center gap-2 text-sm text-[#e8ddc7] hover:text-white">Quero anunciar <span aria-hidden="true">→</span></Link>
           </div>
         </div>
-      </section>
-
-      {/* BANNER INSTITUCIONAL — arte aprovada para a apresentação */}
-      <section aria-label="Apresentação visual do Auto Minas" className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 sm:pt-16">
-        <figure className="overflow-hidden rounded-2xl border border-[#d4af37]/25 bg-[#0e0e12] shadow-[0_16px_60px_-30px_rgba(212,175,55,0.2)]">
-          <Image
-            src="/banners/auto-minas-feira-vertical.webp"
-            alt="Auto Minas: apresentação vertical com veículo amarelo em garagem escura"
-            width={800}
-            height={1423}
-            sizes="(max-width: 639px) 100vw, 380px"
-            className="mx-auto h-auto w-full max-w-[380px] sm:hidden"
-          />
-          <Image
-            src="/banners/auto-minas-home-horizontal.webp"
-            alt="Banner horizontal Auto Minas preto e dourado com veículo e símbolos de segurança"
-            width={1200}
-            height={675}
-            sizes="(min-width: 640px) 1200px, 100vw"
-            className="hidden h-auto w-full object-contain sm:block"
-          />
-          <figcaption className="border-t border-[#26262e] px-4 py-3 text-xs leading-relaxed text-[#9b9ba4] sm:px-6">
-            Arte institucional do projeto. A análise documental é humana; consultas oficiais automáticas a bases de veículos e CPF ainda não estão disponíveis.
-          </figcaption>
-        </figure>
-      </section>
-
-      {/* MARCAS */}
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-        <div className="flex flex-wrap items-center justify-center gap-2.5">
-          {BRANDS.slice(0, 12).map((brand) => (
-            <Link
-              key={brand}
-              href={`/carros?brand=${encodeURIComponent(brand)}`}
-              className="chip"
-            >
-              {brand}
-            </Link>
-          ))}
-          <Link href="/carros" className="chip chip-active">
-            Ver todas →
-          </Link>
-        </div>
-      </section>
-
-      {/* DESTAQUES */}
-      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3 sm:mb-8">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#d4af37]">
-              Seleção especial
-            </p>
-            <h2 className="font-display mt-2 text-[clamp(1.5rem,6vw,1.875rem)] font-bold text-[#f4f3ee]">
-              Destaques <span className="gold-text">da semana</span>
-            </h2>
-          </div>
-          <Link
-            href="/carros"
-            className="hidden items-center gap-1.5 text-sm font-semibold text-[#f2d87e] hover:underline sm:flex"
-          >
-            Ver todos os carros
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
-          </Link>
-        </div>
-        {featured && featured.length === 0 && (
-          <div role="status" className="rounded-2xl border border-[#d4af37]/20 bg-[#141419] px-6 py-10 text-center">
-            <p className="font-display text-xl font-bold text-[#f4f3ee]">Nenhum veículo publicado por enquanto</p>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#a8a8b0]">
-              Os anúncios só aparecem depois de passar pela moderação. Explore novamente mais tarde ou cadastre seu veículo para avaliação.
-            </p>
-            <Link href="/vender" className="btn-outline mt-6">Anunciar meu veículo</Link>
-          </div>
-        )}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {featured?.map((car) => (
-            <CarCard key={car.id} car={car} />
-          ))}
-        </div>
-      </section>
-
-      {/* COMO FUNCIONA */}
-      <section className="border-y border-[#1c1c22] bg-[#0b0b0f]">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-          <div className="mb-10 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#d4af37]">
-              Simples assim
-            </p>
-            <h2 className="font-display mt-2 text-[clamp(1.5rem,6vw,1.875rem)] font-bold text-[#f4f3ee]">
-              Como funciona a <span className="gold-text">Auto Minas</span>
-            </h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              {
-                icon: (
-                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="7" />
-                    <path d="M21 21l-4.35-4.35" />
-                  </svg>
-                ),
-                title: "Encontre o carro ideal",
-                text: "Navegue pelo acervo, filtre por marca, preço e características e encontre o veículo dos seus sonhos.",
-              },
-              {
-                icon: (
-                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
-                  </svg>
-                ),
-                title: "Envie propostas e converse",
-                text: "Envie uma proposta para iniciar uma negociação e converse diretamente com o anunciante.",
-              },
-              {
-                icon: (
-                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 3v12M7 8l5-5 5 5M5 21h14M5 15h14v6H5z" />
-                  </svg>
-                ),
-                title: "Cadastre seu veículo",
-                text: "Confirme sua conta, envie a documentação e aguarde a revisão para publicar o anúncio.",
-              },
-            ].map((step, i) => (
-              <div
-                key={step.title}
-                className="card-dark card-dark-hover relative overflow-hidden p-7"
-              >
-                <span className="font-display absolute -right-2 -top-6 text-8xl font-bold text-[#d4af37]/8">
-                  {i + 1}
-                </span>
-                <div className="relative">
-                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-[#f2d87e] via-[#d4af37] to-[#8a6d1c] text-[#171003]">
-                    {step.icon}
-                  </div>
-                  <h3 className="font-display mt-5 text-xl font-bold text-[#f4f3ee]">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2.5 text-sm leading-relaxed text-[#9b9ba4]">{step.text}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA VENDER */}
-      <section className="relative overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "linear-gradient(125deg, #0d0d11 10%, #25201a 60%, #08080a 100%)" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#08080a] via-[#08080a]/90 to-[#08080a]/60" />
-        <div className="relative mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-20 sm:px-6">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#d4af37]">
-            Venda mais rápido
-          </p>
-          <h2 className="font-display max-w-xl text-3xl font-bold leading-snug text-[#f4f3ee] sm:text-4xl">
-            Seu carro pode ser o <span className="gold-text">próximo destaque</span> da vitrine
-          </h2>
-          <p className="max-w-md text-sm leading-relaxed text-[#9b9ba4]">
-            Cadastre seu veículo, envie fotos e documentação e acompanhe a aprovação antes da publicação.
-          </p>
-          <Link href="/vender" className="btn-gold pulse-gold px-8 py-3.5">
-            Anunciar meu carro agora
-          </Link>
-        </div>
-      </section>
-    </div>
-  );
+        <div className="relative mt-12 max-w-3xl lg:mt-16"><SearchBox /></div>
+        <p className="mt-5 text-xs tracking-wide text-[#b7b3a9]">Revisão humana · Negociação direta · Sem comissão sobre a venda</p>
+      </div>
+    </section>
+    <section className="border-y border-white/[.07] bg-[#0d0e10]">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-6 sm:flex-row sm:items-center sm:px-8">
+        <p className="shrink-0 text-xs uppercase tracking-[.18em] text-[#8e8b83]">Encontre por marca</p>
+        <div className="flex flex-wrap gap-2 sm:ml-auto">{BRANDS.slice(0, 7).map(brand => <Link key={brand} href={`/carros?brand=${encodeURIComponent(brand)}`} className="market-brand">{brand}</Link>)}</div>
+      </div>
+    </section>
+    <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-5"><div><p className="market-eyebrow">Na vitrine</p><h2 className="market-heading mt-3">Encontre a sua próxima direção.</h2></div><Link href="/carros" className="market-text-link">Ver todos os veículos <span aria-hidden="true">↗</span></Link></div>
+      {!featured && <p role="alert" className="rounded-xl border border-amber-500/20 p-5 text-sm text-amber-200">A API Auto Minas está indisponível. Tente novamente em instantes.</p>}
+      {featured && featured.length === 0 && <p className="rounded-xl border border-white/10 p-6 text-[#aaa69e]">Novos veículos aparecerão aqui após a aprovação dos anúncios.</p>}
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{featured?.map(car => <CarCard key={car.id} car={car} />)}</div>
+    </section>
+    <section className="mx-auto max-w-7xl px-5 pb-20 sm:px-8">
+      <div className="mb-8"><p className="market-eyebrow">Para cada momento</p><h2 className="market-heading mt-3">Um veículo. Ou um negócio inteiro.</h2></div>
+      <div className="grid gap-5 md:grid-cols-2">
+        <article className="market-paper-card"><p className="text-[11px] uppercase tracking-[.2em] text-[#746650]">Para quem vende de vez em quando</p><h3 className="mt-5 font-display text-3xl text-[#25231e]">Um carro, uma nova história.</h3><p className="mt-4 max-w-sm text-sm leading-7 text-[#675f51]">Prepare um anúncio avulso para o seu veículo e acompanhe as conversas em um só lugar.</p><Link href="/planos#avulso" className="mt-8 flex min-h-12 items-center justify-between border-t border-[#c8bda6] pt-5 text-sm font-semibold text-[#30291e]">Conhecer o anúncio avulso <span aria-hidden="true">↗</span></Link></article>
+        <article className="market-business-card"><p className="market-eyebrow">Para lojas e revendedores</p><h3 className="mt-5 font-display text-3xl">Seu estoque merece uma vitrine.</h3><p className="mt-4 max-w-sm text-sm leading-7 text-[#aaa69e]">Conheça as opções de assinatura mensal para quem anuncia veículos de forma recorrente.</p><Link href="/planos#profissionais" className="mt-8 flex min-h-12 items-center justify-between border-t border-white/10 pt-5 text-sm font-semibold text-[#dfc78f]">Ver opções para profissionais <span aria-hidden="true">↗</span></Link></article>
+      </div>
+    </section>
+    <section className="border-t border-white/[.07] bg-[#0d0e10]">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-2">
+        <div><p className="market-eyebrow">Confiança se constrói</p><h2 className="market-heading mt-4">Mais clareza.<br />Em cada negociação.</h2><p className="mt-5 max-w-md text-sm leading-7 text-[#aaa69e]">A identidade, os documentos e o conteúdo dos anúncios passam por revisão humana. Você acompanha o andamento pela sua conta.</p><p className="mt-4 max-w-md text-xs leading-6 text-[#8c8982]">Biometria e consultas oficiais automáticas ainda não estão disponíveis. A revisão reduz riscos, mas não garante ausência de fraude.</p><Link href="/verificacoes" className="market-text-link mt-6">Conhecer a verificação <span aria-hidden="true">→</span></Link></div>
+        <picture className="overflow-hidden rounded-2xl border border-[#c4a35e]/20"><source media="(max-width: 639px)" srcSet="/banners/auto-minas-feira-vertical.webp" /><Image src="/banners/auto-minas-home-horizontal.webp" alt="Apresentação institucional Auto Minas, com veículo preto e identidade dourada" width={1200} height={675} className="h-auto w-full" /></picture>
+      </div>
+    </section>
+  </div>;
 }

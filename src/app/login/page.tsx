@@ -30,12 +30,12 @@ export default async function LoginPage({
           <div>
             <p className="badge-gold">Área do cliente</p>
             <h2 className="font-display mt-5 text-4xl font-bold leading-tight text-[#f4f3ee]">
-              Negocie, anuncie e{" "}
+              Entre, anuncie e{" "}
               <span className="gold-text italic">acelere</span> suas vendas
             </h2>
             <ul className="mt-8 space-y-4">
               {[
-                "Anuncie seu carro gratuitamente em minutos",
+                "Prepare seu anúncio e acompanhe a análise",
                 "Chat direto entre comprador e vendedor",
                 "Gerencie seus anúncios e negociações",
               ].map((item) => (

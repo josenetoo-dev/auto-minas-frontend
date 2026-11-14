@@ -4,30 +4,36 @@ import { commercialPlans } from "@/lib/commercial";
 import PlanCard from "@/components/plan-card";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Planos para anunciar", description: "Planos mensais Auto Minas." };
+export const metadata: Metadata = { title: "Como você quer anunciar?", description: "Anúncio avulso para um veículo e assinaturas mensais para lojas e revendedores." };
 
 export default async function PlanosPage() {
   const plans = await commercialPlans().catch(() => null);
-  return <main className="relative isolate overflow-hidden">
-    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px] bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,.14),transparent_62%)]" />
-    <section className="mx-auto max-w-7xl px-4 pb-16 pt-14 sm:px-6 sm:pb-24 sm:pt-20">
-      <div className="mx-auto max-w-3xl text-center">
-        <p className="text-xs font-bold uppercase tracking-[.28em] text-[#d4af37]">Planos Auto Minas</p>
-        <h1 className="font-display mt-4 text-4xl font-bold leading-tight text-[#f4f3ee] sm:text-5xl">Mais visibilidade para <span className="gold-text">seus veículos</span></h1>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[#a9a9b2] sm:text-lg">Escolha um plano mensal para anunciar e aproximar compradores e vendedores. A negociação e o pagamento do veículo acontecem diretamente entre as partes.</p>
-      </div>
-      {!plans && <div role="alert" className="mx-auto mt-10 max-w-4xl rounded-2xl border border-amber-500/30 bg-amber-950/20 p-5 text-center text-sm text-amber-200">Não foi possível carregar os planos agora. Tente novamente em instantes.</div>}
-      {plans && <div className="mx-auto mt-12 grid max-w-6xl items-stretch gap-5 lg:grid-cols-3 lg:gap-6">
-        {plans.map((plan) => <PlanCard key={plan.codigo} plan={plan} href={`/vender/planos?plano=${encodeURIComponent(plan.codigo)}`} featured={plan.codigo === "PREMIUM"} />)}
-      </div>}
-      <div className="mx-auto mt-9 grid max-w-6xl gap-4 rounded-2xl border border-white/[.08] bg-[#101014]/80 p-5 sm:grid-cols-3 sm:p-7">
-        {["Ferramentas para divulgar seus anúncios", "Chat e propostas para negociar diretamente", "Painel para acompanhar seus anúncios"].map((item, i) => <div key={item} className="flex gap-3 text-sm leading-6 text-[#c3c3cc]"><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#d4af37]/35 text-xs text-[#e9cd7c]">{i + 1}</span>{item}</div>)}
-      </div>
-      <p className="mx-auto mt-6 max-w-4xl text-center text-xs leading-5 text-[#85858f]">Os recursos acima descrevem ferramentas comuns da plataforma; benefícios exclusivos por plano ainda não foram definidos. A contratação demonstrativa não habilita serviços nem confirma pagamento. A cobrança será externa quando o processo comercial estiver disponível.</p>
-      <div className="mx-auto mt-12 max-w-4xl border-t border-white/[.08] pt-7 text-center text-sm text-[#9b9ba4]">
-        <p>Comprador e vendedor negociam o veículo fora do Auto Minas. A plataforma não processa o pagamento do veículo.</p>
-        <Link href="/carros" className="mt-4 inline-flex min-h-11 items-center text-[#e9cd7c] underline underline-offset-4">Conhecer a vitrine de veículos</Link>
-      </div>
+  return <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20">
+    <header className="max-w-3xl"><p className="market-eyebrow">Uma escolha para o seu momento</p><h1 className="market-title mt-5">Você quer vender um carro<br /><em>ou movimentar seu estoque?</em></h1><p className="mt-6 max-w-xl text-sm leading-7 text-[#aaa69e]">Escolha a modalidade de anúncio. A negociação do veículo acontece diretamente entre comprador e vendedor, sem comissão sobre a venda.</p></header>
+    <div className="mt-12 grid gap-6 lg:grid-cols-2">
+      <section id="avulso" className="market-paper-card scroll-mt-28">
+        <p className="text-[11px] font-semibold uppercase tracking-[.2em] text-[#746650]">Pessoa física · Venda ocasional</p>
+        <h2 className="mt-5 font-display text-4xl text-[#28251d]">Anúncio avulso</h2>
+        <p className="mt-4 max-w-sm text-sm leading-7 text-[#675f51]">Para quem quer vender um veículo e seguir em frente.</p>
+        <ul className="mt-7 space-y-4 border-y border-[#cbbfa7] py-6 text-sm text-[#4d4537]"><li>Um veículo por contratação</li><li>Pagamento único, sem renovação automática</li><li>Chat e propostas em um só lugar</li><li>Revisão do anúncio antes da publicação</li></ul>
+        <p className="mt-6 text-xs leading-6 text-[#716551]">Modalidade em preparação. Preço e prazo de exposição serão informados antes da contratação. Você já pode preparar seu anúncio para análise.</p>
+        <Link href="/vender?modalidade=avulso" className="mt-7 flex min-h-12 items-center justify-between rounded-lg bg-[#282820] px-5 text-sm font-semibold text-[#f1e7d1] hover:bg-[#414035]">Preparar meu anúncio <span aria-hidden="true">↗</span></Link>
+      </section>
+      <section className="market-business-card">
+        <p className="market-eyebrow">Empresa · Loja · Revendedor</p>
+        <h2 className="mt-5 font-display text-4xl text-[#eee5d3]">Assinatura mensal</h2>
+        <p className="mt-4 max-w-sm text-sm leading-7 text-[#aaa69e]">Para quem vende com frequência e precisa acompanhar vários anúncios.</p>
+        <ul className="mt-7 space-y-4 border-y border-white/10 py-6 text-sm text-[#c4c0b6]"><li>Contratação recorrente por mês</li><li>Vitrine para seus veículos</li><li>Painel de anúncios, conversas e propostas</li><li>Revisão individual dos anúncios</li></ul>
+        <p className="mt-6 text-xs leading-6 text-[#9c9689]">Limites de estoque, benefícios e regras de renovação serão definidos antes da contratação. Os valores abaixo são referências preliminares.</p>
+        <a href="#profissionais" className="btn-gold mt-7 flex min-h-12 w-full justify-between">Conhecer as opções mensais <span aria-hidden="true">↗</span></a>
+      </section>
+    </div>
+    <section id="profissionais" className="scroll-mt-28 pt-20">
+      <p className="market-eyebrow">Para quem vive de vender</p><h2 className="market-heading mt-3">Opções para lojas e revendedores.</h2>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-[#aaa69e]">Valores de referência para a futura assinatura. A escolha registra uma intenção demonstrativa. Cobrança e ativação comercial ainda estão em preparação.</p>
+      {!plans && <p role="alert" className="mt-8 rounded-xl border border-amber-500/25 p-5 text-sm text-amber-200">Não foi possível carregar as opções mensais. Tente novamente em instantes.</p>}
+      {plans && <div className="mt-10 grid gap-5 lg:grid-cols-3">{plans.map(plan => <PlanCard key={plan.codigo} plan={plan} href={`/vender/planos?plano=${encodeURIComponent(plan.codigo)}`} featured={plan.codigo === "PROFESSIONAL"} />)}</div>}
     </section>
-  </main>;
+    <p className="mt-12 border-t border-white/10 pt-7 text-xs leading-6 text-[#8f8b82]">Preparar um anúncio ou registrar uma intenção não gera cobrança. Pagamentos e condições definitivas serão apresentados antes de qualquer contratação.</p>
+  </div>;
 }

@@ -101,7 +101,7 @@ export default function AuthForm({
             : "Cadastre-se para vender seu carro e conversar com vendedores."}
         </p>
 
-        <p className="my-5 text-sm text-[#9b9ba4]">Autenticação segura pela API do Auto Minas. Novas contas precisam confirmar o e-mail.</p>
+        <p className="my-5 text-sm text-[#9b9ba4]">Ao criar sua conta, você já entra no Auto Minas. A confirmação de e-mail libera as etapas de publicação.</p>
 
         {(pageError || formError) && (
           <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
@@ -160,7 +160,7 @@ export default function AuthForm({
             ) : mode === "login" ? (
               "Entrar na minha conta"
             ) : (
-              "Criar conta e vender meu carro"
+              "Criar conta e entrar"
             )}
           </button>
         </form>
