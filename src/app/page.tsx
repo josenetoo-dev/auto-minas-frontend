@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { featuredCars } from "@/lib/car";
 import CarCard from "@/components/car-card";
 import { BRANDS } from "@/lib/constants";
@@ -11,7 +10,6 @@ export default async function HomePage() {
   const featured = await featuredCars(6).catch(() => null);
   return <div className="market-home">
     <section className="market-hero">
-      <div aria-hidden="true" className="market-hero-art" />
       <div className="market-hero-shade" aria-hidden="true" />
       <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-10 sm:px-8 sm:pt-14 lg:pb-16">
         <div className="max-w-xl">
@@ -37,7 +35,7 @@ export default async function HomePage() {
       <div className="mb-8 flex flex-wrap items-end justify-between gap-5"><div><p className="market-eyebrow">Na vitrine</p><h2 className="market-heading mt-3">Encontre a sua próxima direção.</h2></div><Link href="/carros" className="market-text-link">Ver todos os veículos <span aria-hidden="true">↗</span></Link></div>
       {!featured && <p role="alert" className="rounded-xl border border-amber-500/20 p-5 text-sm text-amber-200">A API Auto Minas está indisponível. Tente novamente em instantes.</p>}
       {featured && featured.length === 0 && <p className="rounded-xl border border-white/10 p-6 text-[#aaa69e]">Novos veículos aparecerão aqui após a aprovação dos anúncios.</p>}
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{featured?.map(car => <CarCard key={car.id} car={car} />)}</div>
+      <div className="home-vehicle-grid grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{featured?.map(car => <CarCard key={car.id} car={car} />)}</div>
     </section>
     <section className="mx-auto max-w-7xl px-5 pb-20 sm:px-8">
       <div className="mb-8"><p className="market-eyebrow">Para cada momento</p><h2 className="market-heading mt-3">Um veículo. Ou um negócio inteiro.</h2></div>
@@ -49,7 +47,7 @@ export default async function HomePage() {
     <section className="border-t border-white/[.07] bg-[#0d0e10]">
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-2">
         <div><p className="market-eyebrow">Confiança se constrói</p><h2 className="market-heading mt-4">Mais clareza.<br />Em cada negociação.</h2><p className="mt-5 max-w-md text-sm leading-7 text-[#aaa69e]">A identidade, os documentos e o conteúdo dos anúncios passam por revisão humana. Você acompanha o andamento pela sua conta.</p><p className="mt-4 max-w-md text-xs leading-6 text-[#8c8982]">Biometria e consultas oficiais automáticas ainda não estão disponíveis. A revisão reduz riscos, mas não garante ausência de fraude.</p><Link href="/verificacoes" className="market-text-link mt-6">Conhecer a verificação <span aria-hidden="true">→</span></Link></div>
-        <picture className="overflow-hidden rounded-2xl border border-[#c4a35e]/20"><source media="(max-width: 639px)" srcSet="/banners/auto-minas-feira-vertical.webp" /><Image src="/banners/auto-minas-home-horizontal.webp" alt="Apresentação institucional Auto Minas, com veículo preto e identidade dourada" width={1200} height={675} className="h-auto w-full" /></picture>
+        <div className="market-paper-card"><p className="text-xs uppercase tracking-widest text-[#514633]">Como funciona</p><ol className="mt-6 space-y-5 text-sm leading-7 text-[#4d4537]"><li>Crie sua conta e entre automaticamente.</li><li>Prepare seu anúncio e confirme seu e-mail.</li><li>Acompanhe a revisão humana antes de publicar.</li><li>Converse e negocie diretamente com compradores.</li></ol></div>
       </div>
     </section>
   </div>;

@@ -32,6 +32,8 @@ export default async function Account() {
           ["/assinatura", "Minhas assinaturas", "Consultar intenções e vigência"],
         ].map(([href, title, description]) => <Link key={href} href={href} className="account-shortcut"><span className="text-lg text-[#c6a767]" aria-hidden="true">↗</span><h2 className="font-display text-xl">{title}</h2><p className="text-xs leading-6 text-[#9c988e]">{description}</p></Link>)}
       </nav>
+      <Link href="/privacidade/solicitacoes" className="mt-7 inline-flex min-h-11 items-center text-sm text-[#e4ca91] underline">Meus dados e pedidos de exclusão</Link>
+      {user.role === "ADMIN" && <Link href="/moderacao/privacidade" className="ml-5 inline-flex min-h-11 items-center text-sm text-[#e4ca91] underline">Solicitações de privacidade</Link>}
       {pending && <div className="mt-8"><EmailActivation /></div>}
       {(user.role === "ADMIN" || user.role === "REVIEWER") && <Link href="/moderacao" className="btn-outline mt-8">Abrir moderação</Link>}
     </div>

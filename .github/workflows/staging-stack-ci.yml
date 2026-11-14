@@ -30,7 +30,7 @@ jobs:
         with:
           repository: josenetoo-dev/veiculos-api
           # PR comercial depende das rotas de busca da API em revisão.
-          ref: ${{ github.head_ref == 'feat/planos-comerciais-e-chat-privado' && 'e23b86872d54a426fdb12f330672316fecd21e48' || 'main' }}
+          ref: ${{ github.head_ref == 'feat/experiencia-anunciante' && '24b35c7d8e9cb89123b526a0dfd511c430be180c' || 'main' }}
           path: veiculos-api
 
       - name: Configurar Node.js para checagens de contratos
@@ -77,7 +77,7 @@ jobs:
       - name: Instalar navegador de teste (somente CI)
         working-directory: auto-minas-frontend
         run: |
-          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npm install --no-save --no-audit --no-fund playwright@1.56.1 @axe-core/playwright@4.14.0
           npx playwright install --with-deps chromium
 
       - name: Validar layouts mobile e tablet no Chromium

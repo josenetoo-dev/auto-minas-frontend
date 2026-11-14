@@ -82,7 +82,7 @@ export default async function CarrosPage({
 
       {!catalog && <p role="alert" className="mb-6 text-sm text-amber-300">A API está indisponível. Não foi possível consultar os anúncios neste momento.</p>}
       {results.length > 0 ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="catalog-results grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((car) => (
             <CarCard key={car.id} car={car} />
           ))}

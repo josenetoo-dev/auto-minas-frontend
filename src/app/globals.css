@@ -20,13 +20,13 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 .font-display {
-  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-family: Georgia, "Times New Roman", serif;
 }
 
 ::selection {
@@ -283,16 +283,15 @@ button, select { touch-action: manipulation; }
 
 /* Marketplace: dark surroundings, warm paper surfaces and restrained gold. */
 .market-hero { position: relative; overflow: hidden; background: #0b0c0e; }
-.market-hero-art { position: absolute; inset: 0 0 0 34%; background: url('/banners/auto-minas-home-horizontal.webp') right center / auto 100% no-repeat; opacity: .72; }
 .market-hero-shade { position: absolute; inset: 0; background: linear-gradient(90deg,#0b0c0e 5%,#0b0c0e 32%,rgba(11,12,14,.95) 46%,rgba(11,12,14,.2) 85%),linear-gradient(0deg,#0b0c0e,transparent 30%); }
-.market-title { font-family: "Playfair Display", Georgia, serif; font-size: clamp(2.7rem,5.2vw,4.7rem); line-height: 1.1; font-weight: 400; letter-spacing: -.045em; color: #efe6d5; }
+.market-title { font-family: Georgia, serif; font-size: clamp(2.7rem,5.2vw,4.7rem); line-height: 1.1; font-weight: 400; letter-spacing: -.045em; color: #efe6d5; }
 .market-title em { color: #d7b777; font-weight: 400; }
-.market-heading { font-family: "Playfair Display", Georgia, serif; font-size: clamp(1.8rem,3vw,2.65rem); line-height: 1.2; font-weight: 400; letter-spacing: -.025em; color: #eee5d3; }
+.market-heading { font-family: Georgia, serif; font-size: clamp(1.8rem,3vw,2.65rem); line-height: 1.2; font-weight: 400; letter-spacing: -.025em; color: #eee5d3; }
 .market-eyebrow { font-size: .65rem; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: #bca675; }
 .market-search { padding: 1.5rem; background: #eee6d4; color: #302b23; border: 1px solid #faf1dc; border-radius: 1rem; box-shadow: 0 16px 50px -28px #000,0 4px 0 #bbae92; }
 .market-search-label { display: block; min-width: 0; font-size: .65rem; font-weight: 600; color: #766c5c; }
 .market-search-input { display: block; width: 100%; min-width: 0; padding: .7rem 0 .5rem; background: transparent; color: #302b23; font-size: .85rem; font-weight: 400; border-bottom: 1px solid #c6bba6; outline-offset: 4px; }
-.market-search-input::placeholder { color: #7b7264; }
+.market-search-input::placeholder { color: #635a4b; }
 .market-brand { display: inline-flex; min-height: 40px; align-items: center; padding: .4rem .8rem; border: 1px solid #2a2a28; border-radius: 6px; color: #c5c0b5; font-size: .75rem; transition: border-color .2s; }
 .market-brand:hover { border-color: #b89c62; color: #f4e6c6; }
 .market-text-link { display: inline-flex; min-height: 44px; align-items: center; gap: 1.5rem; color: #d7bd87; font-size: .8rem; }
@@ -303,8 +302,43 @@ button, select { touch-action: manipulation; }
 .account-shortcut { display: flex; min-height: 100%; flex-direction: column; gap: 1rem; padding: 1.5rem; border: 1px solid #2c2d2b; border-radius: 1rem; background: #111316; transition: border-color .2s, transform .2s; }
 .account-shortcut:hover { border-color: #9f8756; transform: translateY(-2px); }
 @media(max-width:639px) {
-  .market-hero-art { inset: 0; opacity: .25; background-position: 68% top; background-size: auto 65%; }
   .market-hero-shade { background: linear-gradient(90deg,rgba(11,12,14,.95),rgba(11,12,14,.55)),linear-gradient(0deg,#0b0c0e 10%,transparent 80%); }
   .market-search { padding: 1.2rem; }
 }
 @media(prefers-reduced-motion:reduce) { .account-shortcut { transition: none; } }
+
+:focus-visible { outline:3px solid #f2d87e;outline-offset:4px; }
+.market-paper-card :focus-visible,.market-search :focus-visible { outline-color:#30291e; }
+.skip-link { position:fixed;top:8px;left:8px;z-index:200;padding:12px 20px;background:#f4df9a;color:#141005;border-radius:8px;transform:translateY(-180%); }
+.skip-link:focus { transform:translateY(0); }
+.cookie-banner { position:fixed;z-index:80;bottom:20px;left:20px;right:20px;max-width:720px;padding:22px;border:1px solid #75613b;border-radius:16px;background:#141518;box-shadow:0 10px 50px #0008; }
+.cookie-choice { display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #a68e5b;border-radius:9px;padding:10px 16px;color:#f1e5ca;background:#20211e;font-size:14px; }
+.cookie-choice:hover { background:#37342c; }
+.cookie-dialog { margin:auto;max-width:560px;width:calc(100% - 32px);max-height:calc(100dvh - 40px);overflow:auto;padding:24px;border:1px solid #a68e5b;border-radius:16px;background:#141518;color:#f1e5ca; }
+.cookie-dialog::backdrop { background:#000a; }
+.mobile-actions { display:none; }
+.legal-document h2 { margin-bottom:12px;font-family:Georgia,serif;font-size:1.45rem;color:#f1e5ca; }
+.legal-document p+p { margin-top:12px; }
+.legal-document a { text-underline-offset:4px; }
+@media(max-width:767px) {
+ body:has(.mobile-actions) { padding-bottom:calc(76px + env(safe-area-inset-bottom)); }
+ .mobile-actions { display:grid;grid-template-columns:1fr 1fr;gap:10px;position:fixed;z-index:60;bottom:0;left:0;right:0;background:#101114f5;border-top:1px solid #66522e;padding:10px 14px calc(10px + env(safe-area-inset-bottom));backdrop-filter:blur(12px); }
+ .mobile-actions>a { min-width:0;padding-left:10px;padding-right:10px;font-size:.8rem; }
+ body:has(.mobile-actions) .cookie-banner { bottom:calc(84px + env(safe-area-inset-bottom)); }
+ .cookie-banner { left:12px;right:12px;bottom:12px;padding:18px;max-height:calc(100dvh - 130px);overflow:auto; }
+ .market-title { font-size:clamp(1.95rem,8vw,2.7rem); }
+ .market-hero .market-eyebrow { letter-spacing:.14em; }
+ .market-hero-shade { display:none; }
+ .market-search { margin-top:0;padding:16px; }
+}
+@media(max-width:639px) {
+ .home-vehicle-grid { display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 4px 16px; }
+ .home-vehicle-grid>.vehicle-card { min-width:270px;max-width:290px;flex-shrink:0;scroll-snap-align:start; }
+ .catalog-results>.vehicle-card { display:grid;grid-template-columns:minmax(105px,.8fr) minmax(0,1.2fr); }
+ .catalog-results .vehicle-card-media { aspect-ratio:auto;min-height:185px; }
+ .catalog-results .vehicle-card-media>img { height:100%;position:absolute; }
+ .catalog-results .vehicle-card-info { min-width:0;padding:12px; }
+ .catalog-results .vehicle-card-info h3 { font-size:1rem; }
+ .catalog-results .vehicle-card-info .font-display.text-xl { font-size:1.15rem; }
+}
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation:none!important;transition:none!important; } }

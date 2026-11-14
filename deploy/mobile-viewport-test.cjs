@@ -4,6 +4,7 @@
  * Não usa AWS, documento real ou hospedagem externa.
  */
 const { chromium } = require("playwright");
+const AxeBuilder = require("@axe-core/playwright").default;
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -39,6 +40,10 @@ async function inspect(page, label, width) {
   });
   expect(result.document <= result.width + 1,
     label + " " + width + "px: overflow horizontal " + JSON.stringify(result));
+  if ([390,1280].includes(width) && ["inicio","modalidades","conta"].includes(label)) {
+    const report=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa","wcag22aa"]).analyze();
+    expect(report.violations.length===0,"Acessibilidade "+label+" "+width+": "+JSON.stringify(report.violations.map(item=>({id:item.id,nodes:item.nodes.map(node=>({target:node.target,reason:node.failureSummary}))}))));
+  }
   return result;
 }
 
@@ -58,6 +63,7 @@ async function main() {
       const page = await context.newPage();
       console.log("Validando responsividade: " + width + "px");
       await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
+      await page.getByRole("button", { name: "Somente necessários", exact:true }).click();
       await inspect(page, "inicio", width);
       if (width <= 768) {
         // O nome acessível muda de "Abrir menu" para "Fechar menu" após o clique.
@@ -120,13 +126,16 @@ async function main() {
     const signupContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const signupPage = await signupContext.newPage();
     await signupPage.goto(BASE + "/vender?modalidade=avulso");
+    await signupPage.getByRole("button", { name: "Somente necessários", exact:true }).click();
     await signupPage.getByRole("button", { name: "Criar conta", exact: true }).click();
     await signupPage.getByLabel("Nome completo", { exact: true }).fill("Pessoa fictícia de teste");
     await signupPage.getByLabel(/Telefone com DDD/).fill("38000000000");
     await signupPage.getByLabel("E-mail", { exact: true }).fill(`cadastro-${Date.now()}@auto-minas.test`);
     await signupPage.getByLabel("Senha", { exact: true }).fill("Senha-ficticia-CI-2026!");
+    await signupPage.getByRole("checkbox", { name: /Li e concordo/ }).check();
     await signupPage.getByRole("button", { name: "Criar conta e entrar", exact: true }).click();
-    await signupPage.waitForURL("**/vender?modalidade=avulso");
+    await signupPage.waitForURL(BASE + "/");
+    await signupPage.getByRole("button", { name: "Abrir menu da conta", exact:true }).waitFor();
     const sessionCookie = (await signupContext.cookies()).find(cookie => cookie.name === "auto_minas_access");
     expect(sessionCookie?.httpOnly && sessionCookie?.secure, "Cadastro deve criar sessão Secure e HttpOnly");
     await signupPage.goto(BASE + "/conta");
@@ -134,7 +143,7 @@ async function main() {
     await signupPage.getByText("E-mail pendente de confirmação", { exact: true }).waitFor();
     await inspect(signupPage, "cadastro-conectado", 390);
     await signupContext.close();
-    console.log("Cadastro pela interface preservou a modalidade avulsa, criou sessão e abriu a conta com e-mail pendente.");
+    console.log("Cadastro pela interface abriu a home autenticada; painel confirmou e-mail pendente.");
     console.log("Responsividade: telas de 320, 360, 390, 768, 1024 e 1280px sem overflow; menu, filtros, formulário e chat verificados.");
   } finally {
     await browser.close();

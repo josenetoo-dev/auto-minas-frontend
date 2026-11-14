@@ -8,7 +8,7 @@ export async function POST(request: Request, context: Context) {
   if (!/^\d+$/.test(id)) return NextResponse.json({ error: "Negociação inválida" }, { status: 400 });
   try {
     const incoming = await request.formData(); const file = incoming.get("file");
-    if (!(file instanceof File) || file.size < 1 || file.size > 5 * 1024 * 1024 || !["image/jpeg", "image/png"].includes(file.type)) return NextResponse.json({ error: "Envie uma imagem JPEG ou PNG de até 5 MiB." }, { status: 400 });
+    if (!(file instanceof File) || file.size < 1 || file.size > 4 * 1024 * 1024 || !["image/jpeg", "image/png"].includes(file.type)) return NextResponse.json({ error: "Envie uma imagem JPEG ou PNG de até 4 MiB." }, { status: 400 });
     const form = new FormData(); form.set("arquivo", file, file.name);
     const message = await privateApi<{ id: number; remetenteId: number; conteudo: string; criadoEm: string; arquivoNome?: string; tipoMidia?: string; arquivoTamanho?: number }>(`/v1/proposta/${id}/mensagens/anexos`, { method: "POST", body: form });
     return NextResponse.json({ ok: true, message: { id: message.id, senderId: message.remetenteId, content: message.conteudo, createdAt: message.criadoEm, readAt: null, attachment: { name: message.arquivoNome ?? file.name, mime: message.tipoMidia ?? file.type, size: message.arquivoTamanho ?? file.size, url: `/api/conversations/${id}/attachments?messageId=${message.id}` } } });

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CookieSettingsButton } from "./cookie-preferences";
 import Logo from "./logo";
 
 export default function Footer() {
@@ -13,9 +14,9 @@ export default function Footer() {
           </p>
         </div>
         <div>
-          <h4 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-[#d4af37]">
+          <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-[#d4af37]">
             Navegação
-          </h4>
+          </h2>
           <ul className="space-y-2.5 text-sm text-[#9b9ba4]">
             <li>
               <Link href="/" className="transition-colors hover:text-[#f2d87e]">Início</Link>
@@ -32,16 +33,16 @@ export default function Footer() {
           </ul>
         </div>
         <div>
-          <h4 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-[#d4af37]">
+          <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-[#d4af37]">
             Atendimento
-          </h4>
+          </h2>
           <ul className="space-y-2.5 text-sm text-[#9b9ba4]">
-            <li>Confira as políticas de privacidade antes de enviar documentos.</li>
+            <li><Link className="inline-flex min-h-11 items-center" href="/privacidade">Privacidade</Link></li><li><Link className="inline-flex min-h-11 items-center" href="/termos">Termos de uso</Link></li><li><Link className="inline-flex min-h-11 items-center" href="/cookies">Política de cookies</Link></li><li><CookieSettingsButton /></li><li><Link className="inline-flex min-h-11 items-center" href="/reembolsos">Cancelamento e reembolso</Link></li><li><Link className="inline-flex min-h-11 items-center" href="/privacidade/solicitacoes">Solicitar exclusão de dados</Link></li><li><Link className="inline-flex min-h-11 items-center" href="/legal">Responsável e contato</Link></li>
             <li>Não transferimos propriedade nem garantimos o pagamento.</li>
           </ul>
         </div>
       </div>
-      <div className="border-t border-[#1a1a20] py-5 text-center text-xs text-[#5c5c66]">
+      <div className="border-t border-[#1a1a20] py-5 text-center text-xs text-[#a5a5ad]">
         © {new Date().getFullYear()} Auto Minas — Todos os direitos reservados.
       </div>
     </footer>

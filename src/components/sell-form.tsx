@@ -99,6 +99,6 @@ export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carI
   <aside className="sticky bottom-0 z-20 -mx-4 h-fit space-y-4 border-t border-[#d4af37]/20 bg-[#08080a]/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-lg sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none lg:sticky lg:top-24"><div className="card-dark space-y-3 border-0 bg-transparent p-0 sm:space-y-4 sm:border sm:p-6"><h2 className="font-display hidden text-xl font-bold sm:block">Revisão antes da publicação</h2><p className="hidden text-sm leading-relaxed text-[#9b9ba4] sm:block">Seu anúncio será salvo como <strong className="text-[#f2d87e]">PENDENTE</strong>. A equipe só poderá publicá-lo depois de analisar sua identidade, a documentação do veículo e o anúncio.</p>
     {error&&<p role="alert" className="rounded-lg border border-red-500/40 bg-red-950/30 p-3 text-sm text-red-300">{error}</p>}
     <button type="submit" disabled={busy} className="btn-gold w-full">{busy?"Salvando…":mode==="edit"?"Salvar e solicitar nova análise":"Cadastrar anúncio para análise"}</button>
-    <p className="hidden text-xs text-[#777782] sm:block">Sem promessa de verificação governamental. A revisão documental é realizada por pessoas.</p></div></aside>
+    <p className="hidden text-xs text-[#a5a5ad] sm:block">Sem promessa de verificação governamental. A revisão documental é realizada por pessoas.</p></div></aside>
  </form>;
 }

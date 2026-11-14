@@ -51,6 +51,8 @@ export default function Header({ user, unreadCount }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const mobileToggle = useRef<HTMLButtonElement>(null);
+  const accountToggle = useRef<HTMLButtonElement>(null);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
@@ -68,13 +70,15 @@ export default function Header({ user, unreadCount }: Props) {
   useEffect(() => {
     const dismiss = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        if (menuOpen) mobileToggle.current?.focus();
+        if (userOpen) accountToggle.current?.focus();
         setMenuOpen(false);
         setUserOpen(false);
       }
     };
     document.addEventListener("keydown", dismiss);
     return () => document.removeEventListener("keydown", dismiss);
-  }, []);
+  }, [menuOpen, userOpen]);
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -125,6 +129,7 @@ export default function Header({ user, unreadCount }: Props) {
             <div className="relative" ref={menuRef}>
               <button
                 type="button"
+                ref={accountToggle}
                 aria-label={userOpen ? "Fechar menu da conta" : "Abrir menu da conta"}
                 aria-expanded={userOpen}
                 aria-controls="auto-minas-account-menu"
@@ -203,6 +208,7 @@ export default function Header({ user, unreadCount }: Props) {
           <button
             onClick={() => setMenuOpen((v) => !v)}
             className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-[#26262e] text-[#f4f3ee] lg:hidden"
+            ref={mobileToggle}
             aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
             aria-expanded={menuOpen}
             aria-controls="auto-minas-mobile-menu"

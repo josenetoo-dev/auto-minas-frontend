@@ -50,7 +50,7 @@ export default async function LoginPage({
               ))}
             </ul>
           </div>
-          <p className="text-xs text-[#5c5c66]">© {new Date().getFullYear()} Auto Minas Veículos</p>
+          <p className="text-xs text-[#a5a5ad]">© {new Date().getFullYear()} Auto Minas Veículos</p>
         </div>
       </div>
 
