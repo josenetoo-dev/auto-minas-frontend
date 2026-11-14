@@ -6,6 +6,19 @@ import Link from "next/link";
 export default function CarOwnerActions({carId,status}:{carId:number;status:string}){
  const router=useRouter(),[busy,setBusy]=useState(false),[error,setError]=useState("");
  async function transition(target:"pausado"|"pendente"|"vendido"){
+  let salePayload:{valorFinal:number;dataVenda:string}|null=null;
+  if(target==="vendido"){
+   const amount=window.prompt("Informe o valor final da negociação (R$).");
+   if(amount===null)return;
+   const normalized=amount.trim().replace(/^R\$\s*/i,"").replace(/\s/g,"");
+   const value=Number(normalized.includes(",")?normalized.replace(/\./g,"").replace(",","."):normalized);
+   if(!Number.isFinite(value)||value<=0){setError("Informe um valor final válido.");return;}
+   const now=new Date(),today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+   const date=window.prompt("Informe a data declarada da venda (AAAA-MM-DD).",today);
+   if(date===null)return;
+   if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||Number.isNaN(Date.parse(`${date}T00:00:00Z`))||new Date(`${date}T00:00:00Z`).toISOString().slice(0,10)!==date){setError("Informe uma data existente no formato AAAA-MM-DD.");return;}
+   salePayload={valorFinal:value,dataVenda:date};
+  }
   const notices={
    pausado:"Pausar o anúncio? Ele sairá da vitrine e deixará de receber novas propostas.",
    pendente:"Solicitar reativação? O anúncio ficará em análise até a moderação aprovar novamente.",
@@ -14,7 +27,7 @@ export default function CarOwnerActions({carId,status}:{carId:number;status:stri
   if(!window.confirm(notices[target]))return;
   setBusy(true);setError("");
   try{
-   const r=await fetch(`/api/cars/${carId}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:target})});
+   const r=await fetch(`/api/cars/${carId}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:target,...(salePayload??{})})});
    const response=await r.json().catch(()=>({}));
    if(!r.ok)throw new Error(response.error||"Não foi possível atualizar o anúncio.");
    router.refresh();

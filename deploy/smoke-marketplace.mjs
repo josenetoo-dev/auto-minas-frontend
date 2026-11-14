@@ -122,17 +122,13 @@ try {
     throw new Error("Reativação publicou anúncio sem passar pela moderação");
 
   const sold=await request("/api/cars/"+demoCars[1],{
-    method:"PATCH",cookie:seller,body:{status:"vendido"}
+    method:"PATCH",cookie:seller,body:{
+      status:"vendido",valorFinal:60000,dataVenda:new Date().toISOString().slice(0,10)
+    }
   });
-  expectCode(sold,200,"Marcar anúncio como vendido");
-  if(sold.json?.status!=="VENDIDO")throw new Error("Status vendido não persistido");
+  expectCode(sold,409,"Bloquear declaração de venda sem assinatura vigente");
 
-  const reactivationAfterSold=await request("/api/cars/"+demoCars[1],{
-    method:"PATCH",cookie:seller,body:{status:"pendente"}
-  });
-  expectCode(reactivationAfterSold,409,"Não reativar anúncio vendido");
-
-  console.log("E2E de homologação aprovado: cidade/UF, conta comprador/vendedor/admin, cadastro pendente, proposta, chat, pausa, moderação de reativação e venda.");
+  console.log("E2E de homologação aprovado: cidade/UF, conta comprador/vendedor/admin, cadastro pendente, proposta, chat, pausa, moderação de reativação e bloqueio comercial da venda.");
 } catch(error) {
   console.error(error.message);
   process.exitCode=1;

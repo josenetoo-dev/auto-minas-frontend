@@ -35,9 +35,19 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
   const [activeId, setActiveId] = useState<number | null>(initialThread?.conversation.id ?? null);
   const [thread, setThread] = useState<ChatThread | null>(initialThread);
   const [input, setInput] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [deletingMessage, setDeletingMessage] = useState<number | null>(null);
+  const [clientNow, setClientNow] = useState<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const update = () => setClientNow(Date.now());
+    update();
+    const timer = setInterval(update, 30_000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Poll da lista de conversas (badges de não lidas + novas conversas)
   useEffect(() => {
@@ -98,42 +108,52 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
   async function send(e: React.FormEvent) {
     e.preventDefault();
     const content = input.trim();
-    if (!content || !activeId || sending) return;
+    if ((!content && !selectedFile) || !activeId || sending) return;
     setSending(true);
     setSendError(null);
     const tempId = -Date.now();
-    const temp: ChatMessageDTO = { id: tempId, senderId: meId, content, createdAt: new Date().toISOString(), readAt: null };
+    const temp: ChatMessageDTO = { id: tempId, senderId: meId, content: selectedFile ? `Imagem: ${selectedFile.name}` : content, createdAt: new Date().toISOString(), readAt: null };
     setThread((prev) => (prev ? { ...prev, messages: [...prev.messages, temp] } : prev));
     setInput("");
     try {
-      const res = await fetch(`/api/conversations/${activeId}/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
-      });
+      let res:Response;
+      if(selectedFile){const form=new FormData();form.set("file",selectedFile);res=await fetch(`/api/conversations/${activeId}/attachments`,{method:"POST",body:form});}
+      else res = await fetch(`/api/conversations/${activeId}/messages`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content }) });
       const data = await res.json();
       if (res.ok) {
         setThread((prev) =>
           prev
-            ? { ...prev, messages: prev.messages.map((m) => (m.id === tempId ? data.message : m)) }
+            ? { ...prev, messages: prev.messages.map((m) => (m.id === tempId ? (data.message.attachment ? data.message : { ...data.message, attachment: undefined }) : m)) }
             : prev,
         );
+        setSelectedFile(null);
       } else {
         setThread((prev) =>
           prev ? { ...prev, messages: prev.messages.filter((m) => m.id !== tempId) } : prev,
         );
-        setInput(content);
+        if(content)setInput(content);
         setSendError(data.error ?? "Não foi possível enviar a mensagem.");
       }
     } catch {
       setThread((prev) =>
         prev ? { ...prev, messages: prev.messages.filter((m) => m.id !== tempId) } : prev,
       );
-      setInput(content);
+      if(content)setInput(content);
       setSendError("Falha de conexão. Tente novamente.");
     } finally {
       setSending(false);
     }
+  }
+
+  async function deleteMessage(messageId:number) {
+    if(!activeId||deletingMessage!==null)return;
+    setDeletingMessage(messageId);setSendError(null);
+    try {
+      const response=await fetch(`/api/conversations/${activeId}/messages?messageId=${messageId}`,{method:"DELETE"});
+      if(!response.ok){const body=await response.json().catch(()=>({}));throw new Error(body.error??"Não foi possível excluir a mensagem.");}
+      setThread(current=>current?{...current,messages:current.messages.filter(message=>message.id!==messageId)}:current);
+    } catch(error) { setSendError(error instanceof Error?error.message:"Falha ao excluir a mensagem."); }
+    finally { setDeletingMessage(null); }
   }
 
   const car = thread?.car;
@@ -279,7 +299,8 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
                               : "rounded-bl-sm border border-[#26262e] bg-[#1a1a21] text-[#ecece6]"
                           }`}
                         >
-                          <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                          {m.attachment && !m.deleted && <a href={m.attachment.url} download className="mb-1 block rounded-lg border border-black/10 px-3 py-2 text-xs font-semibold underline underline-offset-4">Baixar imagem · {m.attachment.name} ({Math.ceil(m.attachment.size/1024)} KB)</a>}
+                          <p className="whitespace-pre-wrap break-words">{m.deleted ? "Mensagem excluída" : m.content}</p>
                         </div>
                         <p className={`mt-1 flex items-center gap-1 px-1 text-[10px] text-[#5c5c66]`}>
                           {formatClock(m.createdAt)}
@@ -289,6 +310,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
                             </svg>
                           )}
                         </p>
+                        {mine && m.id > 0 && !m.deleted && clientNow !== null && clientNow-new Date(m.createdAt).getTime()<=5*60*1000 && <button type="button" disabled={deletingMessage!==null} onClick={()=>void deleteMessage(m.id)} className="mt-1 min-h-8 px-1 text-[11px] text-[#d4af37] underline disabled:opacity-50">{deletingMessage===m.id?"Excluindo…":"Excluir mensagem"}</button>}
                       </div>
                     </div>
                   );
@@ -300,6 +322,10 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
               <form onSubmit={send} className="shrink-0 border-t border-[#26262e] bg-[#0e0e12] px-2.5 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] sm:p-3">
                 {sendError && <p className="mb-2 px-1 text-xs text-red-400">{sendError}</p>}
                 <div className="flex items-end gap-2">
+                  <label className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-xl border border-[#26262e] text-[#d4af37] hover:border-[#d4af37]/60" aria-label="Anexar imagem">
+                    <input type="file" accept="image/jpeg,image/png" className="sr-only" onChange={event=>{const file=event.target.files?.[0];if(!file)return;if(file.size>5*1024*1024){setSendError("A imagem deve ter no máximo 5 MiB.");return;}setSelectedFile(file);setSendError("");event.target.value="";}} />
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                  </label>
                   <textarea
                     aria-label="Mensagem para negociação"
                     value={input}
@@ -316,7 +342,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
                   />
                   <button
                     type="submit"
-                    disabled={sending || !input.trim()}
+                    disabled={sending || (!input.trim() && !selectedFile)}
                     className="btn-gold h-11 w-11 shrink-0 !rounded-xl !p-0"
                     aria-label="Enviar mensagem"
                   >

@@ -12,7 +12,7 @@ Navegador (HTTPS) → Caddy (login de avaliador) → Next.js 16 (BFF) → Spring
 
 - Somente o Caddy publica 80/443 em `--profile public`. Next.js oferece porta 3000 **somente em 127.0.0.1** para testes locais/túnel. API e MySQL não publicam portas.
 - Next.js usa build de produção em modo `standalone` com Node 22; Java 21 é compilado por Maven num contêiner. Imagens multiarch para `amd64` e `arm64`.
-- MySQL usa **volume separado**, criado vazio e migrado pela API com Flyway V1–V12. **NUNCA** apontar o compose para o banco real nem transportar dados reais para ele.
+- MySQL usa **volume separado**, criado vazio e migrado pela API com Flyway V1–V18. **NUNCA** apontar o compose para o banco real nem transportar dados reais para ele.
 - App usa `SPRING_PROFILES_ACTIVE=staging` (não `local`) e `ddl-auto=validate`, com `STAGING_DEMO_ENABLED=true`.
 - Cinco anúncios `[DEMO]` e três contas sintéticas (admin, comprador e vendedor) são inseridos **apenas** com o perfil `staging & !prod`; senha aleatória gerada em `.env.staging`. Os anúncios de exemplo são marcados como ativos para testar a vitrine e **não comprovam revisão documental oficial**.
 - Proteção extra: senha Caddy com hash bcrypt, `X-Robots-Tag: noindex`, tag de homologação no topo e bloqueio de indexação. HTTPS automático via Caddy.

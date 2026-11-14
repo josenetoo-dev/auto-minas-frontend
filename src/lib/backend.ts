@@ -47,6 +47,20 @@ export async function privateApi<T>(path: string, options: RequestInit = {}): Pr
   if (!token) throw new BackendError(401, "Faça login para continuar.");
   return backendFetch<T>(path, options, token);
 }
+export async function privateApiBinary(path: string): Promise<Response> {
+  const token = await getApiToken();
+  if (!token) throw new BackendError(401, "Faça login para continuar.");
+  if (!path.startsWith("/") || path.startsWith("//")) throw new BackendError(400, "Caminho inválido");
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/octet-stream" }, cache: "no-store", signal: AbortSignal.timeout(12000) });
+  } catch { throw new BackendError(503, "A API Auto Minas está indisponível no momento."); }
+  if (!response.ok) {
+    const value = await response.json().catch(() => null);
+    throw new BackendError(response.status, apiMessage(value, `Erro na API (${response.status})`));
+  }
+  return response;
+}
 
 export function sameOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
