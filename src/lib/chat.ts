@@ -4,10 +4,10 @@ import { carById, type CarData } from "@/lib/car";
 export type ChatOther = {id:number;name:string;avatarUrl:string|null};
 export type ChatCar = {id:number;brand:string;model:string;year:number;price:number;image:string|null;status:string};
 export type ChatSummary = {id:number;carId:number;car:ChatCar|null;other:ChatOther;lastMessage:string|null;lastAt:string;unread:number;status:string;value:number};
-export type ChatMessageDTO={id:number;senderId:number;content:string;createdAt:string;readAt:string|null};
+export type ChatMessageDTO={id:number;senderId:number;content:string|null;createdAt:string;readAt:string|null;deleted?:boolean;attachment?:{name:string;mime:string;size:number;url:string}};
 export type ChatThread={conversation:{id:number;carId:number;myRole:"buyer"|"seller";status:string;value:number};car:ChatCar|null;other:ChatOther|null;messages:ChatMessageDTO[]};
 export type BackendProposal={id:number;valor:number;descricao:string;status:string;criadoEm:string;anuncio:number;comprador:number;contrapropostaValor:number|null;contrapropostaDescricao:string|null;contrapropostaFeita:boolean};
-export type BackendMessage={id:number;propostaId:number;remetenteId:number;remetenteNome:string;conteudo:string;criadoEm:string};
+export type BackendMessage={id:number;propostaId:number;remetenteId:number;remetenteNome:string;conteudo:string|null;criadoEm:string;excluida?:boolean;arquivoNome?:string|null;tipoMidia?:string|null;arquivoTamanho?:number|null;anexoDisponivel?:boolean};
 function chatCar(c:CarData|null):ChatCar|null {return c?{id:c.id,brand:c.brand,model:c.model,year:c.year,price:c.price,image:c.images[0]||null,status:c.status}:null;}
 async function carSafe(id:number,token:string):Promise<CarData|null>{try{return await carById(id,token);}catch{return null;}}
 async function otherName(id:number,token:string):Promise<ChatOther>{
@@ -33,7 +33,7 @@ export async function getChatThread(userId:number,id:number):Promise<ChatThread|
  const other=partnerId?await otherName(partnerId,token):{id:0,name:"Participante",avatarUrl:null};
  const messages=await allPages<BackendMessage>(`/v1/proposta/${id}/mensagens`,token);
  return {conversation:{id:p.id,carId:p.anuncio,myRole:isBuyer?"buyer":"seller",status:p.status,value:Number(p.valor)},
-  car:chatCar(car),other,messages:messages.map(m=>({id:m.id,senderId:m.remetenteId,content:m.conteudo,createdAt:m.criadoEm,readAt:null}))
+  car:chatCar(car),other,messages:messages.map(m=>({id:m.id,senderId:m.remetenteId,content:m.conteudo,createdAt:m.criadoEm,readAt:null,deleted:m.excluida,...(m.anexoDisponivel?{attachment:{name:m.arquivoNome??"Imagem",mime:m.tipoMidia??"image/jpeg",size:m.arquivoTamanho??0,url:`/api/conversations/${p.id}/attachments?messageId=${m.id}`}}:{})}))
    .sort((a,b)=>new Date(a.createdAt).getTime()-new Date(b.createdAt).getTime())};
 }
 /** Backend does not implement read receipts; never invent an unread count. */

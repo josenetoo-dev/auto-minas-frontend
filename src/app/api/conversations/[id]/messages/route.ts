@@ -21,3 +21,14 @@ export async function POST(request:Request,ctx:C){
   return NextResponse.json({ok:true,message:{id:data.id,senderId:data.remetenteId,content:data.conteudo,createdAt:data.criadoEm,readAt:null}});
  }catch(e){return clientError(e);}
 }
+
+export async function DELETE(request:Request,ctx:C){
+ if(!sameOrigin(request))return NextResponse.json({error:"Origem não permitida"},{status:403});
+ const id=(await ctx.params).id;const messageId=new URL(request.url).searchParams.get("messageId");
+ if(!/^\d+$/.test(id)||!messageId||!/^\d+$/.test(messageId))return NextResponse.json({error:"Mensagem inválida"},{status:400});
+ try{
+  const token=await getApiToken();if(!token)return NextResponse.json({error:"Faça login"},{status:401});
+  await backendFetch<void>(`/v1/proposta/${id}/mensagens/${messageId}`,{method:"DELETE"},token);
+  return NextResponse.json({ok:true});
+ }catch(e){return clientError(e);}
+}

@@ -17,8 +17,9 @@ type Props = {
 
 const NAV = [
   { href: "/", label: "Início" },
-  { href: "/carros", label: "Comprar Carro" },
-  { href: "/vender", label: "Vender Carro" },
+  { href: "/carros", label: "Comprar" },
+  { href: "/planos", label: "Planos" },
+  { href: "/vender", label: "Anunciar" },
   { href: "/chat", label: "Negociações", needsAuth: true },
   { href: "/conta", label: "Conta", needsAuth: true },
 ];

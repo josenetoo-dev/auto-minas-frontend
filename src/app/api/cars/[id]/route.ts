@@ -10,11 +10,12 @@ export async function PATCH(request:Request,context:Ctx){
  try {
   const body=await request.json();
   // Apenas ações permitidas ao proprietário, validadas novamente pelo Spring.
-  if(Object.keys(body).length===1 && typeof body.status==="string"){
+  if(typeof body.status==="string" && (Object.keys(body).length===1 || (body.status.toLowerCase()==="vendido" && Object.keys(body).sort().join(",")==="dataVenda,status,valorFinal"))){
    const transitions:Record<string,string>={pausado:"pausar",pendente:"reativar",vendido:"vendido"};
    const suffix=transitions[body.status.toLowerCase()];
    if(!suffix)return NextResponse.json({error:"Transição de status inválida."},{status:400});
-   const updated=await privateApi<BackendAd>(`/v1/anuncio/${id}/${suffix}`,{method:"POST"});
+   const saleBody=suffix==="vendido"?JSON.stringify({valorFinal:body.valorFinal,dataVenda:body.dataVenda}):undefined;
+   const updated=await privateApi<BackendAd>(`/v1/anuncio/${id}/${suffix}`,{method:"POST",body:saleBody});
    return NextResponse.json({ok:true,id:updated.id,status:updated.status});
   }
   const ad=await privateApi<BackendAd>(`/v1/anuncio/${id}`,{method:"PUT",body:JSON.stringify(apiAdPayload(body))});

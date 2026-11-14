@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { publicCars } from "@/lib/car";
+import { featuredCars } from "@/lib/car";
 import CarCard from "@/components/car-card";
 import { BRANDS } from "@/lib/constants";
 
@@ -9,13 +9,11 @@ export const dynamic = "force-dynamic";
 import SearchBox from "./search-box";
 
 export default async function HomePage() {
-  const cars = await publicCars().catch(() => null);
-  const featured = cars?.slice(0,6) || [];
-  const total = cars?.length ?? 0;
+  const featured = await featuredCars(6).catch(() => null);
 
   return (
     <div>
-      {!cars && <div role="alert" className="border-b border-amber-500/30 bg-amber-950/30 px-4 py-3 text-center text-sm text-amber-200">A API Auto Minas está indisponível. Não é possível carregar anúncios agora.</div>}
+      {!featured && <div role="alert" className="border-b border-amber-500/30 bg-amber-950/30 px-4 py-3 text-center text-sm text-amber-200">A API Auto Minas está indisponível. Não é possível carregar anúncios agora.</div>}
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div
@@ -39,7 +37,7 @@ export default async function HomePage() {
 
           <div className="mt-10 grid w-full max-w-3xl grid-cols-1 gap-2.5 animate-fade-up min-[430px]:grid-cols-3 sm:mt-14 sm:gap-4">
             {[
-              { value: cars ? String(total) : "—", label: "Carros à venda" },
+              { value: featured ? String(featured.length) : "—", label: "Veículos em destaque" },
               { value: "Humana", label: "Revisão dos anúncios" },
               { value: "Segurança", label: "Verificação documental" },
             ].map((s) => (
@@ -133,7 +131,7 @@ export default async function HomePage() {
             </svg>
           </Link>
         </div>
-        {cars && featured.length === 0 && (
+        {featured && featured.length === 0 && (
           <div role="status" className="rounded-2xl border border-[#d4af37]/20 bg-[#141419] px-6 py-10 text-center">
             <p className="font-display text-xl font-bold text-[#f4f3ee]">Nenhum veículo publicado por enquanto</p>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#a8a8b0]">
@@ -143,7 +141,7 @@ export default async function HomePage() {
           </div>
         )}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((car) => (
+          {featured?.map((car) => (
             <CarCard key={car.id} car={car} />
           ))}
         </div>

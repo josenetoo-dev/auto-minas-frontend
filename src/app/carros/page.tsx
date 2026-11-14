@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { publicCars } from "@/lib/car";
+import { searchPublicCars } from "@/lib/car";
 import CarCard from "@/components/car-card";
 import CarFilters from "@/components/car-filters";
-import { FUEL_OPTIONS, TRANSMISSION_OPTIONS } from "@/lib/constants";
+import { BRANDS, FUEL_OPTIONS, TRANSMISSION_OPTIONS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Comprar carro",
+  title: "Comprar veículos",
   description: "Encontre veículos com anúncios analisados na plataforma Auto Minas.",
 };
 
@@ -41,25 +41,12 @@ export default async function CarrosPage({
   const maxPrice = num(sp.maxPrice);
   const yearMin = num(sp.yearMin);
   const sort = str(sp.sort) || "recentes";
+  const tipo = str(sp.tipo) === "MOTO" ? "MOTO" : "CARRO";
+  const page = Math.max(0, num(sp.page) ?? 0);
 
-  const cars = await publicCars().catch(() => null);
-  const filtered = (cars || []).filter((c) => {
-    const text = `${c.brand} ${c.model} ${c.version}`.toLocaleLowerCase("pt-BR");
-    return (!q || text.includes(q.toLocaleLowerCase("pt-BR"))) &&
-      (!brand || c.brand === brand) &&
-      (!city || c.city.toLocaleLowerCase("pt-BR").includes(city.toLocaleLowerCase("pt-BR"))) &&
-      (!state || c.state === state) &&
-      (!fuel || c.fuel === fuel) &&
-      (!transmission || c.transmission === transmission) &&
-      (minPrice === undefined || c.price >= minPrice) &&
-      (maxPrice === undefined || c.price <= maxPrice) &&
-      (yearMin === undefined || c.year >= yearMin);
-  });
-  filtered.sort((a,b) => sort === "menor-preco" ? a.price-b.price :
-      sort === "maior-preco" ? b.price-a.price : sort === "menor-km" ? a.mileageKm-b.mileageKm :
-      new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime());
-  const results = filtered.slice(0,1000);
-  const brands = [...new Set((cars || []).map(c=>c.brand))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  const catalog = await searchPublicCars({q,tipo,brand,city,state,fuel,transmission,minPrice,maxPrice,yearMin,sort,page}).catch(() => null);
+  const results = catalog?.cars ?? [];
+  const brands = [...BRANDS];
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       {/* Cabeçalho da página */}
@@ -68,13 +55,13 @@ export default async function CarrosPage({
           Vitrine de veículos
         </p>
         <h1 className="font-display mt-2 text-3xl font-bold text-[#f4f3ee] sm:text-4xl">
-          Comprar <span className="gold-text">carro</span>
+          Comprar <span className="gold-text">veículos</span>
         </h1>
       </div>
 
       <CarFilters
         initial={{
-          q: q ?? "",
+          q: q ?? "", tipo,
           brand: brand ?? "",
           city: city ?? "",
           state: state ?? "",
@@ -88,12 +75,12 @@ export default async function CarrosPage({
         brands={brands}
         fuelOptions={FUEL_OPTIONS}
         transmissionOptions={TRANSMISSION_OPTIONS}
-        total={results.length}
+        total={catalog?.total ?? 0}
       />
 
       <div className="divider-gold my-8" />
 
-      {!cars && <p role="alert" className="mb-6 text-sm text-amber-300">A API está indisponível. Não foi possível consultar os anúncios neste momento.</p>}
+      {!catalog && <p role="alert" className="mb-6 text-sm text-amber-300">A API está indisponível. Não foi possível consultar os anúncios neste momento.</p>}
       {results.length > 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((car) => (
@@ -109,7 +96,7 @@ export default async function CarrosPage({
             </svg>
           </div>
           <h2 className="font-display mt-5 text-xl font-bold text-[#f4f3ee]">
-            Nenhum veículo encontrado
+            Nenhum {tipo === "MOTO" ? "moto" : "carro"} encontrado
           </h2>
           <p className="mt-2 text-sm text-[#9b9ba4]">
             Tente ajustar os filtros ou buscar por outro modelo.
@@ -119,6 +106,7 @@ export default async function CarrosPage({
           </Link>
         </div>
       )}
+      {catalog && catalog.totalPages > 1 && <nav aria-label="Paginação do catálogo" className="mt-8 flex items-center justify-center gap-4"><Link aria-disabled={page===0} className={`btn-outline ${page===0?'pointer-events-none opacity-40':''}`} href={`/carros?${new URLSearchParams({...Object.fromEntries(Object.entries(sp).filter(([,v])=>typeof v==='string') as [string,string][]),page:String(Math.max(0,page-1))})}`}>Anterior</Link><span className="text-sm text-[#a9a9b2]">Página {page+1} de {catalog.totalPages}</span><Link aria-disabled={page+1>=catalog.totalPages} className={`btn-outline ${page+1>=catalog.totalPages?'pointer-events-none opacity-40':''}`} href={`/carros?${new URLSearchParams({...Object.fromEntries(Object.entries(sp).filter(([,v])=>typeof v==='string') as [string,string][]),page:String(page+1)})}`}>Próxima</Link></nav>}
     </div>
   );
 }

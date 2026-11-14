@@ -56,6 +56,22 @@ export async function publicCars(maxPages=10):Promise<CarData[]> {
   catch {return fromBackendAd(ad);}
  }));
 }
+export async function featuredCars(limit=6):Promise<CarData[]> {
+ const page=await backendFetch<SpringPage<BackendAd>>(`/v1/anuncio/destaques?page=0&size=${Math.max(1,Math.min(12,limit))}`);
+ return Promise.all(page.content.map(async ad=>{
+  try{return fromBackendAd(ad,await adPhotos(ad.id));}
+  catch{return fromBackendAd(ad);}
+ }));
+}
+export type PublicCarFilters={q?:string;tipo?:string;brand?:string;city?:string;state?:string;fuel?:string;transmission?:string;minPrice?:number;maxPrice?:number;yearMin?:number;sort?:string;page?:number};
+export async function searchPublicCars(filters:PublicCarFilters):Promise<{cars:CarData[];total:number;totalPages:number;page:number}> {
+ const params=new URLSearchParams();
+ const values:Record<string,string|undefined>={q:filters.q,tipo:filters.tipo,marca:filters.brand,cidade:filters.city,uf:filters.state,combustivel:filters.fuel?.toUpperCase(),cambio:filters.transmission?.toUpperCase(),precoMin:filters.minPrice?.toString(),precoMax:filters.maxPrice?.toString(),anoMin:filters.yearMin?.toString(),sort:filters.sort??"recentes",page:String(filters.page??0),size:"18"};
+ for(const [key,value] of Object.entries(values))if(value)params.set(key,value);
+ const result=await backendFetch<SpringPage<BackendAd>>(`/v1/anuncio/buscar?${params.toString()}`);
+ const cars=await Promise.all(result.content.map(async ad=>{try{return fromBackendAd(ad,await adPhotos(ad.id));}catch{return fromBackendAd(ad);}}));
+ return {cars,total:result.totalElements,totalPages:result.totalPages,page:result.number};
+}
 export async function myCars():Promise<CarData[]> {
  const token=await getApiToken();
  if(!token) return [];

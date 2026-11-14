@@ -14,6 +14,7 @@ type FilterState = {
   maxPrice: string;
   yearMin: string;
   sort: string;
+  tipo: string;
 };
 
 type Props = {
@@ -48,6 +49,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
       if (value) params.set(key, value);
       else params.delete(key);
     });
+    params.delete("page");
     router.replace(`/carros${params.size ? `?${params.toString()}` : ""}`, { scroll: false });
   }
 
@@ -80,6 +82,9 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
     <div className="card-dark p-4 sm:p-5">
       {/* Linha superior: busca + ordenação */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+        <div className="flex shrink-0 gap-2">
+          {[['CARRO','Carros'],['MOTO','Motos']].map(([value,label])=><button key={value} type="button" aria-pressed={state.tipo===value} onClick={()=>apply({tipo:value})} className={`rounded-full border px-3 py-2 text-xs font-semibold ${state.tipo===value?'border-[#d4af37] bg-[#d4af37]/10 text-[#f2d87e]':'border-white/10 text-[#9b9ba4]'}`}>{label}</button>)}
+        </div>
         <div className="relative flex-1">
           <svg viewBox="0 0 24 24" className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#d4af37]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="7" />
@@ -255,7 +260,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
           <button
             type="button"
             onClick={() => {
-              setState({ q: "", brand: "", city: "", state: "", fuel: "", transmission: "", minPrice: "", maxPrice: "", yearMin: "", sort: state.sort });
+              setState({ q: "", tipo: "CARRO", brand: "", city: "", state: "", fuel: "", transmission: "", minPrice: "", maxPrice: "", yearMin: "", sort: state.sort });
               router.replace("/carros", { scroll: false });
             }}
             className="text-sm font-semibold text-[#f2d87e] hover:underline"

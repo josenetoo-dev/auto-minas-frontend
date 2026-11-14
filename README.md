@@ -51,7 +51,7 @@ Os workflows em `.github/workflows/` verificam contratos, build, integração, t
 
 ## Limites antes de produção com usuários reais
 
-- Confirmar migrações Flyway V1–V12 em **cópia restaurada** do banco legado, com backup e plano de restauração. Não aplicar baseline automático em base preexistente.
+- Confirmar migrações Flyway V1–V18 em **cópia restaurada** do banco legado, com backup e plano de restauração. Não aplicar baseline automático em base preexistente.
 - Definir política de privacidade/retensão e exclusão de fotos/documentos; não coletar dados pessoais reais sem adequação à LGPD.
 - Habilitar SMTP de forma segura para confirmação/recuperação de conta; revisar proteção antiabuso e autenticação na borda.
 - Documentação de veículo/identidade é analisada **manualmente**. Não existe consulta oficial automática RENAVAM/SENATRAN/SERPRO. A biometria AWS e captura facial ficam **desabilitadas** na homologação gratuita.
