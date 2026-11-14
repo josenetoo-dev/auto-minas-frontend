@@ -43,6 +43,9 @@ async function inspect(page, label, width) {
 }
 
 async function main() {
+  if (process.env.GITHUB_ACTIONS !== "true") {
+    throw new Error("O cadastro fictício de teste só pode executar na CI descartável.");
+  }
   const browser = await chromium.launch({ headless: true });
   try {
     for (const width of [320, 360, 390, 768, 1024, 1280]) {
@@ -114,6 +117,24 @@ async function main() {
       }
       await context.close();
     }
+    const signupContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const signupPage = await signupContext.newPage();
+    await signupPage.goto(BASE + "/vender?modalidade=avulso");
+    await signupPage.getByRole("button", { name: "Criar conta", exact: true }).click();
+    await signupPage.getByLabel("Nome completo", { exact: true }).fill("Pessoa fictícia de teste");
+    await signupPage.getByLabel(/Telefone com DDD/).fill("38000000000");
+    await signupPage.getByLabel("E-mail", { exact: true }).fill(`cadastro-${Date.now()}@auto-minas.test`);
+    await signupPage.getByLabel("Senha", { exact: true }).fill("Senha-ficticia-CI-2026!");
+    await signupPage.getByRole("button", { name: "Criar conta e entrar", exact: true }).click();
+    await signupPage.waitForURL("**/vender?modalidade=avulso");
+    const sessionCookie = (await signupContext.cookies()).find(cookie => cookie.name === "auto_minas_access");
+    expect(sessionCookie?.httpOnly && sessionCookie?.secure, "Cadastro deve criar sessão Secure e HttpOnly");
+    await signupPage.goto(BASE + "/conta");
+    await signupPage.getByRole("heading", { name: "Olá, Pessoa." }).waitFor();
+    await signupPage.getByText("E-mail pendente de confirmação", { exact: true }).waitFor();
+    await inspect(signupPage, "cadastro-conectado", 390);
+    await signupContext.close();
+    console.log("Cadastro pela interface preservou a modalidade avulsa, criou sessão e abriu a conta com e-mail pendente.");
     console.log("Responsividade: telas de 320, 360, 390, 768, 1024 e 1280px sem overflow; menu, filtros, formulário e chat verificados.");
   } finally {
     await browser.close();
