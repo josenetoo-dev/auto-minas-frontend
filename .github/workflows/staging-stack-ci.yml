@@ -30,7 +30,7 @@ jobs:
         with:
           repository: josenetoo-dev/veiculos-api
           # Mantém o par de frontend/API usado na validação deste PR.
-          ref: ${{ github.head_ref == 'feat/fechamento-mvp' && '9b20cf82223192b869ffda64add385cf03894175' || 'main' }}
+          ref: ${{ github.head_ref == 'feat/fechamento-mvp' && 'd1614e2dd300575dfa82fcb609edd3f809ce7e2e' || 'main' }}
           path: veiculos-api
 
       - name: Configurar Node.js para checagens de contratos
