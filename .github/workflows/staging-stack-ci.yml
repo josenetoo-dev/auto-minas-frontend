@@ -85,7 +85,7 @@ jobs:
         env:
           STAGING_DEMO_BUYER_PASSWORD: DO_NOT_USE_SAMPLE_IN_PUBLIC
           STAGING_DEMO_ADMIN_PASSWORD: DO_NOT_USE_SAMPLE_IN_PUBLIC
-        run: node deploy/mobile-viewport-test.cjs
+        run: node --env-file=deploy/.env.staging.example deploy/mobile-viewport-test.cjs
 
       - name: Anexar capturas da revisão visual
         if: always()
