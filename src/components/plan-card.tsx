@@ -1,16 +1,41 @@
 import Link from "next/link";
 import type { CommercialPlan } from "@/lib/commercial";
 
-export default function PlanCard({ plan, href, featured }: { plan: CommercialPlan; href: string; featured: boolean }) {
+type Props = {
+  plan: CommercialPlan;
+  href: string;
+  featured: boolean;
+};
+
+export default function PlanCard({ plan, href, featured }: Props) {
   const unique = plan.periodicidade === "UNICO";
-  const description = unique ? "Para vender um veículo ocasionalmente." : "Para quem anuncia com frequência.";;
-  let configuredBenefits: string[] = [];
-  try { const parsed: unknown = JSON.parse(plan.beneficiosJson); if(Array.isArray(parsed)) configuredBenefits=parsed.filter((item):item is string=>typeof item==="string"); } catch { configuredBenefits=[]; }
-  return <article className={`relative flex min-h-full flex-col rounded-[1.65rem] border p-6 sm:p-7 ${featured ? "border-[#d4af37]/75 bg-[linear-gradient(155deg,rgba(212,175,55,.13),rgba(17,17,21,.98)_38%)] shadow-[0_20px_80px_-35px_rgba(212,175,55,.35)] lg:-translate-y-2" : "border-white/[.10] bg-[#111115]/90"}`}>
-    <div className="flex items-start justify-between gap-3"><div><p className="font-display text-2xl font-bold text-[#f4f3ee]">{plan.nome}</p><p className="mt-2 max-w-[15rem] text-sm leading-6 text-[#9b9ba4]">{description}</p></div><span className="rounded-full border border-white/[.1] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#a5a5ae]">{unique ? "Pagamento único" : "Mensal"}</span></div>
-    <div className="mt-8 border-t border-white/[.08] pt-6"><p className="text-xs font-semibold uppercase tracking-wider text-[#9898a2]">Valor de referência</p><p className="mt-2 flex items-baseline gap-1"><span className="text-sm text-[#b4b4bd]">R$</span><span className="font-display text-5xl font-bold tracking-tight text-[#f4f3ee]">{Number(plan.mensalidade).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></p><p className="mt-1 text-xs text-[#a5a5ad]">{unique ? "por anúncio" : "por mês"}</p></div>
-    <div className="mt-6 flex-1">{configuredBenefits.length>0&&<><p className="text-xs font-semibold uppercase tracking-wider text-[#9898a2]">Benefícios configurados</p><ul className="mt-3 space-y-3 text-sm text-[#c3c3cc]">{configuredBenefits.map((benefit,index)=><li key={`${index}-${benefit}`} className="flex gap-2"><span className="text-[#d4af37]">✓</span>{benefit}</li>)}</ul></>}<p className="mt-5 text-xs font-semibold uppercase tracking-wider text-[#9898a2]">Ferramentas comuns a todos os planos</p><ul className="mt-3 space-y-3 text-sm text-[#c3c3cc]"><li className="flex gap-2"><span className="text-[#d4af37]">✓</span>Divulgação de anúncios</li><li className="flex gap-2"><span className="text-[#d4af37]">✓</span>Chat e envio de propostas</li><li className="flex gap-2"><span className="text-[#d4af37]">✓</span>Acompanhamento dos anúncios</li></ul></div>
-    <Link href={href} className={`mt-8 flex min-h-12 items-center justify-center rounded-xl px-5 text-sm font-bold transition ${featured ? "bg-gradient-to-r from-[#f2d87e] via-[#d4af37] to-[#b08d24] text-[#171003] hover:brightness-110" : "border border-[#d4af37]/45 bg-[#d4af37]/[.07] text-[#f2d87e] hover:bg-[#d4af37]/[.14]"}`}>Escolher {plan.nome}</Link>
-    <p className="mt-3 text-center text-[11px] leading-5 text-[#82828d]">Valor preliminar · pagamento ainda indisponível</p>
-  </article>;
+  let benefits: string[] = [];
+  try {
+    const parsed: unknown = JSON.parse(plan.beneficiosJson);
+    if (Array.isArray(parsed)) {
+      benefits = parsed.filter((item): item is string => typeof item === "string");
+    }
+  } catch {
+    benefits = [];
+  }
+
+  return (
+    <article className={`flex h-full flex-col rounded-2xl border bg-[#111115] p-5 sm:p-6 ${featured ? "border-[#d4af37]" : "border-white/10"}`}>
+      <h2 className="font-display text-2xl text-[#f4f3ee]">{plan.nome}</h2>
+      <p className="mt-2 text-sm text-[#b7b3a9]">
+        {unique ? "Pagamento único" : "Assinatura mensal"}
+      </p>
+      <p className="mt-5 text-4xl font-semibold text-[#f4f3ee]">
+        {Number(plan.mensalidade).toLocaleString("pt-BR", { style: "currency", currency: plan.moeda })}
+      </p>
+      <p className="mt-1 text-sm text-[#b7b3a9]">{unique ? "por anúncio" : "por mês"}</p>
+      <ul className="my-6 flex-1 space-y-3 text-sm leading-6 text-[#c3c3cc]">
+        {benefits.map(benefit => <li key={benefit} className="flex gap-2">
+          <span aria-hidden="true" className="text-[#d4af37]">✓</span>{benefit}
+        </li>)}
+      </ul>
+      <Link href={href} className="btn-outline min-h-11 justify-center">Escolher {plan.nome}</Link>
+      <p className="mt-3 text-xs leading-5 text-[#b7b3a9]">Pagamento ainda indisponível.</p>
+    </article>
+  );
 }
