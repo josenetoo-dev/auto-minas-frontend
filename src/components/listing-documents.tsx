@@ -66,7 +66,7 @@ export function useListingDocuments(adId?:number|null) {
               onChange={event=>{
                 const file=event.target.files?.[0];
                 if(file && (!["image/jpeg","image/png"].includes(file.type)||!file.size||file.size>4*1024*1024)) {
-                  setError("Cada documento deve ser JPG ou PNG de até 4 MiB.");event.target.value="";return;
+                  setError("Cada documento deve ser JPG ou PNG de até 4 MiB.");setFiles(current=>({...current,[kind]:undefined}));event.target.value="";return;
                 }
                 setError("");setFiles(current=>({...current,[kind]:file}));
               }}/>
