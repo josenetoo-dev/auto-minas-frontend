@@ -12,7 +12,7 @@ export default function VerificationsDashboard() {
   const [loading,setLoading]=useState(true);
   useEffect(()=>{
     let active=true;
-    fetch("/api/backend/v1/anuncio/meus?size=100").then(async response=>{
+    fetch("/api/cars").then(async response=>{
       const body=await response.json();
       if(!response.ok) throw new Error(body.detail||body.error||"Não foi possível carregar seus veículos.");
       return body.content as Ad[];
