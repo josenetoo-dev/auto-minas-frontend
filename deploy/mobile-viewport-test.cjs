@@ -93,8 +93,8 @@ async function main() {
           "Escape não atualizou aria-expanded em " + width + "px");
       }
       await page.goto(BASE + "/planos", { waitUntil: "domcontentloaded" });
-      await page.getByText("Anúncio avulso", { exact: true }).waitFor();
-      await page.getByText("Assinatura mensal", { exact: true }).waitFor();
+      await page.getByRole("heading", { name: "Anúncio avulso", exact: true }).waitFor();
+      await page.getByRole("heading", { name: "Assinatura mensal", exact: true }).waitFor();
       await inspect(page, "modalidades", width);
       await page.goto(BASE + "/feira", { waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: /Conheça o Auto Minas/ }).waitFor({ state: "visible" });
