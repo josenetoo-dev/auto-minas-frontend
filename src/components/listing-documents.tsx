@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { verificationStatus } from "@/lib/verification";
 
-type Case = { tipo:string; status:string; evidencias:{tipo:string}[] };
+type Case = { tipo:string; status:string; motivoRejeicao?:string|null; evidencias:{tipo:string}[] };
 const labels = {
   IDENTIDADE_FRENTE:"Frente do documento de identidade",
   IDENTIDADE_VERSO:"Verso do documento de identidade",
@@ -28,12 +29,12 @@ export function useListingDocuments(adId?:number|null) {
     return()=>{active=false;};
   },[adId]);
 
-  async function submit(id:number) {
+  async function submit(id:number,manual=false) {
     setError("");
     const current=await result(await fetch(`/api/cars/${id}/documents`));
     for(const kind of Object.keys(labels) as Kind[]) {
       const item=(current.cases as Case[]).find(c=>c.tipo===(kind==="DOCUMENTO_VEICULO"?"VEICULO":"IDENTIDADE"));
-      if(item?.status==="APROVADA" || item?.status==="EM_ANALISE") continue;
+      if(item?.status==="APROVADA" || item?.status==="EM_ANALISE" || item?.status==="INCONCLUSIVA") continue;
       const file=files[kind];
       if(!file) continue;
       const body=new FormData();
@@ -42,7 +43,7 @@ export function useListingDocuments(adId?:number|null) {
       await result(await fetch(`/api/cars/${id}/documents`,{method:"POST",body}));
     }
     await result(await fetch(`/api/cars/${id}/documents`,{
-      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({submit:true}),
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({submit:true,manual}),
     }));
     const updated=await result(await fetch(`/api/cars/${id}/documents`));
     setCases(updated.cases);
@@ -56,11 +57,13 @@ export function useListingDocuments(adId?:number|null) {
       {(Object.keys(labels) as Kind[]).map(kind=>{
         const item=cases.find(c=>c.tipo===(kind==="DOCUMENTO_VEICULO"?"VEICULO":"IDENTIDADE"));
         const approved=item?.status==="APROVADA";
-        const reviewing=item?.status==="EM_ANALISE";
+        const reviewing=item?.status==="EM_ANALISE" || item?.status==="INCONCLUSIVA";
         const received=item?.evidencias.some(e=>e.tipo===kind);
         return <div key={kind} className="min-w-0 rounded-xl border border-white/10 p-4">
           <label className="block text-sm font-semibold" htmlFor={`document-${kind}`}>{labels[kind]}</label>
-          {approved || reviewing ? <p className="mt-2 text-sm text-[#b7b3a9]">{approved?"Documento aprovado":"Documento em análise"}</p> : <>
+          {item&&<p className="mt-2 text-sm text-[#b7b3a9]">{verificationStatus[item.status]||"Análise pendente"}</p>}
+          {item?.motivoRejeicao&&<p className="mt-2 break-words rounded-lg border border-amber-400/20 p-3 text-sm text-amber-200">{item.motivoRejeicao}</p>}
+          {approved || reviewing ? <p className="mt-2 text-sm text-[#b7b3a9]">{approved?"Documento aprovado":item?.status==="INCONCLUSIVA"?"A equipe fará a análise. Uma falha técnica não significa fraude.":"Documento em análise"}</p> : <>
             {received&&<p className="mt-2 text-sm text-emerald-300">Documento recebido. Selecione outro arquivo somente para substituí-lo.</p>}
             <input id={`document-${kind}`} type="file" accept="image/jpeg,image/png" className="mt-3 w-full min-w-0 text-sm"
               onChange={event=>{
@@ -87,12 +90,19 @@ export default function ListingDocuments({adId}:{adId:number}) {
   const [message,setMessage]=useState("");
   const [error,setError]=useState("");
   return <div className="space-y-4">{documents.fields}
-    <button disabled={busy} type="button" className="btn-gold" onClick={async()=>{
+    <div className="flex flex-wrap gap-3"><button disabled={busy} type="button" className="btn-gold" onClick={async()=>{
       setBusy(true);setError("");setMessage("");
       try {await documents.submit(adId);setMessage("Documentos enviados para análise.");}
       catch(cause){setError(cause instanceof Error?cause.message:"Falha de conexão.");}
       finally{setBusy(false);}
     }}>{busy?"Enviando…":"Enviar documentos para análise"}</button>
+    <button disabled={busy} type="button" className="btn-outline" onClick={async()=>{
+      setBusy(true);setError("");setMessage("");
+      try {await documents.submit(adId,true);setMessage("Análise manual solicitada. O anúncio continua pendente.");}
+      catch(cause){setError(cause instanceof Error?cause.message:"Falha de conexão.");}
+      finally{setBusy(false);}
+    }}>Preciso de análise manual</button></div>
+    <p className="text-sm text-[#b7b3a9]">Se houver dificuldade na verificação, envie os arquivos disponíveis e solicite análise manual. Isso não aprova documentos nem libera a publicação automaticamente.</p>
     {message&&<p role="status" className="text-emerald-300">{message}</p>}
     {error&&<p role="alert" className="text-red-300">{error}</p>}
   </div>;

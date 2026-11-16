@@ -162,10 +162,35 @@ async function main() {
         await page.getByRole("dialog",{name:"Documento privado para análise"}).waitFor();
         await inspect(page,"moderacao-documentos",width);
         await page.getByRole("button",{name:"Fechar documento",exact:true}).click();
-        await card.getByRole("button",{name:"Aprovar documento do veículo após conferir",exact:true}).click();
-        await card.getByRole("checkbox").check();
-        await card.getByRole("button",{name:"Publicar anúncio",exact:true}).click();
+        const vehicleReview=card.getByRole("heading",{name:"Documento do veículo",exact:true}).locator("..");
+        await vehicleReview.getByLabel("Justificativa para correção ou reavaliação").fill("Documento ilegível: envie uma nova foto do CRLV.");
+        await vehicleReview.getByRole("button",{name:"Solicitar correção",exact:true}).click();
+        await card.getByText("Correção necessária",{exact:true}).first().waitFor();
+        await vehicleReview.getByRole("button",{name:"Consultar histórico de decisões",exact:true}).click();
+        await vehicleReview.getByRole("list",{name:"Histórico de decisões"}).waitFor();
+        await inspect(page,"moderacao-correcao",width);
+        await login(context,"comprador-demo@auto-minas.test",process.env.STAGING_DEMO_BUYER_PASSWORD);
+        await page.goto(BASE+"/verificacoes?anuncio="+saved);
+        await page.getByText("Documento ilegível: envie uma nova foto do CRLV.",{exact:true}).waitFor();
+        await page.getByLabel("Documento do veículo (CRLV)",{exact:true}).setInputFiles(file);
+        await page.getByRole("button",{name:"Enviar documentos para análise",exact:true}).click();
+        await page.getByText("Documentos enviados para análise.",{exact:true}).waitFor();
+        await page.getByText("Documento em análise",{exact:true}).waitFor();
+        await login(context,"admin-demo@auto-minas.test",process.env.STAGING_DEMO_ADMIN_PASSWORD);
+        await page.goto(BASE+"/moderacao");
+        const correctedCard=page.getByRole("heading",{name:"Fiat Argo 2024",exact:true}).locator("..");
+        await correctedCard.getByRole("button",{name:"Analisar documentos deste anúncio",exact:true}).click();
+        await correctedCard.getByRole("button",{name:"Aprovar documento do veículo após conferir",exact:true}).click();
+        await correctedCard.getByRole("checkbox").check();
+        await correctedCard.getByRole("button",{name:"Publicar anúncio",exact:true}).click();
         await page.getByText("Anúncio publicado.",{exact:true}).waitFor();
+        await page.goto(BASE+"/carros/"+saved);
+        const summary=page.getByRole("region",{name:"Análises do vendedor e do veículo"});
+        await summary.getByRole("heading",{name:"O que foi analisado",exact:true}).waitFor();
+        const reviewTexts=await summary.locator("dd").allTextContents();
+        expect(reviewTexts.length===2&&reviewTexts.every(text=>text.includes("Análise documental manual concluída")),
+          "Vendedor e veículo precisam de resultados separados e reais: "+JSON.stringify(reviewTexts));
+        await inspect(page,"analises-publicas",width);
       }
       if (width === 1280) {
         for (const path of ["/privacidade","/termos","/cookies","/reembolsos","/legal"]) {

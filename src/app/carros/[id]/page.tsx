@@ -9,6 +9,7 @@ import CarCard from "@/components/car-card";
 import ChatCta from "@/components/chat-cta";
 import CarOwnerActions from "@/components/car-owner-actions";
 import ReportButton from "@/components/report-button";
+import PublicVerificationSummary from "@/components/public-verification-summary";
 import { formatDate,formatPrice,formatKm } from "@/lib/format";
 import { FUEL_LABEL,TRANSMISSION_LABEL } from "@/lib/constants";
 export const dynamic="force-dynamic";
@@ -39,6 +40,7 @@ export default async function Detail({params}:Props){
     <h1 className="font-display text-3xl font-bold">{c.brand} {c.model} <span className="text-xl text-[#9b9ba4]">{c.year}</span></h1>
     <p className="gold-text font-display text-3xl font-bold">{formatPrice(c.price)}</p>
     <p className="text-sm text-[#9b9ba4]">Anunciante: {c.name} • Criado em {formatDate(c.createdAt)}</p>
+    <PublicVerificationSummary adId={c.id} token={token||undefined}/>
     <p className="rounded-lg border border-[#d4af37]/20 bg-[#d4af37]/5 p-3 text-xs text-[#c7c2b2]">Análise humana de documentos não equivale a certificação governamental ou garantia de propriedade e pagamento.</p>
     {owner?<CarOwnerActions carId={c.id} status={c.status}/>:c.status==="ativo"?<><ChatCta carId={c.id} price={c.price} loggedIn={!!session} nextPath={`/carros/${c.id}`}/><ReportButton carId={c.id} loggedIn={!!session}/></>:<p className="text-amber-300">Este anúncio não está disponível para negociação.</p>}
    </div></aside>
