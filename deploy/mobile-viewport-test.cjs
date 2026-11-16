@@ -187,7 +187,9 @@ async function main() {
         await page.goto(BASE+"/carros/"+saved);
         const summary=page.getByRole("region",{name:"Análises do vendedor e do veículo"});
         await summary.getByRole("heading",{name:"O que foi analisado",exact:true}).waitFor();
-        expect(await summary.getByText("Análise documental manual concluída",{exact:true}).count()===2,"Vendedor e veículo precisam de resultados separados e reais");
+        const reviewTexts=await summary.locator("dd").allTextContents();
+        expect(reviewTexts.length===2&&reviewTexts.every(text=>text.includes("Análise documental manual concluída")),
+          "Vendedor e veículo precisam de resultados separados e reais: "+JSON.stringify(reviewTexts));
         await inspect(page,"analises-publicas",width);
       }
       if (width === 1280) {
