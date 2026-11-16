@@ -30,7 +30,7 @@ jobs:
         with:
           repository: josenetoo-dev/veiculos-api
           # PR comercial depende das rotas de busca da API em revisão.
-          ref: ${{ github.head_ref == 'fix/estabilizacao-email-planos' && 'be89427d6b80aa832bfc5b1679c350a0d3f6a2bd' || 'main' }}
+          ref: ${{ github.head_ref == 'fix/estabilizacao-email-planos' && '719bc4851e3aeee1b5e48204dc163fad0e51633b' || 'main' }}
           path: veiculos-api
 
       - name: Configurar Node.js para checagens de contratos
