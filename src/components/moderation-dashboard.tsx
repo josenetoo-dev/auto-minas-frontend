@@ -37,7 +37,7 @@ export default function ModerationDashboard({role}:{role:"ADMIN"|"REVIEWER"}){
  async function publishReviewed(id:number) {
   setBusy(true);setError("");setSuccess("");
   try {
-   await api(`/v1/moderacao/anuncios/${id}/aprovar`,"POST");
+   await api(`/v1/moderacao/anuncios/${id}/aprovar`,"POST",{requisitosConferidos:checked[id]===true});
    await load();setSuccess("Anúncio publicado.");
   } catch(cause){setError(cause instanceof Error?cause.message:"Não foi possível publicar.");}
   finally{setBusy(false);}
@@ -58,8 +58,11 @@ export default function ModerationDashboard({role}:{role:"ADMIN"|"REVIEWER"}){
  <VerificationReview item={item} role={role} canApprove={item.tipo!=="VEICULO"||!!packets[a.id]?.some(c=>c.tipo==="IDENTIDADE"&&c.status==="APROVADA")} onUpdated={async()=>{await load();await showPacket(a);}}/>
  </div>)}</div>}
  <p className="mt-3 text-sm text-[#b7b3a9]">Para publicar, a identidade e o documento do veículo precisam estar aprovados.</p>
- <label className="mt-4 flex items-start gap-3 text-sm"><input type="checkbox" className="mt-1 h-5 w-5" checked={!!checked[a.id]} disabled={!packets[a.id]?.length} onChange={event=>setChecked(current=>({...current,[a.id]:event.target.checked}))}/>Conferi os documentos e os dados deste anúncio.</label>
- {note(a.id)}<div className="mt-3 flex flex-wrap gap-2"><button disabled={busy||!checked[a.id]||packets[a.id]?.length!==2||!packets[a.id]?.every(item=>item.status==="APROVADA")} className="btn-gold min-h-11 flex-1 text-center sm:flex-none" onClick={()=>publishReviewed(a.id)}>Publicar anúncio</button><button disabled={busy||!reason[a.id]?.trim()} className="btn-outline min-h-11 flex-1 text-center sm:flex-none" onClick={()=>decide(`/v1/moderacao/anuncios/${a.id}/rejeitar`,reason[a.id])}>Rejeitar</button></div></section>):<p className="card-dark p-6">Nenhum anúncio aguardando revisão.</p>)}
+ <label className="mt-4 flex items-start gap-3 text-sm"><input type="checkbox" className="mt-1 h-5 w-5" checked={!!checked[a.id]} disabled={!packets[a.id]?.length} onChange={event=>setChecked(current=>({...current,[a.id]:event.target.checked}))}/>Conferi a identidade, o CPF, a maioridade do anunciante e o vínculo com este veículo.</label>
+ <div className="mt-3 flex flex-wrap gap-2"><button disabled={busy||!checked[a.id]||packets[a.id]?.length!==2||!packets[a.id]?.every(item=>item.status==="APROVADA")} className="btn-gold min-h-11 flex-1 text-center sm:flex-none" onClick={()=>publishReviewed(a.id)}>Publicar anúncio</button></div><form className="mt-4 space-y-2" onSubmit={event=>{event.preventDefault();const motivo=String(new FormData(event.currentTarget).get("motivo")||"").trim();if(motivo)void decide(`/v1/moderacao/anuncios/${a.id}/rejeitar`,motivo);}}>
+  <label className="block text-sm">Motivo da rejeição enviado ao anunciante
+    <textarea name="motivo" required maxLength={500} className="input-dark mt-1" placeholder="Explique o que precisa ser corrigido." onChange={e=>e.target.setCustomValidity(e.target.value.trim()?"":"Escreva o motivo da rejeição.")}/>
+  </label><button disabled={busy} type="submit" className="btn-outline min-h-11">Rejeitar anúncio</button></form></section>):<p className="card-dark p-6">Nenhum anúncio aguardando revisão.</p>)}
  {tab==="identity"&&<label className="block text-sm">Filtrar análises documentais<select className="input-dark mt-2" value={verificationFilter} onChange={event=>{setError("");setVerificationFilter(event.target.value);}}>
  <option value="">Aguardando análise</option>{["CORRECAO_NECESSARIA","EXPIRADA","REJEITADA","APROVADA"].map(status=><option key={status} value={status}>{verificationStatus[status]}</option>)}</select></label>}
  {tab==="identity"&&(ver.length?ver.map(v=><section key={v.id} className="card-dark min-w-0 p-4 sm:p-5"><h2 className="font-display break-words text-lg font-bold sm:text-xl">{v.tipo==="IDENTIDADE"?"Identidade do anunciante":"Documento do veículo"}{v.veiculoDescricao?` · ${v.veiculoDescricao}`:v.solicitanteNome?` · ${v.solicitanteNome}`:""}</h2><p className="mt-2 text-sm text-[#b7b3a9]">{v.solicitanteNome}</p>

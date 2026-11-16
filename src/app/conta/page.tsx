@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/auth";
 import Link from "next/link";
+import FotoPerfil from "@/components/foto-perfil";
 import EmailActivation from "@/components/email-activation";
 
 export const metadata: Metadata = { title: "Minha conta" };
@@ -21,6 +22,7 @@ export default async function Account() {
         <section className="rounded-2xl border border-white/10 bg-[#111316] p-6">
           <h2 className="text-sm font-semibold text-[#e4d9c1]">Sua conta</h2>
           <dl className="mt-5 space-y-4 text-sm"><div><dt className="text-xs text-[#8c8982]">Nome</dt><dd className="mt-1 break-words">{user.name}</dd></div><div><dt className="text-xs text-[#8c8982]">E-mail</dt><dd className="mt-1 break-all">{user.email}</dd></div><div><dt className="text-xs text-[#8c8982]">Confirmação</dt><dd className={`mt-2 inline-flex rounded-full border px-3 py-1 text-xs ${pending ? "border-amber-500/25 text-amber-200" : "border-emerald-500/25 text-emerald-200"}`}>{pending ? "E-mail pendente de confirmação" : user.status === "ACTIVE" ? "E-mail confirmado" : user.status}</dd></div></dl>
+          <FotoPerfil userId={user.id}/>
           {pending && <p className="mt-5 text-xs leading-6 text-[#aaa69e]">Você já está conectado. Confirme seu e-mail para liberar as etapas de verificação e publicação.</p>}
         </section>
       </div>
