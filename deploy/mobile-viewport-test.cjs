@@ -131,6 +131,42 @@ async function main() {
           await inspect(page, "conversa", width);
         }
       }
+      if (width === 390) {
+        await page.goto(BASE + "/vender");
+        await page.getByLabel("Marca *", {exact:true}).selectOption("Fiat");
+        await page.getByLabel("Modelo *", {exact:true}).fill("Argo");
+        await page.getByLabel("Ano *", {exact:true}).fill("2024");
+        await page.getByLabel("Quilometragem *", {exact:true}).fill("12000");
+        await page.getByLabel("Cor *", {exact:true}).fill("Branco");
+        await page.getByLabel("Cidade onde está o veículo *", {exact:true}).fill("Pirapora");
+        await page.getByLabel("Combustível *", {exact:true}).selectOption("flex");
+        await page.getByLabel("Câmbio *", {exact:true}).selectOption("automatico");
+        await page.getByLabel("Preço em reais (R$) *", {exact:true}).fill("65000");
+        await page.getByLabel("Descrição * (até 255 caracteres)", {exact:true}).fill("Veículo fictício para testar formulário e documentos juntos.");
+        const file={name:"documento-ficticio.png",mimeType:"image/png",buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGO8st6cARtgwio6aCUAXZAByo07EaIAAAAASUVORK5CYII=","base64")};
+        await page.getByLabel("Selecionar fotos JPG/PNG", {exact:true}).setInputFiles(file);
+        await page.getByLabel("Documento do veículo (CRLV)", {exact:true}).setInputFiles(file);
+        await page.getByRole("button",{name:"Enviar anúncio e documentos",exact:true}).click();
+        await page.waitForURL(/\/meus-anuncios\?salvo=/);
+        const saved=new URL(page.url()).searchParams.get("salvo");
+        await page.goto(BASE + "/verificacoes?anuncio="+saved);
+        await page.getByLabel("Escolha seu veículo",{exact:true}).waitFor();
+        await page.getByText("Documento em análise",{exact:true}).waitFor();
+        expect(await page.getByLabel(/ID do veículo/).count() === 0,"Documento não deve pedir chave do banco");
+        await inspect(page,"documentos",width);
+        await login(context,"admin-demo@auto-minas.test",process.env.STAGING_DEMO_ADMIN_PASSWORD);
+        await page.goto(BASE + "/moderacao");
+        const card=page.getByRole("heading",{name:"Fiat Argo 2024",exact:true}).locator("..");
+        await card.getByRole("button",{name:"Analisar documentos deste anúncio",exact:true}).click();
+        await card.getByRole("button",{name:"Abrir documento do veículo",exact:true}).click();
+        await page.getByRole("dialog",{name:"Documento privado para análise"}).waitFor();
+        await inspect(page,"moderacao-documentos",width);
+        await page.getByRole("button",{name:"Fechar documento",exact:true}).click();
+        await card.getByRole("button",{name:"Aprovar documento do veículo após conferir",exact:true}).click();
+        await card.getByRole("checkbox").check();
+        await card.getByRole("button",{name:"Publicar anúncio",exact:true}).click();
+        await page.getByText("Anúncio publicado.",{exact:true}).waitFor();
+      }
       if (width === 1280) {
         for (const path of ["/privacidade","/termos","/cookies","/reembolsos","/legal"]) {
           await page.goto(BASE + path);
