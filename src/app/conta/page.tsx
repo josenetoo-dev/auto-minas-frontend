@@ -15,8 +15,8 @@ export default async function Account() {
         <section className="market-paper-card">
           <p className="text-[11px] uppercase tracking-[.2em] text-[#63553e]">Seu próximo passo</p>
           <h2 className="mt-5 font-display text-3xl text-[#29251e]">Anunciar veículo</h2>
-          <p className="mt-4 max-w-sm text-sm leading-7 text-[#675f51]">Escolha um anúncio avulso ou uma assinatura para sua loja.</p>
-          <Link href="/planos" className="mt-8 flex min-h-12 items-center justify-between border-t border-[#c8bda6] pt-5 text-sm font-semibold text-[#30291e]">Escolher como anunciar <span aria-hidden="true">↗</span></Link>
+          <p className="mt-4 max-w-sm text-sm leading-7 text-[#675f51]">Envie os dados, as fotos e os documentos do seu veículo em um único formulário.</p>
+          <Link href="/vender" className="mt-8 flex min-h-12 items-center justify-between border-t border-[#c8bda6] pt-5 text-sm font-semibold text-[#30291e]">Anunciar gratuitamente <span aria-hidden="true">↗</span></Link>
         </section>
         <section className="rounded-2xl border border-white/10 bg-[#111316] p-6">
           <h2 className="text-sm font-semibold text-[#e4d9c1]">Sua conta</h2>

@@ -1,6 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useListingDocuments } from "@/components/listing-documents";
 import { BRANDS, FUEL_OPTIONS, TRANSMISSION_OPTIONS } from "@/lib/constants";
 
 export type SellFormData={brand:string;model:string;version:string;year:string;price:string;mileageKm:string;fuel:string;transmission:string;color:string;city:string;state:string;description:string;category:string;secondHand:boolean;documentation:string;warranty:string;inspectionReport:string;images:string[];imageIds?:number[]};
@@ -16,6 +17,8 @@ export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carI
  const [error,setError]=useState("");
  const [busy,setBusy]=useState(false);
  const [createdId,setCreatedId]=useState<number|null>(null);
+ const savedPayload=useRef<string|null>(null);
+ const documents=useListingDocuments(createdId??carId);
  function update(key:keyof SellFormData,value:string|boolean){setData(old=>({...old,[key]:value}));}
  useEffect(()=>{const urls=files.map(f=>URL.createObjectURL(f));setPreviews(urls);return ()=>urls.forEach(u=>URL.revokeObjectURL(u));},[files]);
  function addPhotos(selected:FileList|null) {
@@ -32,20 +35,23 @@ export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carI
   setBusy(true);setError("");
   let id=createdId||carId;
   try {
+   const payload=JSON.stringify({...data,year:Number(data.year),price:Number(data.price),mileageKm:Number(data.mileageKm)});
    if(!id){
     const body={...data,year:Number(data.year),price:Number(data.price),mileageKm:Number(data.mileageKm)};
     const response=await fetch("/api/cars",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
     const json=await response.json();if(!response.ok)throw new Error(json.error||"Não foi possível cadastrar o anúncio.");
-    id=json.id;setCreatedId(id!);
-   }else {
+    id=json.id;setCreatedId(id!);savedPayload.current=payload;
+   }else if(savedPayload.current!==payload) {
     const body={...data,year:Number(data.year),price:Number(data.price),mileageKm:Number(data.mileageKm)};
     const response=await fetch(`/api/cars/${id}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
     const json=await response.json();if(!response.ok)throw new Error(json.error||"Não foi possível editar o anúncio.");
+    savedPayload.current=payload;
    }
-   if(!id)throw new Error("A API não devolveu o número do anúncio.");
+   if(!id)throw new Error("A Não foi possível identificar o anúncio salvo. Tente novamente.");
    for(const photoId of removed){
     const response=await fetch(`/api/cars/${id}/photos?fotoId=${photoId}`,{method:"DELETE"});
     if(!response.ok)throw new Error("Anúncio salvo, mas uma imagem antiga não pôde ser removida.");
+    setRemoved(current=>current.filter(value=>value!==photoId));
    }
    for(const file of files){
     const form=new FormData();form.append("fotos",file);
@@ -53,6 +59,7 @@ export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carI
     if(!response.ok){const json=await response.json().catch(()=>({}));throw new Error(json.error||"Anúncio salvo, mas uma foto não pôde ser enviada. Use imagens de até 4 MiB.");}
     setFiles(current=>current.filter(item=>item!==file));
    }
+   if(mode==="create") await documents.submit(id);
    router.push(`/meus-anuncios?salvo=${id}`);router.refresh();
   }catch(err){setError((err instanceof Error?err.message:"Falha de conexão.")+(id?" Os dados salvos estão em Meus anúncios.":""));}
   finally{setBusy(false);}
@@ -96,10 +103,11 @@ export default function SellForm({mode,carId,initial}:{mode:"create"|"edit";carI
     <p className="text-xs text-[#9b9ba4]">Até 20 fotos, 4 MiB cada, enviadas somente após o anúncio ser criado. Toda alteração retorna o anúncio para análise.</p>
     <div className="grid grid-cols-2 gap-2.5 min-[380px]:grid-cols-3 sm:grid-cols-4 sm:gap-3 xl:grid-cols-5">{data.images.map((url,i)=>!removed.includes(data.imageIds?.[i]??-1)&&<div key={url} className="relative"><img src={url} alt={`Foto ${i+1} do veículo ${data.brand} ${data.model}`} className="aspect-square w-full rounded-lg object-cover"/><button type="button" aria-label="Remover foto" className="absolute right-1 top-1 grid h-9 w-9 place-items-center rounded-lg bg-black/90 text-lg text-red-300" onClick={()=>setRemoved(r=>[...r,data.imageIds?.[i]??-1])}>×</button></div>)}{previews.map((url,i)=><div key={url} className="relative"><img src={url} alt={`Prévia ${i+1} da foto selecionada para o anúncio`} className="h-24 w-full rounded-lg object-cover"/><button type="button" aria-label="Remover prévia" className="absolute right-1 top-1 rounded bg-black/80 px-2 text-red-300" onClick={()=>setFiles(fs=>fs.filter((_,j)=>j!==i))}>×</button></div>)}</div>
    </section>
+   {mode==="create"&&documents.fields}
   </div>
   <aside className="sticky bottom-0 z-20 -mx-4 h-fit space-y-4 border-t border-[#d4af37]/20 bg-[#08080a]/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-lg sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none lg:sticky lg:top-24"><div className="card-dark space-y-3 border-0 bg-transparent p-0 sm:space-y-4 sm:border sm:p-6"><h2 className="font-display hidden text-xl font-bold sm:block">Revisão antes da publicação</h2><p className="hidden text-sm leading-relaxed text-[#9b9ba4] sm:block">Seu anúncio será salvo como <strong className="text-[#f2d87e]">PENDENTE</strong>. A equipe só poderá publicá-lo depois de analisar sua identidade, a documentação do veículo e o anúncio.</p>
     {error&&<p role="alert" className="rounded-lg border border-red-500/40 bg-red-950/30 p-3 text-sm text-red-300">{error}</p>}
-    <button type="submit" disabled={busy} className="btn-gold w-full">{busy?"Salvando…":mode==="edit"?"Salvar e solicitar nova análise":"Cadastrar anúncio para análise"}</button>
+    <button type="submit" disabled={busy} className="btn-gold w-full">{busy?"Salvando…":mode==="edit"?"Salvar e solicitar nova análise":"Enviar anúncio e documentos"}</button>
     <p className="hidden text-xs text-[#a5a5ad] sm:block">Sem promessa de verificação governamental. A revisão documental é realizada por pessoas.</p></div></aside>
  </form>;
 }

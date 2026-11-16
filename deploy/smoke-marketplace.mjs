@@ -73,6 +73,28 @@ try {
   expectCode(newAd,201,"Cadastro de anúncio via Next/Spring");
   if(newAd.json?.status!=="PENDENTE" || !newAd.json?.id)
     throw new Error("Anúncio não permaneceu pendente de análise");
+  for(const kind of ["IDENTIDADE_FRENTE","IDENTIDADE_VERSO","DOCUMENTO_VEICULO"]) {
+    const form=new FormData();
+    form.set("tipo",kind);
+    form.set("arquivo",new Blob([Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGO8st6cARtgwio6aCUAXZAByo07EaIAAAAASUVORK5CYII=","base64")],{type:"image/png"}),"documento-ficticio.png");
+    const response=await fetch(base+"/api/cars/"+newAd.json.id+"/documents",{method:"POST",headers:{Origin:base,Cookie:buyer},body:form});
+    if(response.status!==201) throw new Error("Envio conjunto de documento retornou HTTP "+response.status);
+  }
+  const submit=await request("/api/cars/"+newAd.json.id+"/documents",{method:"POST",cookie:buyer,body:{submit:true}});
+  expectCode(submit,200,"Enviar identidade e veículo juntos");
+  const forbiddenDocs=await request("/api/cars/"+newAd.json.id+"/documents",{cookie:seller});
+  expectCode(forbiddenDocs,403,"Documentos inacessíveis a outro anunciante");
+  const packet=await request("/api/backend/v1/moderacao/anuncios/"+newAd.json.id+"/documentos",{cookie:admin});
+  expectCode(packet,200,"Revisor consulta documentos associados ao anúncio");
+  for(const kind of ["IDENTIDADE","VEICULO"]) {
+    const item=packet.json.find(c=>c.tipo===kind);
+    if(!item)throw new Error("Documento ausente no painel de revisão");
+    const review=await request("/api/backend/v1/verificacoes/revisao/"+item.id+"/aprovar",{method:"POST",cookie:admin});
+    expectCode(review,200,"Revisão humana explícita do documento fictício");
+  }
+  const publish=await request("/api/backend/v1/moderacao/anuncios/"+newAd.json.id+"/aprovar",{method:"POST",cookie:admin});
+  expectCode(publish,200,"Publicar gratuitamente após revisão");
+  if(publish.json.status!=="ATIVO") throw new Error("Publicação gratuita não foi confirmada");
   const myAds=await request("/meus-anuncios",{cookie:buyer});
   expectCode(myAds,200,"Meus anúncios após cadastro");
   if(!myAds.raw.includes("Pirapora/MG"))
@@ -144,9 +166,9 @@ try {
       status:"vendido",valorFinal:60000,dataVenda:new Date().toISOString().slice(0,10)
     }
   });
-  expectCode(sold,409,"Bloquear declaração de venda sem assinatura vigente");
+  expectCode(sold,200,"Declarar venda sem exigir assinatura");
 
-  console.log("E2E de homologação aprovado: cidade/UF, conta comprador/vendedor/admin, cadastro pendente, proposta, chat, pausa, moderação de reativação e bloqueio comercial da venda.");
+  console.log("E2E de homologação aprovado: cidade/UF, conta comprador/vendedor/admin, cadastro pendente, proposta, chat, pausa, moderação de reativação e venda gratuita.");
 } catch(error) {
   console.error(error.message);
   process.exitCode=1;
