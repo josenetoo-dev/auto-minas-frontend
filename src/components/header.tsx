@@ -45,7 +45,35 @@ function Avatar({ name, url, className = "h-8 w-8" }: { name: string; url: strin
   );
 }
 
-export default function Header({ user, unreadCount }: Props) {
+export default function Header({ user, unreadCount: initialCount }: Props) {
+  const [unreadCount, setUnreadCount] = useState(initialCount);
+  const [notice, setNotice] = useState("");
+  const accountName = user?.name;
+  useEffect(() => {
+    if (!accountName) return;
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout>;
+    let previous:Record<string,number>|null = null;
+    async function refresh() {
+      try {
+        if(document.visibilityState !== "visible") return;
+        const response = await fetch("/api/backend/v1/proposta/mensagens-nao-lidas",{cache:"no-store"});
+        if (!response.ok || stopped) return;
+        const counts:Record<string,number> = await response.json();
+        if(stopped) return;
+        const total = Object.values(counts).reduce((sum,n)=>sum+n,0);
+        const last = previous;
+        const added = last ? Object.entries(counts).reduce((sum,[id,n])=>sum+Math.max(0,n-(last[id]??0)),0) : 0;
+        previous = counts;
+        setUnreadCount(total);
+        if (added) setNotice(added===1?"Você recebeu uma nova mensagem.":`Você recebeu ${added} novas mensagens.`);
+        if (!total) setNotice("");
+      } catch { /* A próxima consulta recupera a contagem persistida. */ }
+      finally { if(!stopped)timer=setTimeout(refresh,4000); }
+    }
+    void refresh();
+    return ()=>{stopped=true;clearTimeout(timer);};
+  },[accountName]);
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -276,6 +304,10 @@ export default function Header({ user, unreadCount }: Props) {
           </div>
         </nav>
       )}
+      {user && notice && <div role="status" className="flex items-center justify-center gap-3 bg-[#332a15] px-3 py-2 text-sm text-[#ffe69e]">
+        <Link href="/chat" className="underline">{notice} Abrir negociações</Link>
+        <button type="button" aria-label="Dispensar aviso de mensagem" onClick={()=>setNotice("")}>Fechar</button>
+      </div>}
     </header>
   );
 }

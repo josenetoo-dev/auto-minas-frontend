@@ -191,6 +191,24 @@ async function main() {
         expect(reviewTexts.length===2&&reviewTexts.every(text=>text.includes("Análise documental manual concluída")),
           "Vendedor e veículo precisam de resultados separados e reais: "+JSON.stringify(reviewTexts));
         await inspect(page,"analises-publicas",width);
+        await page.goto(BASE+"/moderacao");
+        const toReject=page.getByRole("heading",{name:"Fiat Pulse 2023",exact:true}).locator("..");
+        const reason="Corrija a descrição do veículo para uma nova análise.";
+        await toReject.getByLabel("Motivo da rejeição enviado ao anunciante").fill(reason);
+        await toReject.getByRole("button",{name:"Rejeitar anúncio",exact:true}).click();
+        await page.getByText("Decisão registrada e auditada.",{exact:true}).waitFor();
+        await login(context,"comprador-demo@auto-minas.test",process.env.STAGING_DEMO_BUYER_PASSWORD);
+        await page.goto(BASE+"/meus-anuncios");
+        await page.getByText("Motivo da rejeição: "+reason,{exact:true}).waitFor();
+        await page.goto(BASE+"/conta");
+        await page.getByLabel("Foto pública do perfil").setInputFiles(file);
+        await page.getByRole("button",{name:"Salvar foto"}).click();
+        await page.getByText("Foto pública atualizada.",{exact:true}).waitFor();
+        await page.getByRole("link",{name:"Ver meu perfil"}).click();
+        await page.getByText("Nível 1 · Revisão documental concluída",{exact:true}).waitFor();
+        const photo=page.getByRole("img",{name:/^Foto de /});
+        await photo.waitFor();
+        await photo.evaluate(img=>img.decode());
       }
       if (width === 1280) {
         for (const path of ["/privacidade","/termos","/cookies","/reembolsos","/legal"]) {

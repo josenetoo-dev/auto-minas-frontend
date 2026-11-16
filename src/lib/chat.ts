@@ -11,7 +11,7 @@ export type BackendMessage={id:number;propostaId:number;remetenteId:number;remet
 function chatCar(c:CarData|null):ChatCar|null {return c?{id:c.id,brand:c.brand,model:c.model,year:c.year,price:c.price,image:c.images[0]||null,status:c.status}:null;}
 async function carSafe(id:number,token:string):Promise<CarData|null>{try{return await carById(id,token);}catch{return null;}}
 async function otherName(id:number,token:string):Promise<ChatOther>{
- try{const d=await backendFetch<{id:number;nome:string}>(`/v1/usuario/${id}`,{},token);return{id:d.id,name:d.nome,avatarUrl:null};}
+ try{const d=await backendFetch<{nome:string;temFoto:boolean}>(`/v1/perfis/${id}`,{},token);return{id,name:d.nome,avatarUrl:d.temFoto?`/perfil/${id}/foto`:null};}
  catch{return{id,name:"Participante",avatarUrl:null};}
 }
 export async function getConversationSummaries(userId:number):Promise<ChatSummary[]> {
