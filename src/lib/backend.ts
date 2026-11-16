@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 export const API_URL = (process.env.AUTO_MINAS_API_URL || "http://localhost:8080").replace(/\/$/, "");
 export const SESSION_COOKIE = "auto_minas_access";
 export class BackendError extends Error {
-  constructor(public status: number, message: string) { super(message); this.name = "BackendError"; }
+  constructor(public status: number, message: string, public code?: string, public traceId?: string, public fieldErrors?: Record<string,string>) { super(message); this.name = "BackendError"; }
 }
 
 export function apiMessage(body: unknown, fallback: string): string {
@@ -33,7 +33,7 @@ export async function backendFetch<T>(path: string, options: RequestInit = {}, t
   }
   if (!response.ok) {
     const value = await response.json().catch(() => null);
-    throw new BackendError(response.status, apiMessage(value, `Erro na API (${response.status})`));
+    throw new BackendError(response.status, apiMessage(value, `Erro na API (${response.status})`), value?.code, value?.traceId, value?.fieldErrors);
   }
   if (response.status === 204) return undefined as T;
   const type = response.headers.get("content-type") || "";
@@ -57,7 +57,7 @@ export async function privateApiBinary(path: string): Promise<Response> {
   } catch { throw new BackendError(503, "A API Auto Minas está indisponível no momento."); }
   if (!response.ok) {
     const value = await response.json().catch(() => null);
-    throw new BackendError(response.status, apiMessage(value, `Erro na API (${response.status})`));
+    throw new BackendError(response.status, apiMessage(value, `Erro na API (${response.status})`), value?.code, value?.traceId, value?.fieldErrors);
   }
   return response;
 }
@@ -74,8 +74,8 @@ export function sameOrigin(request: Request): boolean {
 
 export function clientError(error: unknown) {
   const status = error instanceof BackendError ? error.status : 500;
-  const message = error instanceof Error ? error.message : "Não foi possível concluir a operação.";
-  return Response.json({ error: message }, { status });
+  const message = error instanceof BackendError ? error.message : "Não foi possível concluir a operação.";
+  return Response.json({ error: message, ...(error instanceof BackendError ? { code: error.code, traceId: error.traceId, fieldErrors: error.fieldErrors } : {}) }, { status });
 }
 
 export type SpringPage<T> = { content: T[]; totalElements: number; totalPages: number; number: number };

@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { safeNextPath } from "@/lib/redirect";
 
 type Mode = "login" | "register";
 
@@ -14,7 +12,6 @@ export default function AuthForm({
   next: string;
   error?: string;
 }) {
-  const router = useRouter();
   const [mode, setMode] = useState<Mode>("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -55,10 +52,7 @@ export default function AuthForm({
         setFormError(data.error ?? "Algo deu errado. Tente novamente.");
         return;
       }
-      const redirect = safeNextPath(data.redirect, "/conta");
-      if (mode === "register") { window.location.assign("/"); return; }
-      router.push(redirect);
-      router.refresh();
+      window.location.assign("/");
     } catch {
       setFormError("Falha de conexão. Tente novamente.");
     } finally {

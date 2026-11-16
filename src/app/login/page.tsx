@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth";
 import AuthForm from "@/components/auth-form";
 import Logo from "@/components/logo";
 import { safeNextPath } from "@/lib/redirect";
@@ -13,6 +15,7 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
+  if (await getSession()) redirect("/");
   const { next, error } = await searchParams;
   const safeNext = safeNextPath(next);
 
