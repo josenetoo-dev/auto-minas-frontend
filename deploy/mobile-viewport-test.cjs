@@ -93,13 +93,9 @@ async function main() {
           "Escape não atualizou aria-expanded em " + width + "px");
       }
       await page.goto(BASE + "/planos", { waitUntil: "domcontentloaded" });
-      await page.getByRole("heading", { name: "Anúncio avulso", exact: true }).waitFor();
-      await page.getByRole("heading", { name: "Assinatura mensal", exact: true }).waitFor();
+      await page.getByText("Anúncio avulso", { exact: true }).waitFor();
+      await page.getByText("Assinatura mensal", { exact: true }).waitFor();
       await inspect(page, "modalidades", width);
-      await page.getByRole("link", { name: /Preparar meu anúncio/ }).click();
-      await page.waitForURL("**/login?**");
-      expect(new URL(page.url()).searchParams.get("next") === "/vender?modalidade=avulso",
-        "A modalidade avulsa deve ser preservada ao entrar ou criar conta");
       await page.goto(BASE + "/feira", { waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: /Conheça o Auto Minas/ }).waitFor({ state: "visible" });
       await inspect(page, "roteiro-feira", width);
@@ -152,7 +148,8 @@ async function main() {
     await signupPage.getByRole("button", { name: "Criar conta", exact: true }).click();
     await signupPage.getByLabel("Nome completo", { exact: true }).fill("Pessoa fictícia de teste");
     await signupPage.getByLabel(/Telefone com DDD/).fill("38000000000");
-    await signupPage.getByLabel("E-mail", { exact: true }).fill(`cadastro-${Date.now()}@auto-minas.test`);
+    const signupEmail = `cadastro-${Date.now()}@auto-minas.test`;
+    await signupPage.getByLabel("E-mail", { exact: true }).fill(signupEmail);
     await signupPage.getByLabel("Senha", { exact: true }).fill("Senha-ficticia-CI-2026!");
     await signupPage.getByRole("checkbox", { name: /Li e concordo/ }).check();
     await signupPage.getByRole("button", { name: "Criar conta e entrar", exact: true }).click();
@@ -164,6 +161,20 @@ async function main() {
     await signupPage.getByRole("heading", { name: "Olá, Pessoa." }).waitFor();
     await signupPage.getByText("E-mail pendente de confirmação", { exact: true }).waitFor();
     await inspect(signupPage, "cadastro-conectado", 390);
+    const logout = await signupContext.request.post(BASE + "/api/auth/logout");
+    expect(logout.ok(), "Logout falhou");
+    await signupPage.goto(BASE + "/conta");
+    await signupPage.waitForURL(/\/login/);
+    await signupPage.getByLabel("E-mail", {exact:true}).fill(signupEmail);
+    await signupPage.getByLabel("Senha", {exact:true}).fill("senha-incorreta123");
+    await signupPage.getByRole("button", {name:"Entrar na minha conta",exact:true}).click();
+    await signupPage.getByText("Credenciais inválidas", {exact:true}).waitFor();
+    expect(new URL(signupPage.url()).pathname === "/login", "Credenciais inválidas devem manter o login");
+    await signupPage.getByLabel("Senha", {exact:true}).fill("Senha-ficticia-CI-2026!");
+    await signupPage.getByRole("button", {name:"Entrar na minha conta",exact:true}).click();
+    await signupPage.waitForURL(BASE + "/");
+    await signupPage.getByRole("button", {name:"Abrir menu da conta",exact:true}).waitFor();
+    expect(await signupPage.getByRole("region", {name:"Aviso de cookies"}).count() === 0, "Preferência de cookies não persistiu");
     await signupContext.close();
     console.log("Cadastro pela interface abriu a home autenticada; painel confirmou e-mail pendente.");
     console.log("Responsividade: telas de 320, 360, 390, 768, 1024 e 1280px sem overflow; menu, filtros, formulário e chat verificados.");

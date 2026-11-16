@@ -1,11 +1,11 @@
 import { allPages, backendFetch, getApiToken, privateApi } from "@/lib/backend";
 
 export type CommercialPlan = {
-  codigo: "BASIC" | "PROFESSIONAL" | "PREMIUM";
+  codigo: "AVULSO" | "RECORRENTE" | "BASIC" | "PROFESSIONAL" | "PREMIUM";
   nome: string;
   mensalidade: number;
   moeda: "BRL";
-  periodicidade: "MENSAL";
+  periodicidade: "MENSAL" | "UNICO";
   comissaoPercentual: number;
   beneficiosJson: string;
 };
@@ -27,7 +27,7 @@ export type DeclaredSale = {
   dataVendaDeclarada: string; declaradoEm: string; situacao: string;
 };
 export type SellerProfile = { nomeCompleto: string; cpfMascarado: string | null; identificacaoInformada: boolean };
-export type CommercialSubscription = { id: number; codigoPlano: string; nomePlano: string; mensalidade: number; comissaoPercentual: number; moeda: "BRL"; periodicidade: "MENSAL"; status: string; situacaoFinanceira: string; criadoEm: string; inicioVigencia: string | null; vencimentoEm: string | null; canceladaEm: string | null; referenciaPagamentoExterno: string | null };
+export type CommercialSubscription = { id: number; codigoPlano: string; nomePlano: string; mensalidade: number; comissaoPercentual: number; moeda: "BRL"; periodicidade: "MENSAL" | "UNICO"; status: string; situacaoFinanceira: string; criadoEm: string; inicioVigencia: string | null; vencimentoEm: string | null; canceladaEm: string | null; referenciaPagamentoExterno: string | null };
 
 export async function sellerProfile(): Promise<SellerProfile> {
   return privateApi<SellerProfile>("/v1/usuario/me/dados-vendedor");

@@ -33,6 +33,6 @@ test("demonstrative acceptance is local and never calls the backend acceptance r
 test("only the existing authenticated intent API is used, with server-side plan validation", () => {
   assert.match(flow, /fetch\("\/api\/commercial\/intents", \{ method: "POST"/);
   assert.match(intentRoute, /\/v1\/assinaturas\/intencoes/);
-  assert.match(intentRoute, /\["BASIC", "PROFESSIONAL", "PREMIUM"\]/);
+  assert.match(intentRoute, /\["AVULSO", "RECORRENTE"\]/);
   assert.match(flow, /response\.json\(\)\.catch\(\(\) => \(\{\}\)\)/);
 });

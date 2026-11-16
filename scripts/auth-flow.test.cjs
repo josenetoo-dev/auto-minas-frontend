@@ -143,3 +143,22 @@ test("confirmation BFF requires the current session and replaces it with the bac
   assert.equal(anonymousResponse.status, 401);
   assert.equal(upstreamCalls.length, 2);
 });
+
+
+test("login creates the session and always redirects home even with next", async () => {
+  let session;
+  const { POST } = loadRoute("src/app/api/auth/login/route.ts", {
+    "next/server": { NextResponse: { json: (body, init) => Response.json(body, init) } },
+    "@/lib/backend": {
+      sameOrigin: () => true,
+      backendFetch: async () => ({ token: "test-token" }),
+      clientError: () => Response.json({error:"Falha"}, {status:401}),
+    },
+    "@/lib/auth": { createSession: async token => { session = token; } },
+  });
+  const response = await POST(new Request("http://localhost/api/auth/login", {
+    method:"POST", body:JSON.stringify({email:"teste@example.com", password:"senhaTeste123", next:"/conta"}),
+  }));
+  assert.equal(session, "test-token");
+  assert.equal((await response.json()).redirect, "/");
+});
