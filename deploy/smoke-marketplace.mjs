@@ -83,7 +83,7 @@ try {
   const submit=await request("/api/cars/"+newAd.json.id+"/documents",{method:"POST",cookie:buyer,body:{submit:true}});
   expectCode(submit,200,"Enviar identidade e veículo juntos");
   const forbiddenDocs=await request("/api/cars/"+newAd.json.id+"/documents",{cookie:seller});
-  expectCode(forbiddenDocs,403,"Documentos inacessíveis a outro anunciante");
+  expectCode(forbiddenDocs,404,"Anúncio pendente oculto de outro anunciante");
   const packet=await request("/api/backend/v1/moderacao/anuncios/"+newAd.json.id+"/documentos",{cookie:admin});
   expectCode(packet,200,"Revisor consulta documentos associados ao anúncio");
   for(const kind of ["IDENTIDADE","VEICULO"]) {
@@ -95,6 +95,8 @@ try {
   const publish=await request("/api/backend/v1/moderacao/anuncios/"+newAd.json.id+"/aprovar",{method:"POST",cookie:admin});
   expectCode(publish,200,"Publicar gratuitamente após revisão");
   if(publish.json.status!=="ATIVO") throw new Error("Publicação gratuita não foi confirmada");
+  const forbiddenPublicDocs=await request("/api/cars/"+newAd.json.id+"/documents",{cookie:seller});
+  expectCode(forbiddenPublicDocs,403,"Documentos privados mesmo após publicação");
   const myAds=await request("/meus-anuncios",{cookie:buyer});
   expectCode(myAds,200,"Meus anúncios após cadastro");
   if(!myAds.raw.includes("Pirapora/MG"))
