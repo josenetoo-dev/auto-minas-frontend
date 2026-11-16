@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: josenetoo-dev/veiculos-api
-          # PR comercial depende das rotas de busca da API em revisão.
+          # Mantém o par de frontend/API usado na validação deste PR.
           ref: ${{ github.head_ref == 'fix/anuncio-documentos-unificados' && 'd1df0733fca91ef7725701dd73f48d4f7950f497' || 'main' }}
           path: veiculos-api
 
@@ -84,6 +84,7 @@ jobs:
         working-directory: auto-minas-frontend
         env:
           STAGING_DEMO_BUYER_PASSWORD: DO_NOT_USE_SAMPLE_IN_PUBLIC
+          STAGING_DEMO_ADMIN_PASSWORD: DO_NOT_USE_SAMPLE_IN_PUBLIC
         run: node deploy/mobile-viewport-test.cjs
 
       - name: Anexar capturas da revisão visual
