@@ -27,7 +27,7 @@ export type DeclaredSale = {
   dataVendaDeclarada: string; declaradoEm: string; situacao: string;
 };
 export type SellerProfile = { nomeCompleto: string; cpfMascarado: string | null; identificacaoInformada: boolean };
-export type CommercialSubscription = { id: number; codigoPlano: string; nomePlano: string; mensalidade: number; comissaoPercentual: number; moeda: "BRL"; periodicidade: "MENSAL" | "UNICO"; status: string; situacaoFinanceira: string; criadoEm: string; inicioVigencia: string | null; vencimentoEm: string | null; canceladaEm: string | null; referenciaPagamentoExterno: string | null };
+export type CommercialSubscription = { id: number; codigoPlano: string; nomePlano: string; mensalidade: number; comissaoPercentual: number; moeda: "BRL"; periodicidade: "MENSAL" | "UNICO"; status: string; situacaoFinanceira: string; criadoEm: string; inicioVigencia: string | null; vencimentoEm: string | null; canceladaEm: string | null; referenciaPagamentoExterno: string | null; renovacaoCancelada: boolean };
 
 export async function sellerProfile(): Promise<SellerProfile> {
   return privateApi<SellerProfile>("/v1/usuario/me/dados-vendedor");
