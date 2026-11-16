@@ -39,6 +39,8 @@ export async function POST(request:Request,context:Context) {
   try {
     const ad=await ownedAd(context);
     if(request.headers.get("content-type")?.includes("application/json")) {
+      const submission=await request.json();
+      const manual=submission?.manual===true;
       const cases=await state(ad);
       for(const type of ["IDENTIDADE","VEICULO"]) {
         const item=cases.find(c=>c.tipo===type);
@@ -46,8 +48,8 @@ export async function POST(request:Request,context:Context) {
         if(!item || required.some(kind=>!item.evidencias.some(e=>e.tipo===kind))) {
           throw new BackendError(400,type==="IDENTIDADE"?"Envie frente e verso do documento de identidade.":"Envie o documento do veículo.");
         }
-        if(item.status==="RASCUNHO" || item.status==="REJEITADA") {
-          await privateApi(`/v1/verificacoes/${item.id}/enviar`,{method:"POST"});
+        if(["RASCUNHO","REJEITADA","CORRECAO_NECESSARIA","EXPIRADA"].includes(item.status)) {
+          await privateApi(`/v1/verificacoes/${item.id}/${manual?"analise-manual":"enviar"}`,{method:"POST"});
         }
       }
       return NextResponse.json({ok:true});

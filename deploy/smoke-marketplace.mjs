@@ -89,6 +89,18 @@ try {
   for(const kind of ["IDENTIDADE","VEICULO"]) {
     const item=packet.json.find(c=>c.tipo===kind);
     if(!item)throw new Error("Documento ausente no painel de revisão");
+    if(kind==="VEICULO") {
+      const correction=await request("/api/backend/v1/verificacoes/revisao/"+item.id+"/corrigir",{method:"POST",cookie:admin,
+        body:{motivo:"Documento fictício precisa de uma correção de teste.",categoria:"DOCUMENTO_ILEGIVEL"}});
+      expectCode(correction,200,"Administração solicita correção específica");
+      const history=await request("/api/backend/v1/verificacoes/revisao/"+item.id+"/historico",{cookie:admin});
+      expectCode(history,200,"Administração consulta histórico");
+      if(history.json.content[0].resultado!=="CORRECAO_NECESSARIA")throw new Error("Correção não foi auditada");
+      const deniedHistory=await request("/api/backend/v1/verificacoes/revisao/"+item.id+"/historico",{cookie:buyer});
+      expectCode(deniedHistory,403,"Histórico administrativo não é exposto ao titular");
+      const manual=await request("/api/cars/"+newAd.json.id+"/documents",{method:"POST",cookie:buyer,body:{submit:true,manual:true}});
+      expectCode(manual,200,"Retomar o mesmo caso em análise manual");
+    }
     const review=await request("/api/backend/v1/verificacoes/revisao/"+item.id+"/aprovar",{method:"POST",cookie:admin});
     expectCode(review,200,"Revisão humana explícita do documento fictício");
   }
@@ -97,6 +109,15 @@ try {
   if(publish.json.status!=="ATIVO") throw new Error("Publicação gratuita não foi confirmada");
   const forbiddenPublicDocs=await request("/api/cars/"+newAd.json.id+"/documents",{cookie:seller});
   expectCode(forbiddenPublicDocs,403,"Documentos privados mesmo após publicação");
+  const details=await request("/carros/"+newAd.json.id);
+  expectCode(details,200,"Resumo público de vendedor e veículo");
+  if(!details.raw.includes("O que foi analisado"))throw new Error("Resumo documental público ausente");
+  const vehicleCase=packet.json.find(item=>item.tipo==="VEICULO");
+  const expire=await request("/api/backend/v1/verificacoes/revisao/"+vehicleCase.id+"/expirar",{method:"POST",cookie:admin,
+    body:{motivo:"Revalidação administrativa fictícia para testar privacidade.",categoria:"REVALIDACAO_NECESSARIA"}});
+  expectCode(expire,200,"Exigir revalidação após publicação");
+  const hiddenExpired=await request("/carros/"+newAd.json.id);
+  expectCode(hiddenExpired,404,"Revalidação retira anúncio da vitrine");
   const myAds=await request("/meus-anuncios",{cookie:buyer});
   expectCode(myAds,200,"Meus anúncios após cadastro");
   if(!myAds.raw.includes("Pirapora/MG"))

@@ -1,7 +1,9 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import VerificationReview from "@/components/verification-review";
+import { verificationStatus } from "@/lib/verification";
 type Ad={id:number;titulo:string;marca:string;modelo:string;preco:number;status:string;usuarioNome:string;usuarioId:number;veiculoId:number|null};
-type Verification={id:number;tipo:string;status:string;veiculoId:number|null;motivoRejeicao:string|null};
+type Verification={id:number;tipo:string;status:string;veiculoId:number|null;motivoRejeicao:string|null;solicitanteNome?:string;veiculoDescricao?:string|null};
 type Report={id:number;anuncioId:number;categoria:string;status:string;relato:string;motivoDecisao:string|null};
 type Evidence={id:number;tipo:string;tamanho:number};
 async function api<T>(path:string,method="GET",body?:unknown):Promise<T>{
@@ -16,11 +18,12 @@ export default function ModerationDashboard({role}:{role:"ADMIN"|"REVIEWER"}){
  useEffect(()=>()=>{if(preview)URL.revokeObjectURL(preview.url);},[preview]);
  const [packets,setPackets]=useState<Record<number,Verification[]>>({});
  const [checked,setChecked]=useState<Record<number,boolean>>({});
+ const [verificationFilter,setVerificationFilter]=useState("");
  const [reason,setReason]=useState<Record<number,string>>({}),[evidence,setEvidence]=useState<Record<number,Evidence[]>>({}),[busy,setBusy]=useState(false),[error,setError]=useState(""),[success,setSuccess]=useState("");
- async function load(){const [a,v,d]=await Promise.all([
-  api<{content:Ad[]}>("/v1/moderacao/anuncios?page=0&size=100"),api<{content:Verification[]}>("/v1/verificacoes/revisao/pendentes?page=0&size=100"),
-  api<{content:Report[]}>("/v1/denuncias/revisao/pendentes?page=0&size=100")]);setAds(a.content);setVer(v.content);setReports(d.content);}
- useEffect(()=>{const timer=window.setTimeout(()=>{void load().catch(e=>setError(e instanceof Error?e.message:"Falha de conexão"));},0);return()=>window.clearTimeout(timer);},[]);
+ const load=useCallback(async()=>{const [a,v,d]=await Promise.all([
+  api<{content:Ad[]}>("/v1/moderacao/anuncios?page=0&size=100"),api<{content:Verification[]}>(`/v1/verificacoes/revisao/pendentes?page=0&size=100${verificationFilter?`&status=${verificationFilter}`:""}`),
+  api<{content:Report[]}>("/v1/denuncias/revisao/pendentes?page=0&size=100")]);setAds(a.content);setVer(v.content);setReports(d.content);},[verificationFilter]);
+ useEffect(()=>{const timer=window.setTimeout(()=>{void load().catch(e=>setError(e instanceof Error?e.message:"Falha de conexão"));},0);return()=>window.clearTimeout(timer);},[load]);
  async function decide(url:string,justification?:string){setBusy(true);setError("");setSuccess("");try{await api(url,"POST",justification===undefined?undefined:{motivo:justification});await load();setSuccess("Decisão registrada e auditada.");}catch(e){setError(e instanceof Error?e.message:"Erro");}finally{setBusy(false);}}
  async function showDocs(id:number){try{const docs=await api<Evidence[]>(`/v1/verificacoes/${id}/evidencias`);setEvidence(x=>({...x,[id]:docs}));}catch(e){setError(e instanceof Error?e.message:"Erro");}}
  async function showPacket(ad:Ad) {
@@ -39,10 +42,6 @@ export default function ModerationDashboard({role}:{role:"ADMIN"|"REVIEWER"}){
   } catch(cause){setError(cause instanceof Error?cause.message:"Não foi possível publicar.");}
   finally{setBusy(false);}
  }
- async function approveDocument(ad:Ad,item:Verification) {
-  await decide(`/v1/verificacoes/revisao/${item.id}/aprovar`);
-  await showPacket(ad);
- }
  async function download(id:number,doc:Evidence){try{const r=await fetch(`/api/backend/v1/verificacoes/${id}/evidencias/${doc.id}/arquivo`);if(!r.ok)throw new Error("Acesso negado");const url=URL.createObjectURL(await r.blob());setPreview({url,name:doc.tipo==="IDENTIDADE_FRENTE"?"Frente da identidade":doc.tipo==="IDENTIDADE_VERSO"?"Verso da identidade":"Documento do veículo"});previewDialog.current?.showModal();}catch(e){setError(e instanceof Error?e.message:"Erro");}}
  const note=(id:number)=><textarea className="input-dark mt-3 min-h-20" maxLength={500} aria-label="Justificativa da decisão" placeholder="Justificativa da decisão (obrigatória para rejeições)" value={reason[id]||""} onChange={e=>setReason(x=>({...x,[id]:e.target.value}))}/>;
  return <div className="space-y-5">
@@ -54,16 +53,18 @@ export default function ModerationDashboard({role}:{role:"ADMIN"|"REVIEWER"}){
  {tab==="ads"&&(ads.length?ads.map(a=><section key={a.id} className="card-dark min-w-0 p-4 sm:p-5"><h2 className="font-display break-words text-lg font-bold sm:text-xl">{a.titulo}</h2><p className="mt-1 text-sm text-[#9b9ba4]">{a.marca} {a.modelo} • R$ {a.preco} • Anunciante: {a.usuarioNome}</p><p className="mt-3 text-xs text-amber-300">Publicação gratuita após conferir o anúncio e os documentos. A revisão não constitui certificação oficial.</p><button type="button" className="btn-outline mt-4" onClick={()=>showPacket(a)}>Analisar documentos deste anúncio</button>
  {packets[a.id]&&<div className="mt-4 grid gap-3 sm:grid-cols-2">{packets[a.id].length===0?<p>O anunciante ainda não enviou os documentos.</p>:packets[a.id].map(item=><div key={item.id} className="rounded-xl border border-white/10 p-4">
  <h3 className="font-semibold">{item.tipo==="IDENTIDADE"?"Identidade do anunciante":"Documento do veículo"}</h3>
- <p className="mt-2 text-sm text-[#b7b3a9]">{item.status==="APROVADA"?"Aprovado":item.status==="EM_ANALISE"?"Aguardando sua análise":"Precisa de correção"}</p>
+ <p className="mt-2 text-sm text-[#b7b3a9]">{verificationStatus[item.status]||"Análise pendente"}</p>
  {(evidence[item.id]||[]).map(doc=><button type="button" key={doc.id} className="mt-2 block min-h-11 text-left text-sm text-[#e4ca91] underline" onClick={()=>download(item.id,doc)}>{doc.tipo==="IDENTIDADE_FRENTE"?"Abrir frente da identidade":doc.tipo==="IDENTIDADE_VERSO"?"Abrir verso da identidade":"Abrir documento do veículo"}</button>)}
- {item.status==="EM_ANALISE"&&<button type="button" disabled={busy||(item.tipo==="VEICULO"&&!packets[a.id]?.some(c=>c.tipo==="IDENTIDADE"&&c.status==="APROVADA"))} className="btn-outline mt-3" onClick={()=>approveDocument(a,item)}>{item.tipo==="IDENTIDADE"?"Aprovar identidade após conferir":"Aprovar documento do veículo após conferir"}</button>}
+ <VerificationReview item={item} role={role} canApprove={item.tipo!=="VEICULO"||!!packets[a.id]?.some(c=>c.tipo==="IDENTIDADE"&&c.status==="APROVADA")} onUpdated={async()=>{await load();await showPacket(a);}}/>
  </div>)}</div>}
  <p className="mt-3 text-sm text-[#b7b3a9]">Para publicar, a identidade e o documento do veículo precisam estar aprovados.</p>
  <label className="mt-4 flex items-start gap-3 text-sm"><input type="checkbox" className="mt-1 h-5 w-5" checked={!!checked[a.id]} disabled={!packets[a.id]?.length} onChange={event=>setChecked(current=>({...current,[a.id]:event.target.checked}))}/>Conferi os documentos e os dados deste anúncio.</label>
  {note(a.id)}<div className="mt-3 flex flex-wrap gap-2"><button disabled={busy||!checked[a.id]||packets[a.id]?.length!==2||!packets[a.id]?.every(item=>item.status==="APROVADA")} className="btn-gold min-h-11 flex-1 text-center sm:flex-none" onClick={()=>publishReviewed(a.id)}>Publicar anúncio</button><button disabled={busy||!reason[a.id]?.trim()} className="btn-outline min-h-11 flex-1 text-center sm:flex-none" onClick={()=>decide(`/v1/moderacao/anuncios/${a.id}/rejeitar`,reason[a.id])}>Rejeitar</button></div></section>):<p className="card-dark p-6">Nenhum anúncio aguardando revisão.</p>)}
- {tab==="identity"&&(ver.length?ver.map(v=><section key={v.id} className="card-dark min-w-0 p-4 sm:p-5"><h2 className="font-display break-words text-lg font-bold sm:text-xl">{v.tipo==="IDENTIDADE"?"Identidade do anunciante":"Documento do veículo"}</h2>
+ {tab==="identity"&&<label className="block text-sm">Filtrar análises documentais<select className="input-dark mt-2" value={verificationFilter} onChange={event=>{setError("");setVerificationFilter(event.target.value);}}>
+ <option value="">Aguardando análise</option>{["CORRECAO_NECESSARIA","EXPIRADA","REJEITADA","APROVADA"].map(status=><option key={status} value={status}>{verificationStatus[status]}</option>)}</select></label>}
+ {tab==="identity"&&(ver.length?ver.map(v=><section key={v.id} className="card-dark min-w-0 p-4 sm:p-5"><h2 className="font-display break-words text-lg font-bold sm:text-xl">{v.tipo==="IDENTIDADE"?"Identidade do anunciante":"Documento do veículo"}{v.veiculoDescricao?` · ${v.veiculoDescricao}`:v.solicitanteNome?` · ${v.solicitanteNome}`:""}</h2><p className="mt-2 text-sm text-[#b7b3a9]">{v.solicitanteNome}</p>
  <button className="btn-outline mt-3 w-full sm:w-auto" onClick={()=>showDocs(v.id)}>Ver evidências privadas</button>{(evidence[v.id]||[]).map(d=><div key={d.id} className="mt-3 flex min-w-0 flex-wrap items-center gap-3 text-sm"><span>{d.tipo} ({Math.round(d.tamanho/1024)} KB)</span><button className="text-[#d4af37] underline" onClick={()=>download(v.id,d)}>Baixar</button></div>)}
- {note(v.id)}<div className="mt-3 flex flex-wrap gap-2"><button disabled={busy} className="btn-gold min-h-11 flex-1 text-center sm:flex-none" onClick={()=>decide(`/v1/verificacoes/revisao/${v.id}/aprovar`)}>Aprovar após análise</button><button disabled={busy||!reason[v.id]?.trim()} className="btn-outline min-h-11 flex-1 text-center sm:flex-none" onClick={()=>decide(`/v1/verificacoes/revisao/${v.id}/rejeitar`,reason[v.id])}>Rejeitar</button></div></section>):<p className="card-dark p-6">Nenhum documento aguardando revisão.</p>)}
+ <VerificationReview item={v} role={role} onUpdated={load}/></section>):<p className="card-dark p-6">Nenhum documento neste filtro.</p>)}
  {tab==="reports"&&(reports.length?reports.map(d=><section key={d.id} className="card-dark min-w-0 p-4 sm:p-5"><h2 className="font-display break-words text-lg font-bold sm:text-xl">Denúncia sobre anúncio</h2><p className="mt-1 text-sm text-amber-300">{d.categoria}</p><p className="mt-3 whitespace-pre-wrap text-sm text-[#c4c4cc]">{d.relato}</p>{note(d.id)}<div className="mt-3 flex flex-wrap gap-2"><button disabled={busy||!reason[d.id]?.trim()} className="btn-gold min-h-11 flex-1 text-center sm:flex-none" onClick={()=>decide(`/v1/denuncias/revisao/${d.id}/confirmar`,reason[d.id])}>Confirmar e suspender</button><button disabled={busy||!reason[d.id]?.trim()} className="btn-outline min-h-11 flex-1 text-center sm:flex-none" onClick={()=>decide(`/v1/denuncias/revisao/${d.id}/descartar`,reason[d.id])}>Descartar</button></div></section>):<p className="card-dark p-6">Nenhuma denúncia pendente.</p>)}
  <p className="text-xs text-[#9b9ba4]">O perfil {role} é recebido do backend. Todas as permissões e decisões são novamente verificadas no Spring Security.</p></div>;
 }
