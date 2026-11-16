@@ -21,6 +21,16 @@ async function login(context, email, password) {
   });
   expect(res.status() === 200, "Login de homologação: HTTP " + res.status());
 }
+async function browserJson(page, url, data) {
+  const result=await page.evaluate(async ({url,data})=>{
+    const resp=await fetch(url,data===undefined?{cache:"no-store"}:{
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)
+    });
+    return {status:resp.status,body:await resp.json().catch(()=>null)};
+  },{url,data});
+  expect(result.status>=200&&result.status<300,"HTTP "+result.status+" em "+url);
+  return result.body;
+}
 async function inspect(page, label, width) {
   await page.waitForLoadState("domcontentloaded");
   await page.waitForTimeout(350);
@@ -210,28 +220,30 @@ async function main() {
         await photo.waitFor();
         await photo.evaluate(img=>img.decode());
 
-        const summaries=await (await context.request.get(BASE+"/api/conversations")).json();
+        const summaries=await browserJson(page,"/api/conversations");
         const conversation=summaries.conversations.find(item=>item.other.name && item.id);
         expect(!!conversation,"Negociação fictícia ausente");
         const sellerContext=await browser.newContext();
         try {
           await login(sellerContext,"vendedor-demo@auto-minas.test",process.env.STAGING_DEMO_SELLER_PASSWORD);
-          const sellerConversations=await (await sellerContext.request.get(BASE+"/api/conversations")).json();
+          const sellerPage=await sellerContext.newPage();
+          await sellerPage.goto(BASE+"/conta");
+          const sellerConversations=await browserJson(sellerPage,"/api/conversations");
           const shared=sellerConversations.conversations.find(item=>summaries.conversations.some(b=>b.id===item.id));
           expect(!!shared,"Comprador e vendedor precisam negociar o mesmo anúncio");
           const unreadURL="/api/backend/v1/proposta/mensagens-nao-lidas";
-          const baseline=await (await context.request.get(BASE+unreadURL)).json();
+          await page.bringToFront();
+          const baseline=await browserJson(page,unreadURL);
           const initial=baseline[shared.id]??0;
           const poll=page.waitForResponse(r=>r.url().endsWith(unreadURL)&&r.ok());
           await page.goto(BASE+"/conta");
           await poll;
-          const sent=await sellerContext.request.post(BASE+"/api/conversations/"+shared.id+"/messages",{
-            data:{content:"Mensagem fictícia para validar o aviso de negociação."}
+          await browserJson(sellerPage,"/api/conversations/"+shared.id+"/messages",{
+            content:"Mensagem fictícia para validar o aviso de negociação."
           });
-          expect(sent.ok(),"Envio do vendedor falhou");
           await page.getByText(/Você recebeu uma nova mensagem/).waitFor({timeout:20000});
           await page.goto(BASE+"/chat");
-          const counts=await (await context.request.get(BASE+unreadURL)).json();
+          const counts=await browserJson(page,unreadURL);
           expect(counts[shared.id]===initial+1,"Mensagem precisa somar exatamente uma após navegação");
           await page.goto(BASE+"/chat/"+shared.id);
           await page.getByText("Mensagem fictícia para validar o aviso de negociação.",{exact:true}).waitFor();
@@ -240,7 +252,7 @@ async function main() {
             return !counts[Number(location.pathname.split("/").pop())];
           },unreadURL,{timeout:20000});
           await page.reload();
-          const persisted=await (await context.request.get(BASE+unreadURL)).json();
+          const persisted=await browserJson(page,unreadURL);
           expect(!persisted[shared.id],"Mensagem já visualizada voltou a contar");
         } finally {await sellerContext.close();}
       }
