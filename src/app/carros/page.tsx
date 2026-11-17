@@ -51,7 +51,8 @@ export default async function CarrosPage({
     <div className="am-page-wide">
       {/* Cabeçalho da página */}
       <div className="mb-5 sm:mb-6">
-        <p className="am-eyebrow">Catálogo Auto Minas</p>\n        <h1 className="font-display mt-2 text-3xl font-bold text-[#f4f3ee] sm:text-4xl lg:text-5xl">
+        <p className="am-eyebrow">Catálogo Auto Minas</p>
+        <h1 className="font-display mt-2 text-3xl font-bold text-[#f4f3ee] sm:text-4xl lg:text-5xl">
           Comprar <span className="gold-text">veículos</span>
         </h1>
       </div>
