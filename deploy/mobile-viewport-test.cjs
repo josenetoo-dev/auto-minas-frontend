@@ -21,6 +21,16 @@ async function login(context, email, password) {
   });
   expect(res.status() === 200, "Login de homologação: HTTP " + res.status());
 }
+async function browserJson(page, url, data) {
+  const result=await page.evaluate(async ({url,data})=>{
+    const resp=await fetch(url,data===undefined?{cache:"no-store"}:{
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)
+    });
+    return {status:resp.status,body:await resp.json().catch(()=>null)};
+  },{url,data});
+  expect(result.status>=200&&result.status<300,"HTTP "+result.status+" em "+url);
+  return result.body;
+}
 async function inspect(page, label, width) {
   await page.waitForLoadState("domcontentloaded");
   await page.waitForTimeout(350);
@@ -191,6 +201,60 @@ async function main() {
         expect(reviewTexts.length===2&&reviewTexts.every(text=>text.includes("Análise documental manual concluída")),
           "Vendedor e veículo precisam de resultados separados e reais: "+JSON.stringify(reviewTexts));
         await inspect(page,"analises-publicas",width);
+        await page.goto(BASE+"/moderacao");
+        const toReject=page.getByRole("heading",{name:"Fiat Pulse 2023",exact:true}).locator("..");
+        const reason="Corrija a descrição do veículo para uma nova análise.";
+        await toReject.getByLabel("Motivo da rejeição enviado ao anunciante").fill(reason);
+        await toReject.getByRole("button",{name:"Rejeitar anúncio",exact:true}).click();
+        await page.getByText("Decisão registrada e auditada.",{exact:true}).waitFor();
+        await login(context,"comprador-demo@auto-minas.test",process.env.STAGING_DEMO_BUYER_PASSWORD);
+        await page.goto(BASE+"/meus-anuncios");
+        await page.getByText("Motivo da rejeição: "+reason,{exact:true}).waitFor();
+        await page.goto(BASE+"/conta");
+        await page.getByLabel("Foto pública do perfil").setInputFiles(file);
+        await page.getByRole("button",{name:"Salvar foto"}).click();
+        await page.getByText("Foto pública atualizada.",{exact:true}).waitFor();
+        await page.getByRole("link",{name:"Ver meu perfil"}).click();
+        await page.getByText("Nível 1 · Revisão documental concluída",{exact:true}).waitFor();
+        const photo=page.getByRole("img",{name:/^Foto de /});
+        await photo.waitFor();
+        await photo.evaluate(img=>img.decode());
+
+        const summaries=await browserJson(page,"/api/conversations");
+        const conversation=summaries.conversations.find(item=>item.other.name && item.id);
+        expect(!!conversation,"Negociação fictícia ausente");
+        const sellerContext=await browser.newContext();
+        try {
+          await login(sellerContext,"vendedor-demo@auto-minas.test",process.env.STAGING_DEMO_SELLER_PASSWORD);
+          const sellerPage=await sellerContext.newPage();
+          await sellerPage.goto(BASE+"/conta");
+          const sellerConversations=await browserJson(sellerPage,"/api/conversations");
+          const shared=sellerConversations.conversations.find(item=>summaries.conversations.some(b=>b.id===item.id));
+          expect(!!shared,"Comprador e vendedor precisam negociar o mesmo anúncio");
+          const unreadURL="/api/backend/v1/proposta/mensagens-nao-lidas";
+          await page.bringToFront();
+          const baseline=await browserJson(page,unreadURL);
+          const initial=baseline[shared.id]??0;
+          const poll=page.waitForResponse(r=>r.url().endsWith(unreadURL)&&r.ok());
+          await page.goto(BASE+"/conta");
+          await poll;
+          await browserJson(sellerPage,"/api/conversations/"+shared.id+"/messages",{
+            content:"Mensagem fictícia para validar o aviso de negociação."
+          });
+          await page.getByText(/Você recebeu uma nova mensagem/).waitFor({timeout:20000});
+          await page.goto(BASE+"/chat");
+          const counts=await browserJson(page,unreadURL);
+          expect(counts[shared.id]===initial+1,"Mensagem precisa somar exatamente uma após navegação");
+          await page.goto(BASE+"/chat/"+shared.id);
+          await page.getByText("Mensagem fictícia para validar o aviso de negociação.",{exact:true}).waitFor();
+          await page.waitForFunction(async url=>{
+            const counts=await (await fetch(url,{cache:"no-store"})).json();
+            return !counts[Number(location.pathname.split("/").pop())];
+          },unreadURL,{timeout:20000});
+          await page.reload();
+          const persisted=await browserJson(page,unreadURL);
+          expect(!persisted[shared.id],"Mensagem já visualizada voltou a contar");
+        } finally {await sellerContext.close();}
       }
       if (width === 1280) {
         for (const path of ["/privacidade","/termos","/cookies","/reembolsos","/legal"]) {

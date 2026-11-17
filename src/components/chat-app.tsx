@@ -40,6 +40,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
   const [sendError, setSendError] = useState<string | null>(null);
   const [deletingMessage, setDeletingMessage] = useState<number | null>(null);
   const [clientNow, setClientNow] = useState<number | null>(null);
+  const totalUnread = conversations.reduce((sum, item) => sum + item.unread, 0);
   const bottomRef = useRef<HTMLDivElement>(null);
   const workspaceRef = useRef<HTMLDivElement>(null);
 
@@ -99,7 +100,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
         const res = await fetch(`/api/conversations/${activeId}/messages`);
         if (!res.ok || cancelled) return;
         const data: ChatThread = await res.json();
-        setThread(data);
+        if (!cancelled) setThread(data);
       } catch {
         /* offline */
       }
@@ -111,6 +112,25 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
       clearInterval(timer);
     };
   }, [activeId, meId]);
+
+  useEffect(() => {
+    if (!thread || thread.conversation.id !== activeId) return;
+    const ids = thread.messages.filter(m => m.senderId !== meId && !m.readAt && !m.deleted).map(m => m.id);
+    const markVisible = () => {
+      if (document.visibilityState !== "visible" || !document.hasFocus() || !ids.length) return;
+      void fetch(`/api/backend/v1/proposta/${activeId}/mensagens/leitura`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ids: ids.slice(0,200)}),
+      }).catch(() => {});
+    };
+    markVisible();
+    document.addEventListener("visibilitychange",markVisible);
+    window.addEventListener("focus",markVisible);
+    return () => {
+      document.removeEventListener("visibilitychange",markVisible);
+      window.removeEventListener("focus",markVisible);
+    };
+  }, [thread, activeId, meId]);
 
   // Auto-scroll para a última mensagem
   useEffect(() => {
@@ -181,6 +201,9 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
 
   return (
     <div ref={workspaceRef} className="mx-auto flex h-[calc(100dvh-4rem)] min-h-[300px] max-w-7xl flex-col sm:max-h-[780px] sm:px-4 sm:py-4">
+      <div role="status" aria-live="polite" aria-atomic="true" className={totalUnread ? "bg-[#292419] px-4 py-2 text-sm text-[#ffdc84]" : "sr-only"}>
+        {totalUnread ? `${totalUnread} ${totalUnread === 1 ? "mensagem não lida" : "mensagens não lidas"}` : "Nenhuma mensagem não lida"}
+      </div>
       <div className="card-dark grid min-h-0 min-w-0 flex-1 overflow-hidden md:grid-cols-[minmax(245px,310px)_minmax(0,1fr)] lg:grid-cols-[330px_minmax(0,1fr)]">
         {/* Lista de conversas */}
         <aside className={`${activeId ? "hidden md:flex" : "flex"} min-h-0 min-w-0 flex-col border-r border-[#26262e]`}>

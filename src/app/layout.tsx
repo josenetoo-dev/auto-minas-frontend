@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { countUnreadMessages } from "@/lib/chat";
 import Header from "@/components/header";
 import CookiePreferences from "@/components/cookie-preferences";
 import MobileActions from "@/components/mobile-actions";
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const session = await getSession();
-  const unread = 0; // Backend não possui marcador de mensagens não lidas.
+  const unread = session ? await countUnreadMessages().catch(() => 0) : 0;
 
   return (
     <html lang="pt-BR">
@@ -39,7 +40,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             </Link>
           </div>
         )}
-        <Header
+        <Header key={session?.id ?? 'visitante'}
           user={
             session
               ? { name: session.name, avatarUrl: session.avatarUrl }

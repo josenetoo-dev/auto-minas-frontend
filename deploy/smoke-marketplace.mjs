@@ -104,9 +104,16 @@ try {
     const review=await request("/api/backend/v1/verificacoes/revisao/"+item.id+"/aprovar",{method:"POST",cookie:admin});
     expectCode(review,200,"Revisão humana explícita do documento fictício");
   }
-  const publish=await request("/api/backend/v1/moderacao/anuncios/"+newAd.json.id+"/aprovar",{method:"POST",cookie:admin});
+  const photo=new FormData();
+  photo.set("arquivo",new Blob([Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGO8st6cARtgwio6aCUAXZAByo07EaIAAAAASUVORK5CYII=","base64")],{type:"image/png"}),"perfil.png");
+  const upload=await fetch(base+"/api/backend/v1/usuario/me/foto-perfil",{method:"POST",headers:{Origin:base,Cookie:buyer},body:photo});
+  if(upload.status!==204)throw new Error("Falha ao salvar foto de perfil: "+upload.status);
+  const publish=await request("/api/backend/v1/moderacao/anuncios/"+newAd.json.id+"/aprovar",{method:"POST",cookie:admin,body:{requisitosConferidos:true}});
   expectCode(publish,200,"Publicar gratuitamente após revisão");
   if(publish.json.status!=="ATIVO") throw new Error("Publicação gratuita não foi confirmada");
+  const publicProfile=await request("/perfil/"+publish.json.usuarioId);
+  expectCode(publicProfile,200,"Perfil público");
+  if(!publicProfile.raw.includes("Nível 1 · Revisão documental concluída"))throw new Error("Nível 1 não reconhecido");
   const forbiddenPublicDocs=await request("/api/cars/"+newAd.json.id+"/documents",{cookie:seller});
   expectCode(forbiddenPublicDocs,403,"Documentos privados mesmo após publicação");
   const details=await request("/carros/"+newAd.json.id);
@@ -145,6 +152,14 @@ try {
   const imageResponse=await fetch(base+"/api/conversations/"+proposal.json.id+"/attachments",{method:"POST",headers:{Origin:base,Cookie:buyer},body:attachmentForm});
   if(imageResponse.status!==200)throw new Error("Envio de imagem privada falhou com HTTP "+imageResponse.status);
   const imageResult=await imageResponse.json();
+  const unreadPath="/api/backend/v1/proposta/mensagens-nao-lidas";
+  const readPath="/api/backend/v1/proposta/"+proposal.json.id+"/mensagens/leitura";
+  const before=(await request(unreadPath,{cookie:seller})).json[proposal.json.id];
+  if(!(before>=2))throw new Error("O destinatário precisa ver as duas mensagens novas");
+  const selection={ids:[imageResult.message.id]};
+  expectCode(await request(readPath,{method:"POST",body:selection,cookie:admin}),403,"Leitura restrita aos participantes");
+  for(let attempt=0;attempt<2;attempt++)expectCode(await request(readPath,{method:"POST",body:selection,cookie:seller}),204,"Leitura idempotente");
+  if((await request(unreadPath,{cookie:seller})).json[proposal.json.id]!==before-1)throw new Error("Confirmação repetida descontou valor incorreto");
   const download=await request(imageResult.message.attachment.url,{cookie:buyer});
   expectCode(download,200,"Participante pode baixar imagem privada");
   const outsiderDownload=await request(imageResult.message.attachment.url,{cookie:admin});

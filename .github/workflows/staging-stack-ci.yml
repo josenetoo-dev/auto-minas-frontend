@@ -30,7 +30,7 @@ jobs:
         with:
           repository: josenetoo-dev/veiculos-api
           # Mantém o par de frontend/API usado na validação deste PR.
-          ref: ${{ github.head_ref == 'feat/fundacao-confianca' && '9a0b35828db157d60b99cb07b60851e9fd4be29c' || 'main' }}
+          ref: ${{ github.head_ref == 'feat/fechamento-mvp' && 'd1614e2dd300575dfa82fcb609edd3f809ce7e2e' || 'main' }}
           path: veiculos-api
 
       - name: Configurar Node.js para checagens de contratos
@@ -85,7 +85,7 @@ jobs:
         env:
           STAGING_DEMO_BUYER_PASSWORD: DO_NOT_USE_SAMPLE_IN_PUBLIC
           STAGING_DEMO_ADMIN_PASSWORD: DO_NOT_USE_SAMPLE_IN_PUBLIC
-        run: node deploy/mobile-viewport-test.cjs
+        run: node --env-file=deploy/.env.staging.example deploy/mobile-viewport-test.cjs
 
       - name: Anexar capturas da revisão visual
         if: always()
