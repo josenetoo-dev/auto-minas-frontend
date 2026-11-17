@@ -5,15 +5,27 @@ import { useRouter } from "next/navigation";
 
 export default function EmailActivation() {
   const router = useRouter();
+  const [text, setText] = useState("");
+
   const [remaining, setRemaining] = useState(0);
   useEffect(() => {
     if (!remaining) return;
     const timer = setTimeout(() => setRemaining(value => Math.max(0,value-1)),1000);
     return () => clearTimeout(timer);
   }, [remaining]);
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/backend/v1/usuario/me/contato/email/situacao", {cache:"no-store"})
+      .then(response => response.ok ? response.json() : null)
+      .then(data => {
+        if (!active || !data?.codigoEnviado) return;
+        setRemaining(Math.max(0, Number(data.reenviarEmSegundos) || 0));
+        setText("Um código já foi enviado ao seu e-mail. Use esse código ou aguarde para reenviar.");
+      }).catch(() => {});
+    return () => {active = false;};
+  }, []);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
-  const [text, setText] = useState("");
   const [error, setError] = useState("");
 
   async function call(path: "solicitar" | "confirmar", body?: unknown) {
