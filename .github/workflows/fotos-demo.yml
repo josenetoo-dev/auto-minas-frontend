@@ -1,0 +1,31 @@
+name: Preparar fotografias da demonstração
+on:
+  push:
+    branches: [feat/fotos-demonstracao]
+    paths: [.github/workflows/fotos-demo.yml]
+permissions:
+  contents: write
+jobs:
+  fotos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Guardar cópias otimizadas e remover metadados
+        run: |
+          set -euo pipefail
+          mkdir -p public/images/demo
+          foto() {
+            curl -fLsS --retry 3 --user-agent 'AutoMinasDemo/1.0 (https://github.com/josenetoo-dev/auto-minas-frontend)' "$2" -o "$RUNNER_TEMP/original"
+            convert "$RUNNER_TEMP/original" -auto-orient -resize '1100x800>' -strip -quality 83 "public/images/demo/$1.jpg"
+            identify "public/images/demo/$1.jpg"
+          }
+          foto onix 'https://upload.wikimedia.org/wikipedia/commons/7/7a/2022_Chevrolet_Onix_1.2_LT_hatchback.jpg'
+          foto corolla 'https://upload.wikimedia.org/wikipedia/commons/b/b3/2021_Toyota_Corolla_LE%2C_front_right%2C_07-13-2024.jpg'
+          foto hb20 'https://upload.wikimedia.org/wikipedia/commons/3/30/2023_Hyundai_HB20_1.0_T-GDi_Platinum_Plus_(Brazil)_front_view.png'
+          foto gol 'https://upload.wikimedia.org/wikipedia/commons/a/aa/2020_Volkswagen_Gol_1.6_Trendline.jpg'
+          foto argo 'https://upload.wikimedia.org/wikipedia/commons/8/8b/2022_Fiat_Argo_1.3_Drive_ELX.jpg'
+          git add -- public/images/demo/*.jpg
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "assets: adicionar cinco fotos licenciadas de veículos demonstrativos"
+          git push origin HEAD:refs/heads/feat/fotos-demonstracao
