@@ -264,7 +264,8 @@ async function main() {
         await privacyCard.getByRole("button",{name:"Registrar atendimento",exact:true}).click();
         await page.getByText("Atendimento registrado. A resposta está disponível na conta do titular.",{exact:true}).waitFor();
         await privacyCard.getByRole("button",{name:"Ver histórico do atendimento",exact:true}).click();
-        await privacyCard.locator("pre").getByText(/AGUARDANDO_TITULAR/).waitFor();
+        await privacyCard.locator("pre").waitFor();
+        expect((await privacyCard.locator("pre").textContent()).includes("AGUARDANDO_TITULAR"),"Histórico administrativo ausente");
         await inspect(page,"privacidade-administracao",width);
         await login(context,"comprador-demo@auto-minas.test",process.env.STAGING_DEMO_BUYER_PASSWORD);
         await page.goto(BASE+"/privacidade/solicitacoes");
