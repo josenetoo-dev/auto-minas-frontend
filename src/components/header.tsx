@@ -114,6 +114,60 @@ export default function Header({ user, unreadCount: initialCount }: Props) {
     router.refresh();
   }
 
+  if (pathname === "/") {
+    return (
+      <header className="home-topbar">
+        <div className="home-topbar-inner">
+          <Link href="/" className="home-brand-lockup" aria-label="Auto Minas — Página inicial">
+            <span className="home-brand-symbol" aria-hidden="true">AM</span>
+            <span>Auto Minas</span>
+          </Link>
+
+          <div className="home-topbar-actions">
+            <Link href={user ? "/chat" : "/login?next=%2Fchat"} className="home-notification-button" aria-label="Negociações">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+                <path d="M10 21h4" />
+              </svg>
+              {unreadCount > 0 && <span className="home-notification-dot">{unreadCount > 9 ? "9+" : unreadCount}</span>}
+            </Link>
+            <button
+              type="button"
+              ref={mobileToggle}
+              className="home-menu-button"
+              aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+              aria-expanded={menuOpen}
+              aria-controls="home-mobile-menu"
+              onClick={() => setMenuOpen((value) => !value)}
+            >
+              {menuOpen ? (
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19" /></svg>
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {menuOpen && (
+          <nav id="home-mobile-menu" className="home-menu-panel" aria-label="Menu da página inicial">
+            {NAV.map((item) => {
+              if (item.needsAuth && !user) return null;
+              return (
+                <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
+                  {item.label}
+                </Link>
+              );
+            })}
+            {!user && <Link href="/login" onClick={() => setMenuOpen(false)}>Entrar</Link>}
+            {user && <Link href="/meus-anuncios" onClick={() => setMenuOpen(false)}>Meus anúncios</Link>}
+            {user && <button type="button" onClick={logout}>Sair</button>}
+          </nav>
+        )}
+      </header>
+    );
+  }
+
   return (
     <header className="sticky top-0 z-50 border-b border-[#26262e]/80 bg-[#08080a]/90 backdrop-blur-xl">
       {/* Faixa dourada superior */}
