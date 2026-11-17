@@ -28,7 +28,13 @@ export default async function Detail({params}:Props){
  return <div className="mx-auto max-w-7xl space-y-8 px-4 py-9 sm:px-6">
   <nav className="text-sm text-[#9b9ba4]"><Link href="/carros" className="hover:text-[#d4af37]">Veículos</Link> / {c.brand} {c.model}</nav>
   <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_370px]">
-   <div className="space-y-7"><ImageGallery images={c.images} title={`${c.brand} ${c.model}`}/>
+   <div className="space-y-7"><figure><ImageGallery images={c.images} title={`${c.brand} ${c.model}`}/>
+    {c.demoPhoto && <figcaption className="mt-2 text-xs leading-relaxed text-[#c3c3cc]">
+      Anúncio demonstrativo · Foto ilustrativa do modelo. A versão e a cor podem variar.{" "}
+      <a className="underline" href={`https://commons.wikimedia.org/wiki/File:${encodeURIComponent(c.demoPhoto.file)}`}>{c.demoPhoto.author}</a>
+      {" · "}<a className="underline" href={`https://creativecommons.org/licenses/${c.demoPhoto.license}/`}>CC {c.demoPhoto.license.replace("/", " ").toUpperCase()}</a>
+      {" · Imagem redimensionada."}
+    </figcaption>}</figure>
     <section className="card-dark space-y-4 p-6"><h2 className="font-display text-2xl font-bold">Características</h2>
      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">{[["Marca",c.brand],["Modelo",c.model],["Versão",c.version],["Ano",c.year],["Quilometragem",formatKm(c.mileageKm)],["Combustível",FUEL_LABEL[c.fuel]||c.fuel],["Câmbio",TRANSMISSION_LABEL[c.transmission]||c.transmission],["Cor",c.color],["Localização",c.city && c.state ? `${c.city}/${c.state}` : "Não informada"]].map(([label,value])=><div key={label} className="rounded-lg bg-[#15151a] p-3"><p className="text-xs text-[#92929d]">{label}</p><p className="mt-1 font-semibold">{value}</p></div>)}</div>
     </section>
