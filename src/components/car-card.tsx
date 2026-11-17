@@ -41,9 +41,6 @@ export default function CarCard({
         <div className="cars-result-copy">
           <div className="cars-result-title-row">
             <h2>{car.brand} {car.model} {car.year}</h2>
-            <span className="cars-result-heart" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
-            </span>
           </div>
 
           <p className="cars-result-meta">
