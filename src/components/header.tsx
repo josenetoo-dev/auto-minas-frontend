@@ -114,7 +114,7 @@ export default function Header({ user, unreadCount: initialCount }: Props) {
     router.refresh();
   }
 
-  if (pathname === "/") {
+  if (pathname === "/" || pathname === "/carros") {
     return (
       <header className="home-topbar">
         <div className="home-topbar-inner">
