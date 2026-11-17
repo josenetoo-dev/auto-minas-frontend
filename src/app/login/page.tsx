@@ -20,47 +20,9 @@ export default async function LoginPage({
   const safeNext = safeNextPath(next);
 
   return (
-    <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-2">
-      {/* Painel visual */}
-      <div className="relative hidden overflow-hidden lg:block">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "linear-gradient(145deg, #08080a, #221d15, #100e12)" }}
-        />
-        <div className="hero-overlay absolute inset-0" />
-        <div className="relative flex h-full flex-col justify-between p-12">
-          <Logo />
-          <div>
-            <p className="badge-gold">Área do cliente</p>
-            <h2 className="font-display mt-5 text-4xl font-bold leading-tight text-[#f4f3ee]">
-              Entre, anuncie e{" "}
-              <span className="gold-text italic">acelere</span> suas vendas
-            </h2>
-            <ul className="mt-8 space-y-4">
-              {[
-                "Prepare seu anúncio e acompanhe a análise",
-                "Chat direto entre comprador e vendedor",
-                "Gerencie seus anúncios e negociações",
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-3 text-sm text-[#d8d8d2]">
-                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#d4af37]/20 text-[#f2d87e]">
-                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 6L9 17l-5-5" />
-                    </svg>
-                  </span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <p className="text-xs text-[#a5a5ad]">© {new Date().getFullYear()} Auto Minas Veículos</p>
-        </div>
-      </div>
-
-      {/* Formulário */}
-      <div className="flex items-center justify-center px-4 py-12 sm:px-8">
-        <AuthForm next={safeNext} error={error} />
-      </div>
+    <div className="flex min-h-[75dvh] flex-col items-center justify-center gap-6 bg-[#171714] px-4 py-10 sm:py-16">
+      <Logo />
+      <AuthForm next={safeNext} error={error} />
     </div>
   );
 }
