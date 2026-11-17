@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const ITEMS = [
+type NavItem = { href: string; label: string; icon: "home" | "search" | "plus" | "chat" | "user"; primary?: boolean };\n\nconst ITEMS: readonly NavItem[] = [
   { href: "/", label: "Início", icon: "home" },
   { href: "/carros", label: "Comprar", icon: "search" },
   { href: "/vender", label: "Anunciar", icon: "plus", primary: true },
@@ -11,7 +11,7 @@ const ITEMS = [
   { href: "/conta", label: "Conta", icon: "user" },
 ] as const;
 
-function Icon({ name }: { name: (typeof ITEMS)[number]["icon"] }) {
+function Icon({ name }: { name: NavItem["icon"] }) {
   if (name === "home") return <path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5Z" />;
   if (name === "search") return <><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></>;
   if (name === "plus") return <><path d="M12 5v14M5 12h14" /></>;
