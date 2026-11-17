@@ -4,7 +4,7 @@ import { BackendError, getApiToken, sameOrigin, clientError, API_URL } from "@/l
 /** BFF same-origin with a narrow allow-list. Spring remains authorization authority. */
 // Each controller enforces permissions again with Spring Security. Never forward
 // arbitrary paths or external URLs; only known Auto Minas API namespaces.
-const allowed = /^v1\/(?:usuario|verificacoes|moderacao|denuncias|proposta)(?:\/[A-Za-z0-9_-]+)*$/;
+const allowed = /^v1\/(?:usuario|privacidade|verificacoes|moderacao|denuncias|proposta)(?:\/[A-Za-z0-9_-]+)*$/;
 
 const PUBLIC_POST = /^auth\/password-reset\/(?:request|confirm)$/;
 

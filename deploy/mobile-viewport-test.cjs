@@ -255,6 +255,23 @@ async function main() {
           const persisted=await browserJson(page,unreadURL);
           expect(!persisted[shared.id],"Mensagem já visualizada voltou a contar");
         } finally {await sellerContext.close();}
+        await login(context,"admin-demo@auto-minas.test",process.env.STAGING_DEMO_ADMIN_PASSWORD);
+        await page.goto(BASE+"/moderacao/privacidade");
+        const privacyCard=page.getByRole("heading",{name:/AM-DADOS-/}).first().locator("..");
+        await privacyCard.getByLabel("Etapa do atendimento").selectOption("AGUARDANDO_TITULAR");
+        const publicReply="Informe pela conta os detalhes necessários para atender este pedido fictício.";
+        await privacyCard.getByLabel("Resposta visível ao titular").fill(publicReply);
+        await privacyCard.getByRole("button",{name:"Registrar atendimento",exact:true}).click();
+        await page.getByText("Atendimento registrado. A resposta está disponível na conta do titular.",{exact:true}).waitFor();
+        await privacyCard.getByRole("button",{name:"Ver histórico do atendimento",exact:true}).click();
+        await privacyCard.locator("pre").waitFor();
+        expect((await privacyCard.locator("pre").textContent()).includes("AGUARDANDO_TITULAR"),"Histórico administrativo ausente");
+        await inspect(page,"privacidade-administracao",width);
+        await login(context,"comprador-demo@auto-minas.test",process.env.STAGING_DEMO_BUYER_PASSWORD);
+        await page.goto(BASE+"/privacidade/solicitacoes");
+        await page.getByText(publicReply,{exact:true}).waitFor();
+        await page.getByText("Exclusão de dados · Aguardando suas informações",{exact:true}).waitFor();
+        await inspect(page,"privacidade-titular",width);
       }
       if (width === 1280) {
         for (const path of ["/privacidade","/termos","/cookies","/reembolsos","/legal"]) {
