@@ -169,6 +169,14 @@ try {
   const repeatedPrivacy=await request("/api/privacy/requests",{method:"POST",cookie:buyer});
   expectCode(repeatedPrivacy,202,"Repetir pedido pendente");
   if(repeatedPrivacy.json.id!==privacy.json.id)throw new Error("Pedido repetido não foi idempotente");
+  const attendancePath="/api/backend/v1/privacidade/solicitacoes/admin/"+privacy.json.id;
+  const attendance={status:"EM_ANALISE",resposta:"Pedido fictício em análise pela administração da demonstração."};
+  expectCode(await request(attendancePath,{method:"PUT",cookie:seller,body:attendance}),403,"Atendimento restrito à administração");
+  expectCode(await request(attendancePath,{method:"PUT",cookie:admin,body:attendance}),200,"Administração registra atendimento");
+  const tracked=await request("/api/privacy/requests",{cookie:buyer});
+  if(tracked.json.content.find(item=>item.id===privacy.json.id)?.resposta!==attendance.resposta)throw new Error("Titular não recebeu a resposta administrativa");
+  expectCode(await request(attendancePath+"/historico",{cookie:buyer}),403,"Histórico interno privado");
+  expectCode(await request(attendancePath+"/historico",{cookie:admin}),200,"Histórico administrativo disponível");
   const otherPrivacy=await request("/api/privacy/requests",{cookie:seller});
   expectCode(otherPrivacy,200,"Consultar privacidade de outra conta");
   if(otherPrivacy.json.content.some(item=>item.id===privacy.json.id))throw new Error("Vazamento de protocolo privado");
