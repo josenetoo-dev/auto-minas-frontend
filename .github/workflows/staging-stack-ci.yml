@@ -30,7 +30,7 @@ jobs:
         with:
           repository: josenetoo-dev/veiculos-api
           # Mantém o par de frontend/API usado na validação deste PR.
-          ref: ${{ github.head_ref == 'fix/estabilidade-mobile-chat' && '2ba5deb781649ea00845a4a2e74650cab424248a' || 'main' }}
+          ref: ${{ github.head_ref == 'fix/estabilidade-mobile-chat' && '634d980c4be267ca91c5d5dea06e17f2d80b99ab' || 'main' }}
           path: veiculos-api
 
       - name: Configurar Node.js para checagens de contratos
