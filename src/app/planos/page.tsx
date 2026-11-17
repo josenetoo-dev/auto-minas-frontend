@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Planos para anunciar" };
 
 export default async function PlanosPage() {
   const plans = await commercialPlans().catch(() => null);
-  return <div className="mx-auto max-w-5xl px-5 py-8 sm:px-8">
+  return <div className="am-page space-y-2">
     <h1 className="font-display text-3xl">Como você quer anunciar?</h1>
     <p className="mt-3 text-sm text-[#b7b3a9]">Publicar anúncios é gratuito. Recursos comerciais opcionais estão em preparação.</p>
     {!plans && <p role="alert" className="mt-6 text-amber-200">Não foi possível carregar os planos. Tente novamente.</p>}
