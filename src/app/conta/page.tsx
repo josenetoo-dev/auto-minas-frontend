@@ -10,14 +10,14 @@ export default async function Account() {
   const firstName = user.name.trim().split(/\s+/)[0];
   const pending = user.status === "PENDING_CONTACT_VERIFICATION";
   return <div className="account-workspace">
-    <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8 sm:py-10">
+    <div className="am-page">
       <header><h1 className="font-display text-3xl sm:text-4xl">Olá, <em>{firstName}.</em></h1></header>
       <div className="mt-5 grid gap-4 md:grid-cols-2">
-        <section className="market-paper-card">
-          <p className="text-[11px] uppercase tracking-[.2em] text-[#63553e]">Seu próximo passo</p>
-          <h2 className="mt-5 font-display text-3xl text-[#29251e]">Anunciar veículo</h2>
-          <p className="mt-4 max-w-sm text-sm leading-7 text-[#675f51]">Envie os dados, as fotos e os documentos do seu veículo em um único formulário.</p>
-          <Link href="/vender" className="mt-8 flex min-h-12 items-center justify-between border-t border-[#c8bda6] pt-5 text-sm font-semibold text-[#30291e]">Anunciar gratuitamente <span aria-hidden="true">↗</span></Link>
+        <section className="am-section-soft p-5 sm:p-6">
+          <p className="am-eyebrow">Seu próximo passo</p>
+          <h2 className="mt-3 font-display text-3xl text-[#f6f3eb]">Anunciar veículo</h2>
+          <p className="mt-4 max-w-sm text-sm leading-7 text-[#aaa8a0]">Envie os dados, as fotos e os documentos do seu veículo em um único formulário.</p>
+          <Link href="/vender" className="mt-8 flex min-h-12 items-center justify-between border-t border-[#d4af37]/20 pt-5 text-sm font-semibold text-[#f2d87e]">Anunciar gratuitamente <span aria-hidden="true">↗</span></Link>
         </section>
         <section className="rounded-2xl border border-white/10 bg-[#111316] p-6">
           <h2 className="text-sm font-semibold text-[#e4d9c1]">Sua conta</h2>
