@@ -48,10 +48,10 @@ export default async function CarrosPage({
   const results = catalog?.cars ?? [];
   const brands = [...BRANDS];
   return (
-    <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6">
+    <div className="am-page-wide">
       {/* Cabeçalho da página */}
-      <div className="mb-4">
-        <h1 className="font-display mt-2 text-3xl font-bold text-[#f4f3ee] sm:text-4xl">
+      <div className="mb-5 sm:mb-6">
+        <p className="am-eyebrow">Catálogo Auto Minas</p>\n        <h1 className="font-display mt-2 text-3xl font-bold text-[#f4f3ee] sm:text-4xl lg:text-5xl">
           Comprar <span className="gold-text">veículos</span>
         </h1>
       </div>
@@ -75,11 +75,11 @@ export default async function CarrosPage({
         total={catalog?.total ?? 0}
       />
 
-      <div className="divider-gold my-8" />
+      <div className="divider-gold my-6 sm:my-8" />
 
       {!catalog && <p role="alert" className="mb-6 text-sm text-amber-300">A API está indisponível. Não foi possível consultar os anúncios neste momento.</p>}
       {results.length > 0 ? (
-        <div className="catalog-results grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="catalog-results grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
           {results.map((car) => (
             <CarCard key={car.id} car={car} />
           ))}
