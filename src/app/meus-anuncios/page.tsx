@@ -11,7 +11,7 @@ const statusText:Record<string,string>={ativo:"Publicado",pendente:"Em análise"
 export default async function MyAds(){
  await requireUser();const [ads,sales]=await Promise.all([myCars(),myDeclaredSales().catch(()=>[])]);const salesByAd=new Map(sales.map(sale=>[sale.anuncioId,sale]));
  const active=ads.filter(c=>c.status==="ativo").length,pending=ads.filter(c=>c.status==="pendente").length;
- return <div className="mx-auto max-w-7xl space-y-6 px-3 py-7 sm:space-y-7 sm:px-6 sm:py-10">
+ return <div className="am-page-wide space-y-6 sm:space-y-7">
   <div className="flex flex-wrap items-center justify-between gap-4"><div><p className="text-xs uppercase tracking-[.2em] text-[#d4af37]">Área do vendedor</p><h1 className="font-display mt-2 text-3xl font-bold sm:text-4xl">Meus <span className="gold-text">anúncios</span></h1></div><Link href="/vender" className="btn-gold w-full sm:w-auto">+ Cadastrar veículo</Link></div>
   <div className="grid grid-cols-3 gap-2 sm:gap-4">{[["Total",ads.length],["Publicados",active],["Em análise",pending]].map(([label,value])=><div key={label} className="card-dark min-w-0 px-2 py-4 text-center sm:p-5 sm:text-left"><p className="font-display text-xl font-bold text-[#f2d87e] sm:text-3xl">{value}</p><p className="text-xs text-[#9b9ba4]">{label}</p></div>)}</div>
   {ads.length===0?<div className="card-dark p-10 text-center">Nenhum veículo cadastrado. <Link href="/vender" className="text-[#d4af37] underline">Cadastrar agora</Link></div>:ads.map(c=><article key={c.id} className="card-dark grid min-w-0 gap-4 p-3 sm:grid-cols-[160px_minmax(0,1fr)] sm:gap-5 sm:p-5 xl:grid-cols-[208px_minmax(0,1fr)_280px]">
