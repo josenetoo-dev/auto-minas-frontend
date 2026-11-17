@@ -342,3 +342,16 @@ button, select { touch-action: manipulation; }
  .catalog-results .vehicle-card-info .font-display.text-xl { font-size:1.15rem; }
 }
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation:none!important;transition:none!important; } }
+
+/* Form controls follow the site's dark palette across native browser themes. */
+:root { color-scheme: dark; }
+html, body { background-color: #08080a; }
+img, video { max-width: 100%; }
+input, select, textarea { min-width: 0; }
+.market-paper-card { color:#eee5d3; background:#1d1c18; border-color:#52472f; box-shadow:none; }
+.market-paper-card :is(h1,h2,h3,p,a,span) { color:inherit; }
+.cookie-banner { max-height: min(70dvh, 460px); overflow-y:auto; }
+@media(max-width:640px) {
+  main { overflow-wrap:anywhere; }
+  .cookie-banner { bottom:calc(12px + env(safe-area-inset-bottom)); z-index:100; }
+}

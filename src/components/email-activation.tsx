@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function EmailActivation() {
   const router = useRouter();
+  const [remaining, setRemaining] = useState(0);
+  useEffect(() => {
+    if (!remaining) return;
+    const timer = setTimeout(() => setRemaining(value => Math.max(0,value-1)),1000);
+    return () => clearTimeout(timer);
+  }, [remaining]);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [text, setText] = useState("");
@@ -26,6 +32,7 @@ export default function EmailActivation() {
       });
       const json = res.status === 204 ? {} : await res.json().catch(() => ({}));
       if (res.status === 503) throw new Error("O envio de e-mail está temporariamente indisponível. Sua conta continua conectada; tente novamente mais tarde.");
+      if (res.status === 429) { setRemaining(60); setText("Um código já foi enviado recentemente. Consulte seu e-mail; você poderá reenviar em um minuto."); return; }
       if (!res.ok) throw new Error(json.detail || json.error || "Não foi possível concluir a solicitação.");
 
       if (confirming) {
@@ -33,6 +40,7 @@ export default function EmailActivation() {
         router.replace(json.redirect);
         router.refresh();
       } else {
+        setRemaining(60);
         setText("Código enviado. Consulte sua caixa de entrada e a pasta de spam.");
       }
     } catch (e) {
@@ -45,8 +53,8 @@ export default function EmailActivation() {
   return (
     <div className="card-dark space-y-4 border border-amber-500/20 p-6">
       <h2 className="font-display text-2xl font-bold">Confirme seu e-mail</h2>
-      <p className="text-sm text-[#9b9ba4]">Você já está conectado. Confirme seu e-mail para solicitar revisões e publicar veículos.</p>
-      <button onClick={() => call("solicitar")} disabled={busy} className="btn-outline">Enviar código por e-mail</button>
+      <p className="text-sm text-[#9b9ba4]">O cadastro envia um código automaticamente. Consulte o e-mail informado. Confirme seu e-mail para solicitar revisões e publicar veículos.</p>
+      <button onClick={() => call("solicitar")} disabled={busy || remaining > 0} className="btn-outline">{remaining > 0 ? `Reenviar em ${remaining}s` : "Enviar código por e-mail"}</button>
       <div className="flex flex-col gap-2 sm:flex-row">
         <input className="input-dark flex-1" placeholder="Código recebido" aria-label="Código de ativação" value={code} onChange={e => setCode(e.target.value)} />
         <button disabled={busy || !code.trim()} onClick={() => call("confirmar", { token: code })} className="btn-gold">Confirmar</button>

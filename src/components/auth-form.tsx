@@ -16,6 +16,7 @@ export default function AuthForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -139,7 +140,8 @@ export default function AuthForm({
             <label htmlFor="password" className="label-dark">Senha</label>
             <input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
               className="input-dark"
               placeholder={mode === "register" ? "Mínimo 8 caracteres, com letras e números" : "Sua senha"}
               value={password}
@@ -148,6 +150,7 @@ export default function AuthForm({
               minLength={8}
             />
           </div>
+          <button type="button" aria-pressed={showPassword} className="min-h-11 text-sm text-[#e4ca91] underline" onClick={() => setShowPassword(value => !value)}>{showPassword ? "Ocultar senha" : "Mostrar senha"}</button>
           {mode === "register" && <div className="space-y-3"><p className="text-xs leading-6 text-[#b7b3a9]">Nome, e-mail e telefone são usados para sua conta e contato nas negociações. Não envie documentos neste formulário.</p><label className="flex items-start gap-3 text-sm leading-6"><input type="checkbox" required checked={termsAccepted} onChange={event => setTermsAccepted(event.target.checked)} className="mt-1 h-5 w-5 shrink-0 accent-[#d4af37]" /><span>Li e concordo com os <Link href="/termos" target="_blank" rel="noopener" className="underline">Termos de uso</Link> e tomei conhecimento do <Link href="/privacidade" target="_blank" rel="noopener" className="underline">Aviso de privacidade</Link>.</span></label><p className="text-xs text-[#b7b3a9]">Cookies opcionais são uma escolha separada.</p></div>}
           <button type="submit" className="btn-gold w-full" disabled={loading}>
             {loading ? (

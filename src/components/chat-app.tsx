@@ -49,7 +49,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
     if (!workspace) return;
     const resize = () => {
       const top = workspace.getBoundingClientRect().top + window.scrollY;
-      workspace.style.height = `${Math.max(300, window.innerHeight - top)}px`;
+      workspace.style.height = `${Math.max(300, (window.visualViewport?.height ?? window.innerHeight) - top)}px`;
     };
     const observer = new ResizeObserver(resize);
     const main = workspace.closest("main");
@@ -58,8 +58,9 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
       while (sibling) { observer.observe(sibling); sibling = sibling.previousElementSibling; }
     }
     window.addEventListener("resize", resize);
+    window.visualViewport?.addEventListener("resize", resize);
     resize();
-    return () => { observer.disconnect(); window.removeEventListener("resize", resize); };
+    return () => { observer.disconnect(); window.removeEventListener("resize", resize); window.visualViewport?.removeEventListener("resize", resize); };
   }, []);
 
   useEffect(() => {
@@ -115,13 +116,19 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
 
   useEffect(() => {
     if (!thread || thread.conversation.id !== activeId) return;
-    const ids = thread.messages.filter(m => m.senderId !== meId && !m.readAt && !m.deleted).map(m => m.id);
+    const unreadMessages = thread.messages.filter(m => m.senderId !== meId && !m.readAt && !m.deleted).filter(m => m.id > 0);
     const markVisible = () => {
-      if (document.visibilityState !== "visible" || !document.hasFocus() || !ids.length) return;
-      void fetch(`/api/backend/v1/proposta/${activeId}/mensagens/leitura`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ids: ids.slice(0,200)}),
-      }).catch(() => {});
+      if (document.visibilityState !== "visible" || !document.hasFocus() || !unreadMessages.length) return;
+      const groups=new Map<number,number[]>();
+      for(const message of unreadMessages) {
+        const id=message.proposalId ?? activeId!;
+        groups.set(id,[...(groups.get(id)??[]),message.id]);
+      }
+      for(const [id,ids] of groups) {
+        void fetch(`/api/backend/v1/proposta/${id}/mensagens/leitura`, {
+          method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ids:ids.slice(0,200)})
+        }).catch(()=>{});
+      }
     };
     markVisible();
     document.addEventListener("visibilitychange",markVisible);
@@ -184,11 +191,11 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
     }
   }
 
-  async function deleteMessage(messageId:number) {
+  async function deleteMessage(messageId:number,proposalId?:number) {
     if(!activeId||deletingMessage!==null)return;
     setDeletingMessage(messageId);setSendError(null);
     try {
-      const response=await fetch(`/api/conversations/${activeId}/messages?messageId=${messageId}`,{method:"DELETE"});
+      const response=await fetch(`/api/conversations/${proposalId??activeId}/messages?messageId=${messageId}`,{method:"DELETE"});
       if(!response.ok){const body=await response.json().catch(()=>({}));throw new Error(body.error??"Não foi possível excluir a mensagem.");}
       setThread(current=>current?{...current,messages:current.messages.filter(message=>message.id!==messageId)}:current);
     } catch(error) { setSendError(error instanceof Error?error.message:"Falha ao excluir a mensagem."); }
@@ -337,7 +344,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
                         <div
                           className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                             mine
-                              ? "rounded-br-sm bg-gradient-to-br from-[#e9cf7c] to-[#c39a2e] text-[#171003] shadow-[0_4px_18px_-6px_rgba(212,175,55,0.5)]"
+                              ? "rounded-br-sm bg-[#e9cf7c] text-[#171003] shadow-[0_4px_18px_-6px_rgba(212,175,55,0.5)]"
                               : "rounded-bl-sm border border-[#26262e] bg-[#1a1a21] text-[#ecece6]"
                           }`}
                         >
@@ -352,7 +359,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
                             </svg>
                           )}
                         </p>
-                        {mine && m.id > 0 && !m.deleted && clientNow !== null && clientNow-new Date(m.createdAt).getTime()<=5*60*1000 && <button type="button" disabled={deletingMessage!==null} onClick={()=>void deleteMessage(m.id)} className="mt-1 min-h-8 px-1 text-[11px] text-[#d4af37] underline disabled:opacity-50">{deletingMessage===m.id?"Excluindo…":"Excluir mensagem"}</button>}
+                        {mine && m.id > 0 && !m.deleted && clientNow !== null && clientNow-new Date(m.createdAt).getTime()<=5*60*1000 && <button type="button" disabled={deletingMessage!==null} onClick={()=>void deleteMessage(m.id,m.proposalId)} className="mt-1 min-h-8 px-1 text-[11px] text-[#d4af37] underline disabled:opacity-50">{deletingMessage===m.id?"Excluindo…":"Excluir mensagem"}</button>}
                       </div>
                     </div>
                   );

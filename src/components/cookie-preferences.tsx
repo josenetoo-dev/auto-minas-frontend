@@ -14,8 +14,9 @@ function subscribe(callback: () => void) {
     window.removeEventListener("storage", callback);
   };
 }
+let memoryPreference: string | null = null;
 function snapshot() {
-  try { return localStorage.getItem(KEY); } catch { return null; }
+  try { return localStorage.getItem(KEY) ?? memoryPreference; } catch { return memoryPreference; }
 }
 function validPreference(raw: string | null | undefined) {
   try {
@@ -38,14 +39,15 @@ export default function CookiePreferences() {
     return () => window.removeEventListener(OPEN, open);
   }, []);
   function save() {
+    memoryPreference = JSON.stringify({ version: 1, necessary: true, optional: false, savedAt: Date.now() });
     try {
-      localStorage.setItem(KEY, JSON.stringify({ version: 1, necessary: true, optional: false, savedAt: Date.now() }));
+      localStorage.setItem(KEY, memoryPreference);
       window.dispatchEvent(new Event(CHANGE));
       dialog.current?.close();
-    } catch { setNotice("Seu navegador não permitiu salvar a preferência. Nenhum cookie opcional será ativado."); }
+    } catch { window.dispatchEvent(new Event(CHANGE)); dialog.current?.close(); setNotice("Seu navegador não permitiu salvar a preferência. Nenhum cookie opcional será ativado."); }
   }
   return <>
-    {raw !== undefined && !saved && <section aria-label="Aviso de cookies" className="cookie-banner">
+    {!saved && <section aria-label="Aviso de cookies" className="cookie-banner">
       <h2 className="text-base font-semibold text-[#f1e5ca]">Sua privacidade, sua escolha.</h2>
       <p className="mt-2 text-sm leading-6 text-[#c5c2b9]">Usamos cookies necessários para manter sua sessão. Google Analytics e cookies de publicidade não estão ativos. <Link href="/cookies" className="underline underline-offset-4">Saiba mais</Link></p>
       <div className="mt-4 flex flex-wrap gap-3"><button type="button" onClick={save} className="cookie-choice">Somente necessários</button><button type="button" onClick={() => dialog.current?.showModal()} className="cookie-choice">Personalizar</button></div>

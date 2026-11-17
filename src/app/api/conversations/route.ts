@@ -18,6 +18,8 @@ export async function POST(request:Request){
   const car=await carById(data.carId,token);
   if(car.userId===u.id)return NextResponse.json({error:"Você é o vendedor deste anúncio"},{status:403});
   if(car.status!=="ativo")return NextResponse.json({error:"Anúncio não está publicado"},{status:409});
+  const existing=(await getConversationSummaries(u.id)).find(item=>item.other.id===car.userId);
+  if(existing)return NextResponse.json({ok:true,id:existing.id},{status:201});
   const p=await backendFetch<BackendProposal>("/v1/proposta",{method:"POST",body:JSON.stringify({anuncioId:data.carId,valor:data.price,descricao:data.message.trim()})},token);
   return NextResponse.json({ok:true,id:p.id},{status:201});
  }catch(e){return clientError(e);}
