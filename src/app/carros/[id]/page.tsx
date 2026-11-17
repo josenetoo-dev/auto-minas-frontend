@@ -25,9 +25,9 @@ export default async function Detail({params}:Props){
  let c;try{c=await carById(Number(id),token||undefined);}catch(e){if(e instanceof BackendError&&e.status===404)notFound();throw e;}
  const owner=session?.id===c.userId;
  const similar=(await publicCars(2).catch(()=>[])).filter(x=>x.id!==c.id&&x.brand===c.brand).slice(0,3);
- return <div className="mx-auto max-w-7xl space-y-8 px-4 py-9 sm:px-6">
+ return <div className="am-page-wide space-y-6 sm:space-y-8">
   <nav className="text-sm text-[#9b9ba4]"><Link href="/carros" className="hover:text-[#d4af37]">Veículos</Link> / {c.brand} {c.model}</nav>
-  <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_370px]">
+  <div className="am-desktop-split">
    <div className="space-y-7"><figure><ImageGallery images={c.images} title={`${c.brand} ${c.model}`}/>
     {c.demoPhoto && <figcaption className="mt-2 text-xs leading-relaxed text-[#c3c3cc]">
       Anúncio demonstrativo · Foto ilustrativa do modelo. A versão e a cor podem variar.{" "}
@@ -35,13 +35,13 @@ export default async function Detail({params}:Props){
       {" · "}<a className="underline" href={`https://creativecommons.org/licenses/${c.demoPhoto.license}/`}>CC {c.demoPhoto.license.replace("/", " ").toUpperCase()}</a>
       {" · Imagem redimensionada."}
     </figcaption>}</figure>
-    <section className="card-dark space-y-4 p-6"><h2 className="font-display text-2xl font-bold">Características</h2>
+    <section className="am-section space-y-4 p-5 sm:p-6"><h2 className="font-display text-2xl font-bold">Características</h2>
      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">{[["Marca",c.brand],["Modelo",c.model],["Versão",c.version],["Ano",c.year],["Quilometragem",formatKm(c.mileageKm)],["Combustível",FUEL_LABEL[c.fuel]||c.fuel],["Câmbio",TRANSMISSION_LABEL[c.transmission]||c.transmission],["Cor",c.color],["Localização",c.city && c.state ? `${c.city}/${c.state}` : "Não informada"]].map(([label,value])=><div key={label} className="rounded-lg bg-[#15151a] p-3"><p className="text-xs text-[#92929d]">{label}</p><p className="mt-1 font-semibold">{value}</p></div>)}</div>
     </section>
-    <section className="card-dark p-6"><h2 className="font-display mb-3 text-2xl font-bold">Descrição do anúncio</h2><p className="whitespace-pre-wrap leading-relaxed text-[#c3c3cc]">{c.description}</p></section>
+    <section className="am-section p-5 sm:p-6"><h2 className="font-display mb-3 text-2xl font-bold">Descrição do anúncio</h2><p className="whitespace-pre-wrap leading-relaxed text-[#c3c3cc]">{c.description}</p></section>
     {similar.length>0&&<section className="space-y-4"><h2 className="font-display text-2xl font-bold">Veículos semelhantes</h2><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{similar.map(x=><CarCard key={x.id} car={x}/>)}</div></section>}
    </div>
-   <aside className="space-y-5"><div className="card-dark sticky top-24 space-y-5 p-6">
+   <aside className="space-y-5"><div className="am-section am-sticky-panel space-y-5 p-5 sm:p-6">
     <span className="text-xs uppercase tracking-[.22em] text-[#d4af37]">Auto Minas • {c.status==="ativo"?"Anúncio público":c.status.replace(/_/g," ")}</span>
     <h1 className="font-display text-3xl font-bold">{c.brand} {c.model} <span className="text-xl text-[#9b9ba4]">{c.year}</span></h1>
     <p className="gold-text font-display text-3xl font-bold">{formatPrice(c.price)}</p>
