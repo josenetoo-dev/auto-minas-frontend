@@ -355,3 +355,9 @@ input, select, textarea { min-width: 0; }
   main { overflow-wrap:anywhere; }
   .cookie-banner { bottom:calc(12px + env(safe-area-inset-bottom)); z-index:100; }
 }
+
+.market-search { background:#1d1c18; color:#eee5d3; border-color:#52472f; box-shadow:none; }
+.market-search-label { color:#d4c9b4; }
+.market-search-input { color:#eee5d3; border-color:#75664a; }
+.market-search-input::placeholder { color:#bdb29d; }
+.market-paper-card :focus-visible, .market-search :focus-visible { outline-color:#e4ca91; }
