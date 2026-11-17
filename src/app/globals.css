@@ -1576,3 +1576,266 @@ body:has(.cars-exact-screen) > div[role="note"] {
     min-height: 190px;
   }
 }
+
+
+/* ---------- Cars density calibration: match reference viewport ---------- */
+@media (max-width: 639px) {
+  body:has(.cars-exact-screen) {
+    padding-bottom: calc(66px + env(safe-area-inset-bottom));
+  }
+
+  body:has(.cars-exact-screen) .home-topbar-inner {
+    min-height: 62px;
+    padding-inline: 14px;
+  }
+
+  body:has(.cars-exact-screen) .home-brand-lockup {
+    gap: 8px;
+    font-size: 1.05rem;
+  }
+
+  body:has(.cars-exact-screen) .home-brand-symbol {
+    width: 34px;
+    height: 34px;
+    font-size: .6rem;
+  }
+
+  body:has(.cars-exact-screen) .home-notification-button,
+  body:has(.cars-exact-screen) .home-menu-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  body:has(.cars-exact-screen) .home-notification-button svg,
+  body:has(.cars-exact-screen) .home-menu-button svg {
+    width: 23px;
+    height: 23px;
+  }
+
+  .cars-reference-hero {
+    min-height: 132px;
+  }
+
+  .cars-reference-hero-copy {
+    padding: 20px 16px 20px;
+  }
+
+  .cars-reference-hero-copy h1 {
+    font-size: 1.75rem;
+  }
+
+  .cars-reference-hero-copy p {
+    margin-top: 6px;
+    font-size: .84rem;
+  }
+
+  .cars-reference-hero-car {
+    right: -8%;
+    width: 50%;
+  }
+
+  .cars-search-shell {
+    padding: 0 14px 13px;
+  }
+
+  .cars-search-box {
+    min-height: 50px;
+    border-radius: 14px;
+    padding-inline: 13px;
+  }
+
+  .cars-search-box svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .cars-search-box input {
+    font-size: .86rem;
+  }
+
+  .cars-filter-chips {
+    gap: 8px;
+    margin-top: 10px;
+    padding-bottom: 2px;
+  }
+
+  .cars-filter-button,
+  .cars-filter-chip {
+    min-height: 42px;
+    font-size: .76rem;
+  }
+
+  .cars-filter-button {
+    min-width: 108px;
+    gap: 7px;
+  }
+
+  .cars-filter-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .cars-filter-count {
+    right: -2px;
+    top: -6px;
+    min-width: 24px;
+    height: 24px;
+    font-size: .66rem;
+  }
+
+  .cars-filter-chip {
+    min-width: 92px;
+    padding-inline: 14px;
+  }
+
+  .cars-results-toolbar {
+    gap: 10px;
+    margin-top: 13px;
+  }
+
+  .cars-results-toolbar p {
+    font-size: .8rem;
+  }
+
+  .cars-results-toolbar p strong {
+    font-size: .91rem;
+  }
+
+  .cars-results-toolbar select {
+    max-width: 134px;
+    min-height: 37px;
+    padding: 0 30px 0 11px;
+    font-size: .69rem;
+  }
+
+  .cars-results-section {
+    padding: 0 12px 18px;
+  }
+
+  .cars-results-list {
+    gap: 8px;
+  }
+
+  .cars-result-card {
+    grid-template-columns: 39% 61%;
+    border-radius: 13px;
+  }
+
+  .cars-result-media {
+    min-height: 126px;
+  }
+
+  .cars-result-copy {
+    padding: 9px 10px 8px;
+  }
+
+  .cars-result-title-row h2 {
+    font-size: .79rem;
+    line-height: 1.15;
+  }
+
+  .cars-result-meta {
+    margin-top: 4px;
+    font-size: .64rem;
+  }
+
+  .cars-result-price {
+    margin-top: 5px;
+    font-size: .96rem;
+  }
+
+  .cars-result-location {
+    gap: 4px;
+    margin-top: 4px;
+    font-size: .64rem;
+  }
+
+  .cars-result-location svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .cars-result-badges {
+    gap: 5px;
+    padding-top: 5px;
+  }
+
+  .cars-result-verified {
+    min-height: 22px;
+    padding-inline: 7px;
+    font-size: .56rem;
+  }
+
+  .cars-result-verified svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .cars-result-km {
+    font-size: .58rem;
+  }
+
+  .cars-filter-panel {
+    gap: 9px;
+    margin-top: 12px;
+    border-radius: 13px;
+    padding: 12px;
+  }
+
+  .cars-filter-panel label {
+    gap: 5px;
+  }
+
+  .cars-filter-panel label > span {
+    font-size: .64rem;
+  }
+
+  .cars-filter-panel input,
+  .cars-filter-panel select {
+    min-height: 40px;
+    border-radius: 9px;
+    font-size: .77rem;
+  }
+
+  .cars-filter-actions {
+    right: 8px;
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    left: 8px;
+    gap: 7px;
+    border-radius: 13px;
+    padding: 7px;
+  }
+
+  .cars-clear-filters,
+  .cars-apply-filters {
+    min-height: 44px;
+    border-radius: 10px;
+    font-size: .7rem;
+  }
+
+  .cars-clear-filters svg,
+  .cars-apply-filters svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  body:has(.cars-exact-screen) .home-bottom-nav {
+    min-height: calc(64px + env(safe-area-inset-bottom));
+    padding: 6px 6px calc(5px + env(safe-area-inset-bottom));
+  }
+
+  body:has(.cars-exact-screen) .home-bottom-nav-item {
+    gap: 2px;
+    font-size: .58rem;
+  }
+
+  body:has(.cars-exact-screen) .home-bottom-nav-icon {
+    width: 29px;
+    height: 27px;
+  }
+
+  body:has(.cars-exact-screen) .home-bottom-nav-icon svg {
+    width: 21px;
+    height: 21px;
+  }
+}
