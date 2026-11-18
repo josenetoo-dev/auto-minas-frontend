@@ -69,7 +69,7 @@ export default function Header({ user, unreadCount: initialCount }: Props) {
         if (added) setNotice(added===1?"Você recebeu uma nova mensagem.":`Você recebeu ${added} novas mensagens.`);
         if (!total) setNotice("");
       } catch { /* A próxima consulta recupera a contagem persistida. */ }
-      finally { if(!stopped)timer=setTimeout(refresh,4000); }
+      finally { if(!stopped)timer=setTimeout(refresh,20000); }
     }
     void refresh();
     return ()=>{stopped=true;clearTimeout(timer);};
