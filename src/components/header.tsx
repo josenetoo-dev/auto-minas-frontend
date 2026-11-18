@@ -114,6 +114,10 @@ export default function Header({ user, unreadCount: initialCount }: Props) {
     router.refresh();
   }
 
+  if (/^\/carros\/\d+$/.test(pathname)) {
+    return null;
+  }
+
   if (pathname === "/" || pathname === "/carros") {
     return (
       <header className="home-topbar">
