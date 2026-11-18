@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import HistoryBackButton from "@/components/history-back-button";
+import "@/styles/recovery.css";
 
 type Phase = 0 | 1 | 2 | 3;
 
