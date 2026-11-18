@@ -78,12 +78,12 @@ async function main() {
         expect(await page.evaluate(() => document.activeElement?.getAttribute("href")) === "#conteudo-principal", "O primeiro Tab deve oferecer salto ao conteúdo");
         await page.keyboard.press("Enter");
         expect(await page.evaluate(() => document.activeElement?.id) === "conteudo-principal", "O salto deve mover o foco para o conteúdo");
-        await page.getByRole("button", { name: "Personalizar", exact:true }).click();
+        await page.getByRole("button", { name: "Preferências", exact:true }).click();
         await page.getByRole("dialog", { name:"Preferências de cookies" }).waitFor();
         await page.keyboard.press("Escape");
         await page.getByRole("dialog", { name:"Preferências de cookies" }).waitFor({state:"hidden"});
       }
-      await page.getByRole("button", { name: "Somente necessários", exact:true }).click();
+      await page.getByRole("button", { name: "Aceitar cookies necessários", exact:true }).click();
       await inspect(page, "inicio", width);
       if (width <= 768) {
         // O nome acessível muda de "Abrir menu" para "Fechar menu" após o clique.
@@ -286,7 +286,7 @@ async function main() {
     const signupContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const signupPage = await signupContext.newPage();
     await signupPage.goto(BASE + "/vender?modalidade=avulso");
-    await signupPage.getByRole("button", { name: "Somente necessários", exact:true }).click();
+    await signupPage.getByRole("button", { name: "Aceitar cookies necessários", exact:true }).click();
     await signupPage.getByRole("button", { name: "Criar conta", exact: true }).click();
     await signupPage.getByLabel("Nome completo", { exact: true }).fill("Pessoa fictícia de teste");
     await signupPage.getByLabel(/Telefone com DDD/).fill("38000000000");
