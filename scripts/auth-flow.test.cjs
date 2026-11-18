@@ -122,7 +122,7 @@ test("confirmation BFF requires the current session and replaces it with the bac
   const request = () => new Request("http://localhost/api/auth/contact-email/confirm", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ token: "valid-code" }),
+    body: JSON.stringify({ token: "123456" }),
   });
 
   const response = await POST(request());
