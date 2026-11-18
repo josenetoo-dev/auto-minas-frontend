@@ -3046,3 +3046,537 @@ body:has(.auth-reference-screen) > div[role="note"] {
     width: min(100%, 700px);
   }
 }
+
+
+/* ---------- Email verification + password recovery redesign ---------- */
+body:has(.email-verify-screen),
+body:has(.recovery-reference-screen) {
+  background: #070707;
+}
+body:has(.email-verify-screen) > footer,
+body:has(.email-verify-screen) > div[role="note"],
+body:has(.recovery-reference-screen) > footer,
+body:has(.recovery-reference-screen) > div[role="note"] {
+  display: none;
+}
+
+.email-verify-screen,
+.recovery-reference-screen {
+  position: relative;
+  width: min(100%, 900px);
+  min-height: 100dvh;
+  margin-inline: auto;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 80% 14%, rgba(212,175,55,.08), transparent 18rem),
+    linear-gradient(180deg,#090909 0%,#090909 82%,#151007 100%);
+  color: #f5f4ee;
+}
+
+.flow-back-button {
+  position: absolute;
+  z-index: 40;
+  top: 26px;
+  left: 16px;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 12px;
+  background: rgba(16,16,15,.90);
+  color: #f1f0ea;
+  backdrop-filter: blur(12px);
+}
+.flow-back-button svg {
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.flow-brand {
+  position: relative;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 27px 0 0 76px;
+  color: #f8f7f2;
+  font-size: 1.28rem;
+  font-weight: 900;
+  letter-spacing: -.03em;
+}
+.flow-brand-mark {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 2px solid #d4af37;
+  border-radius: 50%;
+  color: #f2d87e;
+  font-size: .64rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -.08em;
+  box-shadow: 0 0 20px rgba(212,175,55,.12);
+}
+
+.flow-car-accent {
+  position: absolute;
+  z-index: 2;
+  top: 86px;
+  right: -19%;
+  width: 58%;
+  height: 230px;
+  pointer-events: none;
+}
+.flow-car-accent::before {
+  content: "";
+  position: absolute;
+  right: 8%;
+  top: 6%;
+  width: 56%;
+  aspect-ratio: 1;
+  border: 2px solid rgba(212,175,55,.56);
+  border-radius: 50%;
+  box-shadow: 0 0 34px rgba(212,175,55,.13);
+}
+.flow-car-accent img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 35% 50%;
+  opacity: .64;
+  filter: saturate(.22) sepia(.18) contrast(1.18) brightness(.62);
+  mix-blend-mode: screen;
+  mask-image: linear-gradient(90deg,transparent 0%,#000 25%,#000 100%);
+}
+
+.email-verify-content,
+.recovery-reference-content {
+  position: relative;
+  z-index: 10;
+  width: min(100% - 24px, 540px);
+  margin: 205px auto 0;
+  padding-bottom: 110px;
+  text-align: center;
+}
+
+.flow-hero-icon {
+  display: grid;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto;
+  place-items: center;
+  border-radius: 22px;
+  color: #d4af37;
+  filter: drop-shadow(0 0 18px rgba(212,175,55,.12));
+}
+.flow-hero-icon svg {
+  width: 82px;
+  height: 82px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.flow-hero-icon.is-success {
+  color: #22c55e;
+}
+
+.email-verify-content h1,
+.recovery-reference-content h1 {
+  margin-top: 16px;
+  color: #f7f6f1;
+  font-size: clamp(2rem,8vw,2.75rem);
+  font-weight: 900;
+  line-height: 1.03;
+  letter-spacing: -.045em;
+}
+
+.flow-lead {
+  max-width: 34ch;
+  margin: 14px auto 0;
+  color: #c7c5bd;
+  font-size: .95rem;
+  line-height: 1.5;
+}
+
+.flow-email-pill {
+  display: flex;
+  min-height: 56px;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 13px;
+  background: linear-gradient(180deg,#171716,#111110);
+  padding: 0 16px;
+  text-align: left;
+}
+.flow-email-pill svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  fill: none;
+  stroke: #e6e4dc;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.flow-email-pill span {
+  min-width: 0;
+  overflow: hidden;
+  color: #f0efe8;
+  font-size: .9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-code-section {
+  margin-top: 20px;
+  text-align: left;
+}
+.flow-code-section > label {
+  display: block;
+  margin-bottom: 9px;
+  color: #f2f1eb;
+  font-size: .84rem;
+  font-weight: 900;
+}
+
+.flow-code-grid {
+  display: grid;
+  grid-template-columns: repeat(6,minmax(0,1fr));
+  gap: 8px;
+}
+.flow-code-grid input {
+  width: 100%;
+  aspect-ratio: 1 / 1.1;
+  border: 1px solid rgba(255,255,255,.38);
+  border-radius: 11px;
+  outline: 0;
+  background: #111110;
+  color: #f7f6f1;
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-align: center;
+}
+.flow-code-grid input:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 0 3px rgba(212,175,55,.09), 0 0 18px rgba(212,175,55,.08);
+}
+
+.flow-resend {
+  margin-top: 20px;
+  text-align: center;
+}
+.flow-resend p {
+  color: #b8b7b0;
+  font-size: .8rem;
+}
+.flow-resend button {
+  margin-top: 5px;
+  color: #d4af37;
+  font-size: .82rem;
+  font-weight: 900;
+}
+.flow-resend button:disabled {
+  color: #a88730;
+  opacity: .78;
+  cursor: not-allowed;
+}
+
+.flow-notice,
+.flow-error {
+  margin-top: 12px;
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: .72rem;
+  line-height: 1.4;
+}
+.flow-notice {
+  border: 1px solid rgba(212,175,55,.18);
+  background: rgba(212,175,55,.06);
+  color: #e4d39a;
+}
+.flow-error {
+  border: 1px solid rgba(248,113,113,.24);
+  background: rgba(127,29,29,.12);
+  color: #fecaca;
+}
+
+.flow-primary-button {
+  display: inline-flex;
+  width: 100%;
+  min-height: 56px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 22px;
+  border: 1px solid #f2d87e;
+  border-radius: 12px;
+  background: linear-gradient(135deg,#f2d87e,#d4af37 55%,#a88322);
+  color: #171004;
+  font-size: .95rem;
+  font-weight: 900;
+  box-shadow: 0 12px 30px -18px rgba(212,175,55,.85);
+}
+.flow-primary-button:disabled {
+  opacity: .48;
+  cursor: not-allowed;
+}
+.flow-primary-button > span {
+  font-size: 1.25rem;
+}
+
+.flow-success-card {
+  display: grid;
+  grid-template-columns: 42px minmax(0,1fr);
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 14px;
+  background: #121211;
+  padding: 14px;
+  text-align: left;
+}
+.flow-success-card > span {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 2px solid #22c55e;
+  border-radius: 50%;
+  color: #22c55e;
+  font-size: 1rem;
+  font-weight: 900;
+}
+.flow-success-card p {
+  color: #e4e2da;
+  font-size: .82rem;
+  line-height: 1.45;
+}
+
+.flow-input {
+  display: grid;
+  grid-template-columns: 24px minmax(0,1fr) auto;
+  min-height: 54px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 12px;
+  background: linear-gradient(180deg,#171716,#111110);
+  padding: 0 13px;
+}
+.flow-input:focus-within {
+  border-color: #d4af37;
+  box-shadow: 0 0 0 3px rgba(212,175,55,.08);
+}
+.flow-input > svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: #e1dfd7;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.flow-input input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #f2f1eb;
+  font-size: .86rem;
+}
+.flow-input input::placeholder {
+  color: #989790;
+}
+.flow-eye-button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  color: #d0cfc8;
+}
+.flow-eye-button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.recovery-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+  text-align: left;
+}
+.recovery-form > label {
+  display: grid;
+  gap: 7px;
+}
+.recovery-form > label > span {
+  color: #f0efe9;
+  font-size: .82rem;
+  font-weight: 900;
+}
+.recovery-form .flow-primary-button {
+  margin-top: 4px;
+}
+.flow-secondary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  color: #e0ded6;
+  font-size: .78rem;
+  font-weight: 800;
+}
+.flow-secondary-link:hover {
+  color: #f2d87e;
+}
+
+.recovery-code-step {
+  margin-top: 28px;
+}
+.recovery-code-step .flow-primary-button {
+  margin-top: 26px;
+}
+.recovery-code-step .flow-secondary-link {
+  margin-top: 18px;
+}
+
+.password-rule-list {
+  display: grid;
+  gap: 5px;
+  margin-top: -2px;
+  color: #9b9a93;
+  font-size: .7rem;
+  list-style: none;
+}
+.password-rule-list li {
+  transition: color .18s ease;
+}
+.password-rule-list li.is-valid {
+  color: #22c55e;
+}
+.recovery-success-step {
+  margin-top: 8px;
+}
+
+.flow-bottom-glow {
+  position: absolute;
+  z-index: 0;
+  right: -10%;
+  bottom: -115px;
+  left: -10%;
+  height: 220px;
+  border-top: 2px solid rgba(212,175,55,.62);
+  border-radius: 50% 50% 0 0;
+  box-shadow: 0 -18px 60px rgba(212,175,55,.08);
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .flow-back-button {
+    top: 18px;
+    left: 12px;
+    width: 38px;
+    height: 38px;
+  }
+  .flow-brand {
+    gap: 8px;
+    margin: 18px 0 0 62px;
+    font-size: 1.04rem;
+  }
+  .flow-brand-mark {
+    width: 34px;
+    height: 34px;
+    font-size: .56rem;
+  }
+  .flow-car-accent {
+    top: 65px;
+    right: -28%;
+    width: 67%;
+    height: 185px;
+  }
+  .email-verify-content,
+  .recovery-reference-content {
+    width: min(100% - 20px, 500px);
+    margin-top: 175px;
+    padding-bottom: 90px;
+  }
+  .flow-hero-icon {
+    width: 74px;
+    height: 74px;
+  }
+  .flow-hero-icon svg {
+    width: 68px;
+    height: 68px;
+  }
+  .email-verify-content h1,
+  .recovery-reference-content h1 {
+    margin-top: 12px;
+    font-size: 1.82rem;
+  }
+  .flow-lead {
+    margin-top: 10px;
+    font-size: .82rem;
+  }
+  .flow-email-pill {
+    min-height: 50px;
+  }
+  .flow-code-grid {
+    gap: 6px;
+  }
+  .flow-code-grid input {
+    border-radius: 9px;
+    font-size: 1.25rem;
+  }
+  .flow-primary-button {
+    min-height: 52px;
+    font-size: .86rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .email-verify-screen,
+  .recovery-reference-screen {
+    width: min(100% - 40px, 960px);
+    margin-block: 24px 40px;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 24px;
+  }
+  .flow-back-button {
+    top: 30px;
+    left: 28px;
+  }
+  .flow-brand {
+    margin: 30px 0 0 88px;
+  }
+  .flow-car-accent {
+    top: 70px;
+    right: -2%;
+    width: 46%;
+    height: 280px;
+  }
+  .email-verify-content,
+  .recovery-reference-content {
+    margin-top: 235px;
+    padding-bottom: 130px;
+  }
+}
