@@ -8,6 +8,7 @@ import type { BackendProposal } from "@/lib/chat";
 import { formatPrice } from "@/lib/format";
 import AdManagementActions from "@/components/ad-management-actions";
 import HistoryBackButton from "@/components/history-back-button";
+import "@/styles/ad-management.css";
 
 export const dynamic="force-dynamic";
 export const metadata:Metadata={title:"Gerenciamento do anúncio"};
