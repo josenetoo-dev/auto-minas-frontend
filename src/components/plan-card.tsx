@@ -4,7 +4,8 @@ import type { CommercialPlan } from "@/lib/commercial";
 type Props = {
   plan: CommercialPlan;
   href: string;
-  active?: boolean;
+  upgrade?: boolean;
+  downgradeBlocked?: boolean;
 };
 
 function benefitsFrom(plan: CommercialPlan) {
@@ -16,7 +17,7 @@ function benefitsFrom(plan: CommercialPlan) {
   }
 }
 
-export default function PlanCard({ plan, href, active = false }: Props) {
+export default function PlanCard({ plan, href, upgrade = false, downgradeBlocked = false }: Props) {
   const unique = plan.periodicidade === "UNICO";
   const benefits = benefitsFrom(plan);
   const price = Number(plan.mensalidade).toLocaleString("pt-BR", {
@@ -25,7 +26,7 @@ export default function PlanCard({ plan, href, active = false }: Props) {
   });
 
   return (
-    <article className={`plans-reference-card ${active ? "is-current" : ""}`}>
+    <article className={`plans-reference-card ${upgrade ? "is-current" : ""}`}>
       <div className="plans-reference-card-icon" aria-hidden="true">
         {unique ? "▤" : "♛"}
       </div>
@@ -33,7 +34,7 @@ export default function PlanCard({ plan, href, active = false }: Props) {
       <div className="plans-reference-card-copy">
         <div className="plans-reference-card-heading">
           <h2>{plan.nome}</h2>
-          {active && <span>Atual</span>}
+          {upgrade && <span>Upgrade</span>}
         </div>
 
         <p>{unique ? "Contratação única" : "Plano recorrente"}</p>
@@ -50,9 +51,12 @@ export default function PlanCard({ plan, href, active = false }: Props) {
         )}
       </div>
 
-      <Link href={active ? "/assinatura" : href} className={active ? "is-current" : ""}>
-        {active ? "Gerenciar" : "Escolher"}
-      </Link>
+      {downgradeBlocked
+        ? <span className="plans-reference-locked" aria-label="Downgrade indisponível">Downgrade indisponível</span>
+        : <Link href={href} className={upgrade ? "is-current" : ""}>
+            {upgrade ? "Melhorar plano" : "Escolher plano"}
+          </Link>
+      }
     </article>
   );
 }
