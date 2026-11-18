@@ -580,3 +580,20 @@ body:has(.info-page-screen) #conteudo-principal,
 body:has(.fair-page-screen) #conteudo-principal {
   min-height: 0;
 }
+
+/* Safari/iOS: campos com fonte <16px acionam zoom automático no foco.
+ * Preservar pinch-to-zoom e acessibilidade; não usar user-scalable=no. */
+@media (max-width: 1024px) and (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
