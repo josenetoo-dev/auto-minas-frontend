@@ -14,7 +14,7 @@ function NavIcon({ type }: { type: "home" | "car" | "plus" | "chat" | "user" }) 
 export default function MobileActions() {
   const path = usePathname();
 
-  if (path === "/" || path === "/carros") {
+  if (path === "/" || path === "/carros" || path === "/vender" || /^\/vender\/editar\/\d+$/.test(path)) {
     const items = [
       { href: "/", label: "Início", icon: "home" as const },
       { href: "/carros", label: "Carros", icon: "car" as const },
@@ -26,7 +26,7 @@ export default function MobileActions() {
     return (
       <nav aria-label="Navegação principal" className="home-bottom-nav">
         {items.map((item) => {
-          const active = item.href === "/" ? path === "/" : path === item.href;
+          const active = item.href === "/" ? path === "/" : item.href === "/vender" ? path === "/vender" || path.startsWith("/vender/") : path === item.href;
           return (
             <Link
               key={item.href}
