@@ -5,7 +5,6 @@ import Logo from "./logo";
 export default function Footer() {
   return (
     <footer className="border-t border-[#26262e] bg-[#0a0a0d]">
-      <div className="h-[3px] bg-gradient-to-r from-[#8a6d1c] via-[#d4af37] to-[#8a6d1c]" />
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
         <div>
           <Logo />
