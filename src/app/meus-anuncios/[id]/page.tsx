@@ -7,6 +7,7 @@ import { carById } from "@/lib/car";
 import type { BackendProposal } from "@/lib/chat";
 import { formatPrice } from "@/lib/format";
 import AdManagementActions from "@/components/ad-management-actions";
+import HistoryBackButton from "@/components/history-back-button";
 
 export const dynamic="force-dynamic";
 export const metadata:Metadata={title:"Gerenciamento do anúncio"};
@@ -38,7 +39,7 @@ export default async function AdManagementPage({params}:{params:Promise<{id:stri
   return (
     <div className="ad-management-screen">
       <header className="ad-management-topbar">
-        <Link href="/meus-anuncios" className="ad-management-back" aria-label="Voltar para meus anúncios">←</Link>
+        <HistoryBackButton fallback="/meus-anuncios" className="ad-management-back" ariaLabel="Voltar">←</HistoryBackButton>
         <Link href="/" className="ad-management-brand"><span>AM</span><strong>Auto Minas</strong></Link>
       </header>
 
