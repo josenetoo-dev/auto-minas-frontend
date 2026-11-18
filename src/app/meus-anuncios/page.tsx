@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { myCars } from "@/lib/car";
 import { requireUser } from "@/lib/auth";
 import MyAdsDashboard from "@/components/my-ads-dashboard";
+import "@/styles/profile.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Meus anúncios" };
