@@ -34,7 +34,8 @@ export default async function CarrosPage({
 }) {
   const sp = await searchParams;
   const q = str(sp.q)?.trim() || undefined;
-  const brand = str(sp.brand) || undefined;
+  const rawBrand = str(sp.brand)?.trim();
+  const brand = rawBrand && BRANDS.includes(rawBrand as typeof BRANDS[number]) ? rawBrand : undefined;
   const city = str(sp.city)?.trim() || undefined;
   const state = str(sp.state) || undefined;
   const fuel = str(sp.fuel) || undefined;
@@ -43,7 +44,7 @@ export default async function CarrosPage({
   const maxPrice = num(sp.maxPrice);
   const yearMin = num(sp.yearMin);
   const sort = str(sp.sort) || "recentes";
-  const tipo = str(sp.tipo) === "MOTO" ? "MOTO" : "CARRO";
+  const tipo = "CARRO";
   const page = Math.max(0, num(sp.page) ?? 0);
 
   const catalog = await searchPublicCars({
