@@ -39,8 +39,14 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
   const [typing, setTyping] = useState(initial.q);
 
   useEffect(() => {
-    setState(initial);
-    setTyping(initial.q);
+    let canceled = false;
+    queueMicrotask(() => {
+      if (!canceled) {
+        setState(initial);
+        setTyping(initial.q);
+      }
+    });
+    return () => { canceled = true; };
   }, [initial]);
 
   function navigate(next: FilterState) {
