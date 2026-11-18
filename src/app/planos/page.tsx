@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { commercialPlans, mySubscriptions } from "@/lib/commercial";
 import PlanCard from "@/components/plan-card";
 import HistoryBackButton from "@/components/history-back-button";
+import "@/styles/account-plans.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Planos" };
