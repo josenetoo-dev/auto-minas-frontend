@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type Mode = "login" | "register";
 
@@ -15,11 +16,15 @@ function FieldIcon({ type }: { type: "user" | "email" | "phone" | "lock" }) {
 export default function AuthForm({
   next,
   error,
+  initialMode,
 }: {
   next: string;
   error?: string;
+  initialMode: Mode;
 }) {
-  const [mode, setMode] = useState<Mode>("login");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -42,6 +47,10 @@ export default function AuthForm({
           : null;
 
   useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
+
+  useEffect(() => {
     const remembered = window.localStorage.getItem("auto-minas-login-email");
     if (remembered) {
       setEmail(remembered);
@@ -54,6 +63,10 @@ export default function AuthForm({
     setFormError(null);
     setPassword("");
     setConfirmPassword("");
+    const params = new URLSearchParams(searchParams.toString());
+    if (nextMode === "register") params.set("mode", "register");
+    else params.delete("mode");
+    router.replace(`/login${params.size ? `?${params.toString()}` : ""}`, { scroll: false });
   }
 
   function futureOAuth(provider: "Google" | "GitHub") {
