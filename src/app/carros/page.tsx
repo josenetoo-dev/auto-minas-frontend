@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { searchPublicCars } from "@/lib/car";
 import CarCard from "@/components/car-card";
 import CarFilters from "@/components/car-filters";
@@ -70,8 +71,15 @@ export default async function CarrosPage({
           <p>Encontre o carro ideal para você.</p>
         </div>
         <div className="cars-reference-hero-car" aria-hidden="true">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/demo/onix.jpg" alt="" />
+          <Image
+            src="/images/demo/onix.jpg"
+            alt=""
+            fill
+            priority
+            sizes="(max-width: 767px) 48vw, 480px"
+            quality={72}
+            className="object-cover"
+          />
         </div>
       </section>
 
