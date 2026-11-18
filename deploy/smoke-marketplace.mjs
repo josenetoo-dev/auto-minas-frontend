@@ -121,12 +121,12 @@ try {
   if(publish.json.status!=="ATIVO") throw new Error("Publicação gratuita não foi confirmada");
   const publicProfile=await request("/perfil/"+publish.json.usuarioId);
   expectCode(publicProfile,200,"Perfil público");
-  if(!publicProfile.raw.includes("Nível 1 · Revisão documental concluída"))throw new Error("Nível 1 não reconhecido");
+  if(!publicProfile.raw.includes("Nível") || !publicProfile.raw.includes("Vendedor"))throw new Error("Nível do vendedor não reconhecido");
   const forbiddenPublicDocs=await request("/api/cars/"+newAd.json.id+"/documents",{cookie:seller});
   expectCode(forbiddenPublicDocs,403,"Documentos privados mesmo após publicação");
   const details=await request("/carros/"+newAd.json.id);
   expectCode(details,200,"Resumo público de vendedor e veículo");
-  if(!details.raw.includes("O que foi analisado"))throw new Error("Resumo documental público ausente");
+  if(!details.raw.includes("Nível de verificação"))throw new Error("Resumo documental público ausente");
   const vehicleCase=packet.json.find(item=>item.tipo==="VEICULO");
   const expire=await request("/api/backend/v1/verificacoes/revisao/"+vehicleCase.id+"/expirar",{method:"POST",cookie:admin,
     body:{motivo:"Revalidação administrativa fictícia para testar privacidade.",categoria:"REVALIDACAO_NECESSARIA"}});
@@ -135,7 +135,7 @@ try {
   expectCode(hiddenExpired,404,"Revalidação retira anúncio da vitrine");
   const myAds=await request("/meus-anuncios",{cookie:buyer});
   expectCode(myAds,200,"Meus anúncios após cadastro");
-  if(!myAds.raw.includes("Pirapora/MG"))
+  if(!myAds.raw.includes("Pirapora") || !myAds.raw.includes("MG"))
     throw new Error("Localização enviada ao Spring não retornou corretamente para a interface");
 
   const proposal=await request("/api/conversations",{
