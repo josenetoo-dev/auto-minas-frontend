@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { mySubscriptions } from "@/lib/commercial";
 import SubscriptionPanel from "@/components/subscription-panel";
 import HistoryBackButton from "@/components/history-back-button";
+import "@/styles/account-plans.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Minhas assinaturas" };
