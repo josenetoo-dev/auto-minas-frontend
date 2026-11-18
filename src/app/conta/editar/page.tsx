@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { backendFetch, getApiToken } from "@/lib/backend";
 import ProfileEditForm from "@/components/profile-edit-form";
 import HistoryBackButton from "@/components/history-back-button";
+import "@/styles/profile.css";
 
 export const dynamic="force-dynamic";
 export const metadata: Metadata = { title: "Editar perfil" };
