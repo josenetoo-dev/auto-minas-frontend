@@ -8,11 +8,13 @@ import SellForm from "@/components/sell-form";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Editar anúncio" };
 
-export default async function Edit({ params }: { params: Promise<{ id: string }> }) {
+export default async function Edit({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ step?: string }> }) {
   const user = await getSession();
   if (!user) redirect("/login");
 
   const { id } = await params;
+  const { step } = await searchParams;
+  const initialStep = /^\d+$/.test(step || "") ? Number(step) : 1;
   if (!/^\d+$/.test(id)) notFound();
 
   const car = await carById(Number(id), (await getApiToken()) || undefined).catch(() => null);
@@ -24,6 +26,7 @@ export default async function Edit({ params }: { params: Promise<{ id: string }>
     <SellForm
       mode="edit"
       carId={car.id}
+      initialStep={initialStep}
       initial={{
         brand: car.brand,
         model: car.model,
