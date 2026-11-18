@@ -270,7 +270,24 @@ export default function SellForm({
           </div>
 
           <Link href="/meus-anuncios" className="sell-primary-action">Ver meus anúncios</Link>
-          <Link href="/vender" className="sell-secondary-action">+ Anunciar outro veículo</Link>
+          <button
+            type="button"
+            className="sell-secondary-action"
+            onClick={() => {
+              setData(EMPTY);
+              setFiles([]);
+              setPreviews([]);
+              setRemoved([]);
+              setCreatedId(null);
+              setSuccessId(null);
+              setStep(1);
+              setError("");
+              savedPayload.current = null;
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          >
+            + Anunciar outro veículo
+          </button>
         </main>
       </div>
     );
