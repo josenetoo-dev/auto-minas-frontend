@@ -5,6 +5,8 @@ import { backendFetch, getApiToken } from "@/lib/backend";
 import { mySubscriptions } from "@/lib/commercial";
 import AccountLogoutButton from "@/components/account-logout-button";
 import HistoryBackButton from "@/components/history-back-button";
+import "@/styles/account-plans.css";
+import "@/styles/profile.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Meu perfil" };
