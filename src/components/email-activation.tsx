@@ -68,7 +68,7 @@ export default function EmailActivation() {
       <p className="text-sm text-[#9b9ba4]">O cadastro envia um código automaticamente. Consulte o e-mail informado. Confirme seu e-mail para solicitar revisões e publicar veículos.</p>
       <button onClick={() => call("solicitar")} disabled={busy || remaining > 0} className="btn-outline">{remaining > 0 ? `Reenviar em ${remaining}s` : "Enviar código por e-mail"}</button>
       <div className="flex flex-col gap-2 sm:flex-row">
-        <input className="input-dark flex-1" placeholder="Código recebido" aria-label="Código de ativação" inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="[0-9]{6}" value={code} onChange={e => setCode(e.target.value.replace(/\\D/g, "").slice(0, 6))} />
+        <input className="input-dark flex-1" placeholder="Código recebido" aria-label="Código de ativação" inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="[0-9]{6}" value={code} onChange={e => setCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))} />
         <button disabled={busy || code.length !== 6} onClick={() => call("confirmar", { token: code })} className="btn-gold">Confirmar</button>
       </div>
       {text && <p className="text-sm text-emerald-300">{text}</p>}
