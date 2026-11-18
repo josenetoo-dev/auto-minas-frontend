@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { formatKm, formatPrice } from "@/lib/format";
 import { FUEL_LABEL, TRANSMISSION_LABEL } from "@/lib/constants";
 
@@ -33,9 +34,15 @@ export default function CarCard({
   if (variant === "catalog") {
     return (
       <Link href={`/carros/${car.id}`} className={`cars-result-card ${sold ? "is-sold" : ""}`}>
-        <div className="cars-result-media">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={image} alt={`${car.brand} ${car.model} ${car.year}`} loading="lazy" decoding="async" />
+        <div className="cars-result-media relative">
+          <Image
+            src={image}
+            alt={`${car.brand} ${car.model} ${car.year}`}
+            fill
+            sizes="(max-width: 767px) 38vw, (max-width: 1199px) 260px, 300px"
+            quality={72}
+            className="object-cover"
+          />
         </div>
 
         <div className="cars-result-copy">
@@ -75,13 +82,13 @@ export default function CarCard({
       className={`vehicle-card card-dark card-dark-hover group flex flex-col overflow-hidden ${sold ? "opacity-70" : ""}`}
     >
       <div className="vehicle-card-media relative aspect-[16/10] overflow-hidden bg-[#16161c]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={image}
           alt={`${car.brand} ${car.model} ${car.year}`}
-          loading="lazy"
-          decoding="async"
-          className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${sold ? "grayscale" : ""}`}
+          fill
+          sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+          quality={72}
+          className={`object-cover transition-transform duration-500 group-hover:scale-105 ${sold ? "grayscale" : ""}`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e12]/80 via-transparent to-transparent" />
         {car.isDemo && (
