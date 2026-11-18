@@ -43,6 +43,11 @@ export default function CarCard({
             quality={72}
             className="object-cover"
           />
+          {car.isDemo && (
+            <span className="absolute left-2 top-2 rounded-md border border-[#d4af37]/70 bg-[#15120a]/95 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[#f2d87e]">
+              DEMO · Anúncio fictício
+            </span>
+          )}
         </div>
 
         <div className="cars-result-copy">
