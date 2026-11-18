@@ -1,5 +1,6 @@
 import LegalPage from "@/components/legal-page";
 import {CookieSettingsButton} from "@/components/cookie-preferences";
+import "@/styles/legal-info.css";
 export const metadata={title:"Política de cookies"};
 export default function Cookies(){return <LegalPage title="Política de cookies">
 <section><h2>Necessários</h2><p>auto_minas_access mantém a sessão por até 30 minutos, com HttpOnly, Secure em HTTPS e SameSite=Lax. O logout remove o cookie e revoga a sessão no backend. A preferência de cookies fica no armazenamento local deste navegador por até 180 dias, com versão e data da escolha.</p></section>
