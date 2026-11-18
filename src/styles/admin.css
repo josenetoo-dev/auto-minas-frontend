@@ -1,0 +1,238 @@
+
+/* ---------- Administração Auto Minas ---------- */
+body:has(.admin-shell-screen) {
+  background:#070707;
+  padding-bottom:calc(84px + env(safe-area-inset-bottom));
+}
+body:has(.admin-shell-screen) > footer,
+body:has(.admin-shell-screen) > div[role="note"] {
+  display:none;
+}
+.admin-shell-screen {
+  width:min(100%,1180px);
+  min-height:100dvh;
+  margin-inline:auto;
+  background:
+    radial-gradient(circle at 82% 4%,rgba(212,175,55,.07),transparent 24rem),
+    #090909;
+  color:#f4f3ee;
+}
+.admin-shell-topbar {
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) auto;
+  min-height:70px;
+  align-items:center;
+  gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  background:rgba(9,9,9,.96);
+  padding:0 12px;
+}
+.admin-shell-back {
+  display:grid;
+  width:40px;
+  height:40px;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:11px;
+  background:#11110f;
+  color:#efeee8;
+  font-size:1.2rem;
+}
+.admin-shell-brand {
+  display:inline-flex;
+  min-width:0;
+  align-items:center;
+  gap:9px;
+  color:#f5f4ee;
+}
+.admin-shell-brand > span {
+  display:grid;
+  width:36px;
+  height:36px;
+  place-items:center;
+  border:2px solid #d4af37;
+  border-radius:50%;
+  color:#f2d87e;
+  font-size:.58rem;
+  font-style:italic;
+  font-weight:900;
+  letter-spacing:-.08em;
+}
+.admin-shell-brand strong {
+  overflow:hidden;
+  font-size:1.05rem;
+  font-weight:900;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.admin-shell-role {
+  border:1px solid rgba(212,175,55,.26);
+  border-radius:999px;
+  background:rgba(212,175,55,.08);
+  padding:5px 9px;
+  color:#f2d87e;
+  font-size:.54rem;
+  font-weight:900;
+}
+.admin-shell-content {
+  padding:18px 12px 100px;
+}
+.admin-shell-hero {
+  position:relative;
+  display:flex;
+  min-height:155px;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 92% 15%,rgba(212,175,55,.12),transparent 38%),
+    linear-gradient(145deg,#15140f,#0e0e0d 65%);
+  padding:20px;
+}
+.admin-shell-hero > div:first-child {
+  position:relative;
+  z-index:2;
+}
+.admin-shell-hero p {
+  color:#d4af37;
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.admin-shell-hero h1 {
+  margin-top:6px;
+  color:#f7f6f1;
+  font-size:1.8rem;
+  font-weight:900;
+  letter-spacing:-.04em;
+}
+.admin-shell-hero span {
+  display:block;
+  max-width:50ch;
+  margin-top:8px;
+  color:#aaa9a2;
+  font-size:.7rem;
+  line-height:1.5;
+}
+.admin-shell-symbol {
+  display:grid;
+  width:82px;
+  height:82px;
+  flex:none;
+  place-items:center;
+  border:1px solid rgba(212,175,55,.24);
+  border-radius:22px;
+  background:rgba(212,175,55,.06);
+  color:#f2d87e;
+  font-size:2.2rem;
+  box-shadow:0 0 40px rgba(212,175,55,.07);
+}
+.admin-shell-nav {
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  margin-top:12px;
+  padding-bottom:2px;
+  scrollbar-width:none;
+}
+.admin-shell-nav::-webkit-scrollbar {
+  display:none;
+}
+.admin-shell-nav a {
+  display:inline-flex;
+  min-height:42px;
+  flex:0 0 auto;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:999px;
+  background:#11110f;
+  padding:0 14px;
+  color:#9f9e97;
+  font-size:.62rem;
+  font-weight:900;
+}
+.admin-shell-nav a.is-active {
+  border-color:#d4af37;
+  background:linear-gradient(135deg,#f2d87e,#d4af37);
+  color:#171004;
+}
+.admin-shell-panel {
+  margin-top:14px;
+}
+.admin-shell-panel > .space-y-5,
+.admin-shell-panel > .space-y-8,
+.admin-shell-panel > .space-y-4 {
+  display:grid;
+  gap:12px;
+}
+.admin-shell-panel .card-dark {
+  border-color:rgba(255,255,255,.1);
+  background:linear-gradient(180deg,#151514,#10100f);
+  border-radius:14px;
+}
+.admin-shell-panel .btn-gold,
+.admin-shell-panel .btn-outline {
+  border-radius:10px;
+}
+.admin-shell-panel .input-dark {
+  border-color:rgba(255,255,255,.16);
+  background:#0d0d0c;
+}
+.admin-shell-panel dialog {
+  color:#f4f3ee;
+}
+.admin-shell-panel pre {
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;
+  background:#0c0c0b;
+  padding:10px;
+}
+
+@media (min-width:768px) {
+  body:has(.admin-shell-screen) {
+    padding-bottom:112px;
+  }
+  .admin-shell-screen {
+    width:min(100% - 40px,1180px);
+    min-height:760px;
+    margin-block:22px 40px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:24px;
+  }
+  .admin-shell-topbar {
+    min-height:76px;
+    padding-inline:22px;
+  }
+  .admin-shell-content {
+    padding:28px 26px 110px;
+  }
+  .admin-shell-hero {
+    min-height:190px;
+    padding:28px;
+  }
+  .admin-shell-hero h1 {
+    font-size:2.4rem;
+  }
+  .admin-shell-hero span {
+    font-size:.78rem;
+  }
+  .admin-shell-symbol {
+    width:110px;
+    height:110px;
+    font-size:3rem;
+  }
+  .admin-shell-nav {
+    margin-top:16px;
+  }
+  .admin-shell-nav a {
+    min-height:46px;
+    padding-inline:18px;
+    font-size:.68rem;
+  }
+}
