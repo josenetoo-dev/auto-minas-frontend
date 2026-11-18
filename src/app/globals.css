@@ -667,6 +667,9 @@ body:has(.fair-page-screen) #conteudo-principal {
 .flow-bottom-glow,
 .my-ads-bottom-glow,
 .account-reference-glow,
+.account-hub-bottom-glow,
+.plans-reference-glow,
+.subscription-reference-glow,
 .ad-management-bottom-glow,
 .plan-intent-glow,
 .verification-reference-glow {
