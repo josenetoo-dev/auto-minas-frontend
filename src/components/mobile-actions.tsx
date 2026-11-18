@@ -31,7 +31,14 @@ function belongsToApp(path: string) {
     path === "/assinatura" ||
     path === "/verificacoes" ||
     path === "/moderacao" ||
-    path.startsWith("/moderacao/")
+    path.startsWith("/moderacao/") ||
+    path === "/termos" ||
+    path === "/privacidade" ||
+    path.startsWith("/privacidade/") ||
+    path === "/cookies" ||
+    path === "/legal" ||
+    path === "/reembolsos" ||
+    path === "/feira"
   );
 }
 
@@ -45,6 +52,8 @@ function backFallback(path: string) {
   if (path.startsWith("/perfil/")) return "/carros";
   if (path === "/assinatura" || path === "/verificacoes") return "/conta";
   if (path === "/moderacao" || path.startsWith("/moderacao/")) return "/conta";
+  if (path === "/privacidade/solicitacoes") return "/privacidade";
+  if (path === "/termos" || path === "/privacidade" || path === "/cookies" || path === "/legal" || path === "/reembolsos" || path === "/feira") return "/";
   if (path === "/planos") return "/";
   return "/";
 }
@@ -82,7 +91,7 @@ export default function MobileActions() {
               : item.href === "/vender"
                 ? path === "/vender" || path.startsWith("/vender/")
                 : item.href === "/conta"
-                  ? path === "/conta" || path.startsWith("/conta/") || path.startsWith("/perfil/") || path === "/assinatura" || path === "/verificacoes" || path === "/moderacao" || path.startsWith("/moderacao/")
+                  ? path === "/conta" || path.startsWith("/conta/") || path.startsWith("/perfil/") || path === "/assinatura" || path === "/verificacoes" || path === "/moderacao" || path.startsWith("/moderacao/") || path === "/privacidade/solicitacoes"
                   : item.href === "/chat"
                     ? path === "/chat" || path.startsWith("/chat/")
                     : item.href === "/carros"
