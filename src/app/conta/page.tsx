@@ -167,7 +167,6 @@ export default async function Account() {
         <AccountLogoutButton />
       </main>
 
-      <div className="account-hub-bottom-glow" aria-hidden="true" />
     </div>
   );
 }
