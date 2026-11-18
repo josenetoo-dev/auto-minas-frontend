@@ -226,9 +226,11 @@ export default async function Detail({ params }: Props) {
           )}
         </section>
 
-        <div className="vehicle-detail-report">
-          <ReportButton carId={car.id} loggedIn={!!session} />
-        </div>
+        {!owner && (
+          <div className="vehicle-detail-report">
+            <ReportButton carId={car.id} loggedIn={!!session} />
+          </div>
+        )}
       </main>
     </div>
   );
