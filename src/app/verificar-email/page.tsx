@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { requireUser } from "@/lib/auth";
 import EmailVerificationFlow from "@/components/email-verification-flow";
+import "@/styles/recovery.css";
 
 export const metadata: Metadata = {
   title: "Verificar e-mail",
