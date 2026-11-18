@@ -149,6 +149,17 @@ export default async function Account() {
             <div><strong>Privacidade</strong><small>Dados e solicitações</small></div>
             <b>›</b>
           </Link>
+
+          {user.role !== "USER" && (
+            <Link href="/moderacao" className="account-hub-admin-link">
+              <span>⌘</span>
+              <div>
+                <strong>{user.role === "ADMIN" ? "Administração" : "Moderação"}</strong>
+                <small>{user.role === "ADMIN" ? "Anúncios, comercial e privacidade" : "Anúncios, documentos e denúncias"}</small>
+              </div>
+              <b>›</b>
+            </Link>
+          )}
         </nav>
 
         {pending && <Link href="/verificar-email" className="account-hub-email-warning">Verificar meu e-mail agora →</Link>}
