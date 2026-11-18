@@ -1,4 +1,5 @@
 import LegalPage from "@/components/legal-page";
+import "@/styles/legal-info.css";
 export const metadata={title:"Termos de uso"};
 export default function Terms(){return <LegalPage title="Termos de uso">
 <section><h2>Uso da demonstração</h2><p>Auto Minas conecta compradores e anunciantes de veículos. Nesta versão, teste conta, anúncios, propostas e mensagens apenas com dados fictícios. Veículos DEMO não estão à venda e propostas de teste não constituem ofertas reais. Não envie documentos ou dados pessoais reais.</p></section>

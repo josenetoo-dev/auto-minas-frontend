@@ -1,12 +1,52 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import HistoryBackButton from "@/components/history-back-button";
+
 export const LEGAL_VERSION = "2026-11-14-demo-v1";
+
 export default function LegalPage({ title, children }: { title: string; children: ReactNode }) {
- return <div className="legal-document mx-auto max-w-3xl px-5 py-12 sm:px-8">
-  <p className="market-eyebrow">Transparência · Auto Minas</p><h1 className="market-heading mt-4">{title}</h1>
-  <p className="mt-4 text-xs text-[#b7b3a9]">Versão {LEGAL_VERSION} · Atualizado em 14/11/2026</p>
-  <p className="my-7 rounded-xl border border-amber-500/25 p-4 text-sm leading-7 text-amber-100">Ambiente demonstrativo, com pagamentos desativados. Identificação do responsável e condições comerciais definitivas estão em preparação para revisão antes da operação com pessoas reais.</p>
-  <div className="space-y-7 text-sm leading-7 text-[#d2cfc6]">{children}</div>
-  <nav aria-label="Políticas do site" className="mt-10 flex flex-wrap gap-x-5 gap-y-2 border-t border-white/10 pt-6 text-sm text-[#e4ca91]">{[["/privacidade","Privacidade"],["/termos","Termos"],["/cookies","Cookies"],["/reembolsos","Reembolsos"],["/legal","Responsável e contato"],["/privacidade/solicitacoes","Solicitar exclusão de dados"]].map(([href,label]) => <Link key={href} href={href} className="inline-flex min-h-11 items-center underline underline-offset-4">{label}</Link>)}</nav>
- </div>;
+  const links = [
+    ["/privacidade","Privacidade"],
+    ["/termos","Termos"],
+    ["/cookies","Cookies"],
+    ["/reembolsos","Reembolsos"],
+    ["/legal","Responsável e contato"],
+    ["/privacidade/solicitacoes","Solicitar exclusão de dados"],
+  ];
+
+  return (
+    <div className="legal-page-screen">
+      <header className="legal-page-topbar">
+        <HistoryBackButton fallback="/" className="legal-page-back" ariaLabel="Voltar">←</HistoryBackButton>
+        <Link href="/" className="legal-page-brand"><span>AM</span><strong>Auto Minas</strong></Link>
+        <span className="legal-page-badge">Transparência</span>
+      </header>
+
+      <main className="legal-page-content">
+        <section className="legal-page-hero">
+          <p className="legal-page-eyebrow">Transparência · Auto Minas</p>
+          <h1>{title}</h1>
+          <p>Informações oficiais da demonstração atual do Auto Minas, mantendo separadas funcionalidades existentes, recursos futuros e obrigações ainda em formalização.</p>
+          <div className="legal-page-hero-meta">
+            <span>Versão {LEGAL_VERSION}</span>
+            <span>Atualizado em 14/11/2026</span>
+          </div>
+        </section>
+
+        <section className="legal-page-demo-note">
+          <span aria-hidden="true">!</span>
+          <div>
+            <strong>Ambiente demonstrativo</strong>
+            <p>Pagamentos estão desativados. Identificação do responsável e condições comerciais definitivas seguem em preparação antes da operação com pessoas reais.</p>
+          </div>
+        </section>
+
+        <div className="legal-document">{children}</div>
+
+        <nav aria-label="Políticas do site" className="legal-page-nav">
+          {links.map(([href,label]) => <Link key={href} href={href}>{label}</Link>)}
+        </nav>
+      </main>
+    </div>
+  );
 }

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import HistoryBackButton from "@/components/history-back-button";
+import "@/styles/legal-info.css";
 
 export const metadata: Metadata = {
   title: "Roteiro de demonstração",
@@ -16,59 +18,57 @@ const STEPS = [
 ];
 
 export default function FeiraPage() {
-  // A rota só existe para builds de homologação; não publicar no site comercial.
   if (process.env.NEXT_PUBLIC_DEPLOY_CHANNEL !== "staging") notFound();
 
   return (
-    <div className="min-h-[70vh] bg-[#08080a]">
-      <section className="relative overflow-hidden border-b border-[#282217]">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_70%_0%,rgba(212,175,55,0.16),transparent_60%)]" />
-        <div className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#f2d87e]">Feira de tecnologia · Auto Minas</p>
-          <h1 className="font-display mt-5 max-w-3xl text-4xl font-bold leading-tight text-[#f4f3ee] sm:text-6xl">
-            Conheça o <span className="gold-text">Auto Minas</span> por dentro.
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#b9b9c0] sm:text-lg">
-            Um marketplace de veículos com anúncios sujeitos a moderação, verificação documental humana
-            e negociação por propostas. Siga o roteiro usando apenas as contas fictícias fornecidas pela equipe.
-          </p>
-          <div role="note" className="mt-7 max-w-2xl rounded-xl border border-[#d4af37]/30 bg-[#d4af37]/10 p-4 text-sm leading-relaxed text-[#ead6a0]">
-            Ambiente de demonstração: os veículos não estão à venda, as propostas não são ofertas reais
-            e nenhuma consulta oficial a bases de veículos é realizada. Não envie documentos, selfies ou dados pessoais reais.
+    <div className="fair-page-screen">
+      <header className="fair-page-topbar">
+        <HistoryBackButton fallback="/" className="fair-page-back" ariaLabel="Voltar">←</HistoryBackButton>
+        <Link href="/" className="fair-page-brand"><span>AM</span><strong>Auto Minas</strong></Link>
+        <span className="fair-page-badge">Staging</span>
+      </header>
+
+      <main className="fair-page-content">
+        <section className="fair-page-hero">
+          <p className="fair-page-eyebrow">Feira de tecnologia · Auto Minas</p>
+          <h1>Conheça o Auto Minas por dentro.</h1>
+          <p>Um marketplace de veículos com anúncios sujeitos a moderação, verificação documental humana e negociação por propostas.</p>
+
+          <div className="fair-page-note">
+            Ambiente de demonstração: os veículos não estão à venda, as propostas não são ofertas reais e nenhuma consulta oficial a bases de veículos é realizada. Não envie documentos, selfies ou dados pessoais reais.
           </div>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/carros" className="btn-gold">Começar pela vitrine</Link>
-            <Link href="/login" className="btn-outline">Entrar com conta de testes</Link>
+
+          <div className="fair-page-actions">
+            <Link href="/carros">Começar pela vitrine</Link>
+            <Link href="/login">Entrar com conta de testes</Link>
           </div>
-        </div>
-      </section>
-      <section aria-labelledby="passos" className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-        <div className="mb-8">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#d4af37]">Experimente em poucos passos</p>
-          <h2 id="passos" className="font-display mt-2 text-2xl font-bold sm:text-3xl">Roteiro para visitantes</h2>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {STEPS.map(step => (
-            <article key={step.number} className="card-dark card-dark-hover flex min-w-0 flex-col p-5 sm:p-7">
-              <span aria-hidden="true" className="font-display text-3xl font-bold text-[#d4af37]">{step.number}</span>
-              <h3 className="mt-4 text-lg font-bold text-[#f4f3ee]">{step.title}</h3>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-[#aaaab2]">{step.text}</p>
-              <Link href={step.href} className="mt-5 inline-flex min-h-11 items-center self-start font-semibold text-[#f2d87e] underline-offset-4 hover:underline">
-                {step.action} <span aria-hidden="true" className="ml-2">→</span>
-              </Link>
-            </article>
-          ))}
-        </div>
-      </section>
-      <section className="border-t border-[#26262e] bg-[#101014]">
-        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-          <h2 className="font-display text-xl font-bold">Dúvidas durante a demonstração?</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#aaaab2]">
-            Peça à equipe uma conta de testes. Os perfis de comprador, vendedor e administrador
-            têm permissões diferentes para demonstrar o controle de acesso do sistema.
-          </p>
-        </div>
-      </section>
+        </section>
+
+        <section>
+          <div className="fair-steps-heading">
+            <p>Experimente em poucos passos</p>
+            <h2>Roteiro para visitantes</h2>
+          </div>
+
+          <div className="fair-steps-grid">
+            {STEPS.map(step => (
+              <article key={step.number} className="fair-step-card">
+                <span className="fair-step-number">{step.number}</span>
+                <div>
+                  <h3>{step.title}</h3>
+                  <p>{step.text}</p>
+                  <Link href={step.href}>{step.action} →</Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="fair-help-card">
+          <h2>Dúvidas durante a demonstração?</h2>
+          <p>Peça à equipe uma conta de testes. Os perfis de comprador, vendedor e administrador têm permissões diferentes para demonstrar o controle de acesso do sistema.</p>
+        </section>
+      </main>
     </div>
   );
 }
