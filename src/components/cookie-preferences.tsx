@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 
-const KEY = "auto_minas_cookie_preferences_v1";
+const KEY = "auto_minas_cookie_preferences_v2";
 const CHANGE = "auto-minas-cookie-change";
 const OPEN = "auto-minas-cookie-settings";
 function subscribe(callback: () => void) {
@@ -21,7 +21,7 @@ function snapshot() {
 function validPreference(raw: string | null | undefined) {
   try {
     const value = JSON.parse(raw || "null");
-    return value?.version === 1 && value.optional === false && Number.isFinite(value.savedAt)
+    return value?.version === 2 && value.optional === false && Number.isFinite(value.savedAt)
       && Date.now() >= value.savedAt && Date.now() - value.savedAt < 180 * 86400000;
   } catch { return false; }
 }
@@ -39,7 +39,7 @@ export default function CookiePreferences() {
     return () => window.removeEventListener(OPEN, open);
   }, []);
   function save() {
-    memoryPreference = JSON.stringify({ version: 1, necessary: true, optional: false, savedAt: Date.now() });
+    memoryPreference = JSON.stringify({ version: 2, necessary: true, optional: false, savedAt: Date.now() });
     try {
       localStorage.setItem(KEY, memoryPreference);
       window.dispatchEvent(new Event(CHANGE));
@@ -47,10 +47,10 @@ export default function CookiePreferences() {
     } catch { window.dispatchEvent(new Event(CHANGE)); dialog.current?.close(); setNotice("Seu navegador não permitiu salvar a preferência. Nenhum cookie opcional será ativado."); }
   }
   return <>
-    {!saved && <section aria-label="Aviso de cookies" className="cookie-banner">
+    {!saved && <section aria-label="Aviso de cookies" className="cookie-banner" role="region" aria-live="polite">
       <h2 className="text-base font-semibold text-[#f1e5ca]">Sua privacidade, sua escolha.</h2>
       <p className="mt-2 text-sm leading-6 text-[#c5c2b9]">Usamos cookies necessários para manter sua sessão. Google Analytics e cookies de publicidade não estão ativos. <Link href="/cookies" className="underline underline-offset-4">Saiba mais</Link></p>
-      <div className="mt-4 flex flex-wrap gap-3"><button type="button" onClick={save} className="cookie-choice">Somente necessários</button><button type="button" onClick={() => dialog.current?.showModal()} className="cookie-choice">Personalizar</button></div>
+      <div className="cookie-banner-actions"><button type="button" onClick={save} className="cookie-choice cookie-choice-primary">Aceitar cookies necessários</button><button type="button" onClick={() => dialog.current?.showModal()} className="cookie-choice">Preferências</button></div>
       {notice && <p role="status" className="mt-3 text-sm text-amber-200">{notice}</p>}
     </section>}
     <dialog ref={dialog} aria-labelledby="cookie-title" className="cookie-dialog">
