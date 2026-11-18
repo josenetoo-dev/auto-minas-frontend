@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import CarOwnerActions from "@/components/car-owner-actions";
+import HistoryBackButton from "@/components/history-back-button";
 import { formatPrice, formatDate } from "@/lib/format";
 
 type Ad = {
@@ -48,7 +49,7 @@ export default function MyAdsDashboard({ads}:{ads:Ad[]}) {
   return (
     <div className="my-ads-reference-screen">
       <header className="my-ads-topbar">
-        <Link href="/conta" className="my-ads-back" aria-label="Voltar para a conta">←</Link>
+        <HistoryBackButton fallback="/conta" className="my-ads-back" ariaLabel="Voltar">←</HistoryBackButton>
         <Link href="/" className="my-ads-brand" aria-label="Auto Minas"><span>AM</span><strong>Auto Minas</strong></Link>
       </header>
 
