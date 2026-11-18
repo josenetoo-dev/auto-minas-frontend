@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { featuredCars } from "@/lib/car";
 import { formatPrice } from "@/lib/format";
 
@@ -57,8 +58,15 @@ export default async function HomePage() {
 
         <div className="home-reference-car" aria-hidden="true">
           <div className="home-reference-glow" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/demo/corolla.jpg" alt="" />
+          <Image
+            src="/images/demo/corolla.jpg"
+            alt=""
+            fill
+            priority
+            sizes="(max-width: 767px) 58vw, 520px"
+            quality={74}
+            className="object-cover"
+          />
         </div>
       </section>
 
@@ -117,8 +125,14 @@ export default async function HomePage() {
               return (
                 <Link href={`/carros/${car.id}`} key={car.id} className="home-reference-vehicle-card">
                   <div className="home-reference-vehicle-media">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={image} alt={`${car.brand} ${car.model}`} loading="lazy" decoding="async" />
+                    <Image
+                      src={image}
+                      alt={`${car.brand} ${car.model}`}
+                      fill
+                      sizes="(max-width: 767px) 55vw, 280px"
+                      quality={72}
+                      className="object-cover"
+                    />
                     {car.status === "ativo" && <span className="home-published-badge">Publicado</span>}
                   </div>
                   <div className="home-reference-vehicle-info">
