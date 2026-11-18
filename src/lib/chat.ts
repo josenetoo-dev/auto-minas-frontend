@@ -1,5 +1,5 @@
 import { backendFetch, getApiToken, allPages } from "@/lib/backend";
-import { carById, type CarData } from "@/lib/car";
+import { carSummaryById, type CarData } from "@/lib/car";
 
 export type ChatOther = {id:number;name:string;avatarUrl:string|null};
 export type ChatCar = {id:number;brand:string;model:string;year:number;price:number;image:string|null;status:string};
@@ -9,7 +9,7 @@ export type ChatThread={conversation:{id:number;carId:number;myRole:"buyer"|"sel
 export type BackendProposal={id:number;valor:number;descricao:string;status:string;criadoEm:string;anuncio:number;comprador:number;contrapropostaValor:number|null;contrapropostaDescricao:string|null;contrapropostaFeita:boolean};
 export type BackendMessage={id:number;propostaId:number;remetenteId:number;remetenteNome:string;conteudo:string|null;criadoEm:string;lidaEm?:string|null;excluida?:boolean;arquivoNome?:string|null;tipoMidia?:string|null;arquivoTamanho?:number|null;anexoDisponivel?:boolean};
 function chatCar(c:CarData|null):ChatCar|null {return c?{id:c.id,brand:c.brand,model:c.model,year:c.year,price:c.price,image:c.images[0]||null,status:c.status}:null;}
-async function carSafe(id:number,token:string):Promise<CarData|null>{try{return await carById(id,token);}catch{return null;}}
+async function carSafe(id:number,token:string):Promise<CarData|null>{try{return await carSummaryById(id,token);}catch{return null;}}
 async function otherName(id:number,token:string):Promise<ChatOther>{
  try{const d=await backendFetch<{nome:string;temFoto:boolean}>(`/v1/perfis/${id}`,{},token);return{id,name:d.nome,avatarUrl:d.temFoto?`/perfil/${id}/foto`:null};}
  catch{return{id,name:"Participante",avatarUrl:null};}
@@ -17,10 +17,26 @@ async function otherName(id:number,token:string):Promise<ChatOther>{
 export async function getConversationSummaries(userId:number):Promise<ChatSummary[]> {
  const token=await getApiToken();if(!token)return [];
  const [proposals, unread] = await Promise.all([allPages<BackendProposal>("/v1/proposta/minhas",token), unreadByProposal(token)]);
+ const carCache=new Map<number,Promise<CarData|null>>();
+ const otherCache=new Map<number,Promise<ChatOther>>();
+ const getCar=(id:number)=>{
+  const cached=carCache.get(id);
+  if(cached)return cached;
+  const pending=carSafe(id,token);
+  carCache.set(id,pending);
+  return pending;
+ };
+ const getOther=(id:number)=>{
+  const cached=otherCache.get(id);
+  if(cached)return cached;
+  const pending=otherName(id,token);
+  otherCache.set(id,pending);
+  return pending;
+ };
  const conversations:ChatSummary[] = await Promise.all(proposals.map(async p=>{
-  const car=await carSafe(p.anuncio,token);
+  const car=await getCar(p.anuncio);
   const partnerId=p.comprador===userId?(car?.userId??0):p.comprador;
-  const other=partnerId?await otherName(partnerId,token):{id:0,name:"Participante",avatarUrl:null};
+  const other=partnerId?await getOther(partnerId):{id:0,name:"Participante",avatarUrl:null};
   return {id:p.id,carId:p.anuncio,car:chatCar(car),other,lastMessage:p.descricao,lastAt:p.criadoEm,unread:unread[p.id] ?? 0,status:p.status,value:Number(p.valor),myRole:p.comprador===userId?"buyer":"seller"};
  }));
  const grouped = new Map<number,ChatSummary>();
@@ -40,8 +56,16 @@ export async function getChatThread(userId:number,id:number):Promise<ChatThread|
  const partnerId=isBuyer?(car?.userId??0):p.comprador;
  const other=partnerId?await otherName(partnerId,token):{id:0,name:"Participante",avatarUrl:null};
  const proposals=await allPages<BackendProposal>("/v1/proposta/minhas",token);
+ const carCache=new Map<number,Promise<CarData|null>>([[p.anuncio,Promise.resolve(car)]]);
+ const getCar=(adId:number)=>{
+  const cached=carCache.get(adId);
+  if(cached)return cached;
+  const pending=carSafe(adId,token);
+  carCache.set(adId,pending);
+  return pending;
+ };
  const related = await Promise.all(proposals.map(async candidate=>{
-   const ad=await carSafe(candidate.anuncio,token);
+   const ad=await getCar(candidate.anuncio);
    const partner=candidate.comprador===userId?ad?.userId:candidate.comprador;
    return partnerId && partner===partnerId ? candidate.id : null;
  }));
