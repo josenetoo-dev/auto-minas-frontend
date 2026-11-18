@@ -32,9 +32,7 @@ test('confirmed server message replaces local state without duplicates',()=>{
  const incoming=thread([message(8,'2026-11-18T12:00:01Z')]);
  const reconciled=mergeThread(previous,incoming);
  // Ack reconciliation in the send function removes the temporary ID.
- assert.deepEqual(Array.from(reconciled.messages.map(x=>x.id)),[8,-5]);
- const afterAck=reconciled.messages.filter(x=>x.id!==-5);
- assert.deepEqual(afterAck.map(x=>x.id),[8]);
+ assert.deepEqual(Array.from(reconciled.messages.map(x=>x.id)),[8]);
 });
 
 test('switching between ads never preserves messages from another thread',()=>{
