@@ -4,7 +4,9 @@ import { featuredCars } from "@/lib/car";
 import { formatPrice } from "@/lib/format";
 import "@/styles/home.css";
 
-export const revalidate = 30;
+// Nunca manter anúncio suspenso no destaque por cache da página inicial.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const categories = [
   { label: "Carros", href: "/carros?tipo=CARRO", icon: "car" },
