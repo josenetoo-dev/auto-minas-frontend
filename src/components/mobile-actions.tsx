@@ -14,7 +14,7 @@ function NavIcon({ type }: { type: "home" | "car" | "plus" | "chat" | "user" }) 
 export default function MobileActions() {
   const path = usePathname();
 
-  if (path === "/" || path === "/carros" || path === "/vender" || path === "/conta" || path === "/conta/editar" || path === "/chat" || /^\/meus-anuncios\/\d+$/.test(path) || /^\/vender\/editar\/\d+$/.test(path)) {
+  if (path === "/" || path === "/carros" || path === "/vender" || path === "/planos" || path === "/conta" || path === "/conta/editar" || path === "/chat" || /^\/meus-anuncios\/\d+$/.test(path) || /^\/vender\/editar\/\d+$/.test(path)) {
     const items = [
       { href: "/", label: "Início", icon: "home" as const },
       { href: "/carros", label: "Carros", icon: "car" as const },
@@ -45,14 +45,5 @@ export default function MobileActions() {
     );
   }
 
-  if (path !== "/planos") return null;
-
-  return (
-    <nav aria-label="Ações rápidas" className="mobile-actions">
-      <Link href="/carros" className="flex min-h-12 items-center justify-center rounded-xl border border-white/20 px-4 text-sm font-semibold text-[#f1e4c8]">
-        Buscar veículos
-      </Link>
-      <Link href="/planos" className="btn-gold min-h-12">Anunciar veículo</Link>
-    </nav>
-  );
+  return null;
 }

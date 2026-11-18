@@ -1,92 +1,160 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { backendFetch } from "@/lib/backend";
+import { backendFetch, getApiToken } from "@/lib/backend";
+import { mySubscriptions } from "@/lib/commercial";
 import AccountLogoutButton from "@/components/account-logout-button";
 import HistoryBackButton from "@/components/history-back-button";
 
-export const dynamic="force-dynamic";
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Meu perfil" };
 
-type PublicProfile={nome:string;temFoto:boolean;nivel:number;veiculos:{id:number;titulo:string}[];temMais:boolean};
+type PublicProfile = {
+  nome: string;
+  temFoto: boolean;
+  nivel: number;
+  veiculos: { id: number; titulo: string }[];
+  temMais: boolean;
+};
+
+type PrivateUser = {
+  id: number;
+  nome: string;
+  email: string;
+  telefone: string;
+  status: string;
+  role: string;
+};
+
+const LEVEL_COPY = [
+  "Conta criada",
+  "Identidade",
+  "Veículo",
+  "Verificação reforçada",
+  "Vendedor confiável",
+] as const;
 
 export default async function Account() {
-  const user=await requireUser();
-  const profile=await backendFetch<PublicProfile>(`/v1/perfis/${user.id}?pagina=0`).catch(()=>null);
-  const level=Math.max(0,Math.min(4,profile?.nivel??0));
-  const pending=user.status==="PENDING_CONTACT_VERIFICATION";
+  const user = await requireUser();
+  const token = await getApiToken();
+
+  const [profile, me, subscriptions] = await Promise.all([
+    backendFetch<PublicProfile>(`/v1/perfis/${user.id}?pagina=0`).catch(() => null),
+    backendFetch<PrivateUser>("/v1/usuario/me", {}, token || undefined).catch(() => null),
+    mySubscriptions().catch(() => []),
+  ]);
+
+  const level = Math.max(0, Math.min(4, profile?.nivel ?? 0));
+  const pending = user.status === "PENDING_CONTACT_VERIFICATION";
+  const activeSubscription = subscriptions.find((item) => item.status === "ATIVA") ?? subscriptions[0] ?? null;
 
   return (
-    <div className="account-reference-screen">
-      <header className="account-reference-topbar">
-        <HistoryBackButton fallback="/" className="account-reference-back" ariaLabel="Voltar">←</HistoryBackButton>
-        <Link href="/" className="account-reference-brand"><span>AM</span><strong>Auto Minas</strong></Link>
+    <div className="account-hub-screen">
+      <header className="account-hub-topbar">
+        <HistoryBackButton fallback="/" className="account-hub-back" ariaLabel="Voltar">←</HistoryBackButton>
+        <Link href="/" className="account-hub-brand"><span>AM</span><strong>Auto Minas</strong></Link>
       </header>
 
-      <main className="account-reference-content">
-        <section className="account-reference-heading">
+      <main className="account-hub-content">
+        <section className="account-hub-hero">
           <div>
-            <h1>Meu perfil</h1>
-            <p>Gerencie suas informações pessoais, contato e segurança da conta.</p>
+            <h1>Meu Perfil</h1>
+            <p>Gerencie sua conta, anúncios, plano e verificações.</p>
           </div>
-          <div className="account-reference-car" aria-hidden="true">
+          <div className="account-hub-car" aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/demo/hb20.jpg" alt=""/>
+            <img src="/images/demo/hb20.jpg" alt="" />
           </div>
         </section>
 
-        <section className="account-reference-identity">
-          <Link href="/conta/editar" className="account-reference-avatar" aria-label="Editar foto e perfil">
+        <Link href="/conta/editar" className="account-hub-profile-card">
+          <div className="account-hub-avatar">
             {profile?.temFoto ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={`/perfil/${user.id}/foto`} alt={user.name}/>
+              <img src={`/perfil/${user.id}/foto`} alt={user.name} />
             ) : (
-              <span aria-hidden="true">●</span>
+              <span>{user.name.slice(0, 2).toUpperCase()}</span>
             )}
             <i aria-hidden="true">▣</i>
+          </div>
+
+          <div className="account-hub-profile-copy">
+            <h2>{user.name}</h2>
+            <span className="account-hub-level-pill">Nível {level}</span>
+            <p>{user.email}</p>
+            {me?.telefone && <p>{me.telefone}</p>}
+            {pending && <strong>E-mail pendente de verificação</strong>}
+          </div>
+
+          <b aria-hidden="true">›</b>
+        </Link>
+
+        <Link href="/verificacoes" className="account-hub-verification-card">
+          <div className="account-hub-verification-heading">
+            <div>
+              <h2>Nível de verificação</h2>
+              <p>{LEVEL_COPY[level]}</p>
+            </div>
+            <span>Nível {level}</span>
+          </div>
+
+          <div className="account-hub-progress">
+            {[1, 2, 3, 4].map((item) => (
+              <div key={item} className={item <= level ? "is-active" : ""}>
+                <i>{item < level ? "✓" : item}</i>
+                <strong>Nível {item}</strong>
+              </div>
+            ))}
+          </div>
+        </Link>
+
+        <nav className="account-hub-grid" aria-label="Área da conta">
+          <Link href="/meus-anuncios">
+            <span>▤</span>
+            <div><strong>Meus anúncios</strong><small>Gerencie seus veículos</small></div>
+            <b>›</b>
           </Link>
 
-          <h2>{user.name}</h2>
-          <span className="account-level-pill">◈ Nível {level}</span>
-          {pending && <Link href="/verificar-email" className="account-email-warning">E-mail pendente de verificação →</Link>}
-        </section>
+          <Link href="/assinatura">
+            <span>♛</span>
+            <div>
+              <strong>Meu plano</strong>
+              <small>{activeSubscription ? activeSubscription.nomePlano : "Planos e assinatura"}</small>
+            </div>
+            <b>›</b>
+          </Link>
 
-        <nav className="account-reference-menu" aria-label="Configurações da conta">
-          <Link href="/conta/editar">
-            <span className="account-menu-icon">♙</span>
-            <span><strong>Editar perfil</strong><small>Nome, telefone e foto pública</small></span>
+          <Link href="/chat">
+            <span>◌</span>
+            <div><strong>Conversas</strong><small>Suas negociações</small></div>
             <b>›</b>
           </Link>
 
           <Link href="/recuperar-senha">
-            <span className="account-menu-icon">▣</span>
-            <span><strong>Segurança da conta</strong><small>Senha e recuperação de acesso</small></span>
+            <span>◈</span>
+            <div><strong>Segurança</strong><small>Senha e recuperação</small></div>
             <b>›</b>
           </Link>
 
-          <Link href="/verificacoes">
-            <span className="account-menu-icon">◈</span>
-            <span><strong>Verificação de identidade</strong><small>Níveis e documentos</small></span>
+          <Link href={`/perfil/${user.id}`}>
+            <span>◎</span>
+            <div><strong>Perfil público</strong><small>Veja como compradores enxergam você</small></div>
             <b>›</b>
           </Link>
 
           <Link href="/privacidade/solicitacoes">
-            <span className="account-menu-icon">☷</span>
-            <span><strong>Privacidade e dados</strong><small>Solicitações e exclusão de dados</small></span>
-            <b>›</b>
-          </Link>
-
-          <Link href="/meus-anuncios">
-            <span className="account-menu-icon">▤</span>
-            <span><strong>Meus anúncios</strong><small>Acompanhar análise e publicação</small></span>
+            <span>☷</span>
+            <div><strong>Privacidade</strong><small>Dados e solicitações</small></div>
             <b>›</b>
           </Link>
         </nav>
 
-        <AccountLogoutButton/>
+        {pending && <Link href="/verificar-email" className="account-hub-email-warning">Verificar meu e-mail agora →</Link>}
+
+        <AccountLogoutButton />
       </main>
 
-      <div className="account-reference-glow" aria-hidden="true"/>
+      <div className="account-hub-bottom-glow" aria-hidden="true" />
     </div>
   );
 }
