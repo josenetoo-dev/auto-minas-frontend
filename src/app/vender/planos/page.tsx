@@ -5,6 +5,7 @@ import { commercialPlans, currentCommercialContract, sellerProfile, type Commerc
 import SellerPlanFlow from "@/components/seller-plan-flow";
 import Link from "next/link";
 import HistoryBackButton from "@/components/history-back-button";
+import "@/styles/account-plans.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Contratação demonstrativa" };
