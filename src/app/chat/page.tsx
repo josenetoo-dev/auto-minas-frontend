@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import ChatApp from "@/components/chat-app";
 import { getConversationSummaries } from "@/lib/chat";
 import { requireUser } from "@/lib/auth";
+import "@/styles/chat.css";
 
 export const dynamic = "force-dynamic";
 
