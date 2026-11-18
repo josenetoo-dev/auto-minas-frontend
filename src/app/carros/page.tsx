@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { searchPublicCars } from "@/lib/car";
 import CarCard from "@/components/car-card";
 import CarFilters from "@/components/car-filters";
 import { BRANDS, FUEL_OPTIONS, TRANSMISSION_OPTIONS } from "@/lib/constants";
+import "@/styles/cars.css";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 20;
 
 export const metadata: Metadata = {
   title: "Comprar veículos",
@@ -44,21 +46,48 @@ export default async function CarrosPage({
   const tipo = str(sp.tipo) === "MOTO" ? "MOTO" : "CARRO";
   const page = Math.max(0, num(sp.page) ?? 0);
 
-  const catalog = await searchPublicCars({q,tipo,brand,city,state,fuel,transmission,minPrice,maxPrice,yearMin,sort,page}).catch(() => null);
+  const catalog = await searchPublicCars({
+    q,
+    tipo,
+    brand,
+    city,
+    state,
+    fuel,
+    transmission,
+    minPrice,
+    maxPrice,
+    yearMin,
+    sort,
+    page,
+  }).catch(() => null);
+
   const results = catalog?.cars ?? [];
   const brands = [...BRANDS];
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6">
-      {/* Cabeçalho da página */}
-      <div className="mb-4">
-        <h1 className="font-display mt-2 text-3xl font-bold text-[#f4f3ee] sm:text-4xl">
-          Comprar <span className="gold-text">veículos</span>
-        </h1>
-      </div>
+    <div className="cars-exact-screen">
+      <section className="cars-reference-hero">
+        <div className="cars-reference-hero-copy">
+          <h1>Buscar veículos</h1>
+          <p>Encontre o carro ideal para você.</p>
+        </div>
+        <div className="cars-reference-hero-car" aria-hidden="true">
+          <Image
+            src="/images/demo/onix.jpg"
+            alt=""
+            fill
+            priority
+            sizes="(max-width: 767px) 48vw, 480px"
+            quality={72}
+            className="object-cover"
+          />
+        </div>
+      </section>
 
       <CarFilters
         initial={{
-          q: q ?? "", tipo,
+          q: q ?? "",
+          tipo,
           brand: brand ?? "",
           city: city ?? "",
           state: state ?? "",
@@ -75,35 +104,57 @@ export default async function CarrosPage({
         total={catalog?.total ?? 0}
       />
 
-      <div className="divider-gold my-8" />
+      <section className="cars-results-section">
+        {!catalog && (
+          <p role="alert" className="cars-api-warning">
+            A API está indisponível. Não foi possível consultar os anúncios neste momento.
+          </p>
+        )}
 
-      {!catalog && <p role="alert" className="mb-6 text-sm text-amber-300">A API está indisponível. Não foi possível consultar os anúncios neste momento.</p>}
-      {results.length > 0 ? (
-        <div className="catalog-results grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {results.map((car) => (
-            <CarCard key={car.id} car={car} />
-          ))}
-        </div>
-      ) : (
-        <div className="card-dark mx-auto max-w-lg p-12 text-center">
-          <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#d4af37]/10">
-            <svg viewBox="0 0 24 24" className="h-7 w-7 text-[#d4af37]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        {results.length > 0 ? (
+          <div className="cars-results-list">
+            {results.map((car) => (
+              <CarCard key={car.id} car={car} variant="catalog" />
+            ))}
+          </div>
+        ) : (
+          <div className="cars-empty-state">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="11" cy="11" r="7" />
               <path d="M21 21l-4.35-4.35M8 11h6" />
             </svg>
+            <h2>Nenhum {tipo === "MOTO" ? "moto" : "carro"} encontrado</h2>
+            <p>Tente ajustar os filtros ou buscar por outro modelo.</p>
+            <Link href="/carros">Limpar filtros</Link>
           </div>
-          <h2 className="font-display mt-5 text-xl font-bold text-[#f4f3ee]">
-            Nenhum {tipo === "MOTO" ? "moto" : "carro"} encontrado
-          </h2>
-          <p className="mt-2 text-sm text-[#9b9ba4]">
-            Tente ajustar os filtros ou buscar por outro modelo.
-          </p>
-          <Link href="/carros" className="btn-outline mt-6">
-            Limpar filtros
-          </Link>
-        </div>
-      )}
-      {catalog && catalog.totalPages > 1 && <nav aria-label="Paginação do catálogo" className="mt-8 flex items-center justify-center gap-4"><Link aria-disabled={page===0} className={`btn-outline ${page===0?'pointer-events-none opacity-40':''}`} href={`/carros?${new URLSearchParams({...Object.fromEntries(Object.entries(sp).filter(([,v])=>typeof v==='string') as [string,string][]),page:String(Math.max(0,page-1))})}`}>Anterior</Link><span className="text-sm text-[#a9a9b2]">Página {page+1} de {catalog.totalPages}</span><Link aria-disabled={page+1>=catalog.totalPages} className={`btn-outline ${page+1>=catalog.totalPages?'pointer-events-none opacity-40':''}`} href={`/carros?${new URLSearchParams({...Object.fromEntries(Object.entries(sp).filter(([,v])=>typeof v==='string') as [string,string][]),page:String(page+1)})}`}>Próxima</Link></nav>}
+        )}
+
+        {catalog && catalog.totalPages > 1 && (
+          <nav aria-label="Paginação do catálogo" className="cars-pagination">
+            <Link
+              aria-disabled={page === 0}
+              className={page === 0 ? "is-disabled" : ""}
+              href={`/carros?${new URLSearchParams({
+                ...Object.fromEntries(Object.entries(sp).filter(([, v]) => typeof v === "string") as [string, string][]),
+                page: String(Math.max(0, page - 1)),
+              })}`}
+            >
+              Anterior
+            </Link>
+            <span>Página {page + 1} de {catalog.totalPages}</span>
+            <Link
+              aria-disabled={page + 1 >= catalog.totalPages}
+              className={page + 1 >= catalog.totalPages ? "is-disabled" : ""}
+              href={`/carros?${new URLSearchParams({
+                ...Object.fromEntries(Object.entries(sp).filter(([, v]) => typeof v === "string") as [string, string][]),
+                page: String(page + 1),
+              })}`}
+            >
+              Próxima
+            </Link>
+          </nav>
+        )}
+      </section>
     </div>
   );
 }

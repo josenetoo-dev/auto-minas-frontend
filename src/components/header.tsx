@@ -10,11 +10,6 @@ export type HeaderUser = {
   avatarUrl: string | null;
 };
 
-type Props = {
-  user: HeaderUser | null;
-  unreadCount: number;
-};
-
 const NAV = [
   { href: "/", label: "Início" },
   { href: "/carros", label: "Comprar" },
@@ -45,9 +40,29 @@ function Avatar({ name, url, className = "h-8 w-8" }: { name: string; url: strin
   );
 }
 
-export default function Header({ user, unreadCount: initialCount }: Props) {
-  const [unreadCount, setUnreadCount] = useState(initialCount);
+export default function Header() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<HeaderUser | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [notice, setNotice] = useState("");
+
+  const hidden = pathname === "/login" || pathname === "/recuperar-senha" || pathname === "/verificar-email" || pathname === "/vender" || pathname === "/meus-anuncios" || /^\/meus-anuncios\/\d+$/.test(pathname) || pathname === "/chat" || /^\/chat\/\d+$/.test(pathname) || pathname === "/planos" || pathname === "/assinatura" || pathname === "/vender/planos" || pathname === "/verificacoes" || /^\/perfil\/\d+$/.test(pathname) || pathname === "/conta" || pathname === "/conta/editar" || /^\/vender\/editar\/\d+$/.test(pathname) || /^\/carros\/\d+$/.test(pathname);
+
+  useEffect(() => {
+    if (hidden) return;
+    let cancelled = false;
+    void fetch("/api/auth/session", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : { user: null })
+      .then((body) => {
+        if (!cancelled) setUser(body.user ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setUser(null);
+      });
+    return () => { cancelled = true; };
+  }, [hidden]);
+
   const accountName = user?.name;
   useEffect(() => {
     if (!accountName) return;
@@ -69,13 +84,11 @@ export default function Header({ user, unreadCount: initialCount }: Props) {
         if (added) setNotice(added===1?"Você recebeu uma nova mensagem.":`Você recebeu ${added} novas mensagens.`);
         if (!total) setNotice("");
       } catch { /* A próxima consulta recupera a contagem persistida. */ }
-      finally { if(!stopped)timer=setTimeout(refresh,4000); }
+      finally { if(!stopped)timer=setTimeout(refresh,20000); }
     }
     void refresh();
     return ()=>{stopped=true;clearTimeout(timer);};
   },[accountName]);
-  const pathname = usePathname();
-  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -112,6 +125,62 @@ export default function Header({ user, unreadCount: initialCount }: Props) {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
     router.refresh();
+  }
+
+  if (hidden) return null;
+
+  if (pathname === "/" || pathname === "/carros") {
+    return (
+      <header className="home-topbar">
+        <div className="home-topbar-inner">
+          <Link href="/" className="home-brand-lockup" aria-label="Auto Minas — Página inicial">
+            <span className="home-brand-symbol" aria-hidden="true">AM</span>
+            <span>Auto Minas</span>
+          </Link>
+
+          <div className="home-topbar-actions">
+            <Link href={user ? "/chat" : "/login?next=%2Fchat"} className="home-notification-button" aria-label="Negociações">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+                <path d="M10 21h4" />
+              </svg>
+              {unreadCount > 0 && <span className="home-notification-dot">{unreadCount > 9 ? "9+" : unreadCount}</span>}
+            </Link>
+            <button
+              type="button"
+              ref={mobileToggle}
+              className="home-menu-button"
+              aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+              aria-expanded={menuOpen}
+              aria-controls="home-mobile-menu"
+              onClick={() => setMenuOpen((value) => !value)}
+            >
+              {menuOpen ? (
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19" /></svg>
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {menuOpen && (
+          <nav id="home-mobile-menu" className="home-menu-panel" aria-label="Menu da página inicial">
+            {NAV.map((item) => {
+              if (item.needsAuth && !user) return null;
+              return (
+                <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
+                  {item.label}
+                </Link>
+              );
+            })}
+            {!user && <Link href="/login" onClick={() => setMenuOpen(false)}>Entrar</Link>}
+            {user && <Link href="/meus-anuncios" onClick={() => setMenuOpen(false)}>Meus anúncios</Link>}
+            {user && <button type="button" onClick={logout}>Sair</button>}
+          </nav>
+        )}
+      </header>
+    );
   }
 
   return (

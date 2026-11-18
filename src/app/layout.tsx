@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { countUnreadMessages } from "@/lib/chat";
 import Header from "@/components/header";
 import CookiePreferences from "@/components/cookie-preferences";
 import MobileActions from "@/components/mobile-actions";
 import Footer from "@/components/footer";
-import { getSession } from "@/lib/auth";
 
 import "./globals.css";
 
@@ -22,10 +20,7 @@ export const metadata: Metadata = {
     : undefined,
 };
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
-  const session = await getSession();
-  const unread = session ? await countUnreadMessages().catch(() => 0) : 0;
-
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
 
@@ -40,14 +35,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             </Link>
           </div>
         )}
-        <Header key={session?.id ?? 'visitante'}
-          user={
-            session
-              ? { name: session.name, avatarUrl: session.avatarUrl }
-              : null
-          }
-          unreadCount={unread}
-        />
+        <Header />
         <main id="conteudo-principal" tabIndex={-1} className="min-h-[60vh]">{children}</main>
         <Footer />
         <MobileActions />

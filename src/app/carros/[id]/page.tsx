@@ -1,55 +1,235 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { carById, publicCars } from "@/lib/car";
-import { BackendError, getApiToken } from "@/lib/backend";
+import { carById } from "@/lib/car";
+import { BackendError, backendFetch, getApiToken } from "@/lib/backend";
 import { getSession } from "@/lib/auth";
 import ImageGallery from "@/components/image-gallery";
-import CarCard from "@/components/car-card";
 import ChatCta from "@/components/chat-cta";
 import CarOwnerActions from "@/components/car-owner-actions";
 import ReportButton from "@/components/report-button";
-import PublicVerificationSummary from "@/components/public-verification-summary";
-import { formatDate,formatPrice,formatKm } from "@/lib/format";
-import { FUEL_LABEL,TRANSMISSION_LABEL } from "@/lib/constants";
-export const dynamic="force-dynamic";
-type Props={params:Promise<{id:string}>};
-export async function generateMetadata({params}:Props):Promise<Metadata>{
- const {id}=await params;
- try{const c=await carById(Number(id));return{title:`${c.brand} ${c.model} ${c.year}`,description:`${c.brand} ${c.model} - ${formatPrice(c.price)}. Anúncio sujeito a análise Auto Minas.`};}
- catch{return{title:"Anúncio não disponível"};}
+import HistoryBackButton from "@/components/history-back-button";
+import { formatPrice, formatKm } from "@/lib/format";
+import { FUEL_LABEL, TRANSMISSION_LABEL } from "@/lib/constants";
+import "@/styles/vehicle-detail.css";
+
+export const dynamic = "force-dynamic";
+
+type Props = { params: Promise<{ id: string }> };
+
+type PublicProfile = {
+  nome: string;
+  temFoto: boolean;
+  nivel: number;
+  veiculos: { id: number; titulo: string }[];
+  temMais: boolean;
+};
+
+type VerificationSummary = {
+  vendedor: { analisadaManualmente: boolean; analisadaEm: string | null };
+  veiculo: { analisadaManualmente: boolean; analisadaEm: string | null };
+  aviso: string;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    const car = await carById(Number(id));
+    return {
+      title: `${car.brand} ${car.model} ${car.year}`,
+      description: `${car.brand} ${car.model} - ${formatPrice(car.price)}. Anúncio sujeito a análise Auto Minas.`,
+    };
+  } catch {
+    return { title: "Anúncio não disponível" };
+  }
 }
-export default async function Detail({params}:Props){
- const {id}=await params;if(!/^\d+$/.test(id))notFound();
- const session=await getSession(),token=await getApiToken();
- let c;try{c=await carById(Number(id),token||undefined);}catch(e){if(e instanceof BackendError&&e.status===404)notFound();throw e;}
- const owner=session?.id===c.userId;
- const similar=(await publicCars(2).catch(()=>[])).filter(x=>x.id!==c.id&&x.brand===c.brand).slice(0,3);
- return <div className="mx-auto max-w-7xl space-y-8 px-4 py-9 sm:px-6">
-  <nav className="text-sm text-[#9b9ba4]"><Link href="/carros" className="hover:text-[#d4af37]">Veículos</Link> / {c.brand} {c.model}</nav>
-  <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_370px]">
-   <div className="space-y-7"><figure><ImageGallery images={c.images} title={`${c.brand} ${c.model}`}/>
-    {c.demoPhoto && <figcaption className="mt-2 text-xs leading-relaxed text-[#c3c3cc]">
-      Anúncio demonstrativo · Foto ilustrativa do modelo. A versão e a cor podem variar.{" "}
-      <a className="underline" href={`https://commons.wikimedia.org/wiki/File:${encodeURIComponent(c.demoPhoto.file)}`}>{c.demoPhoto.author}</a>
-      {" · "}<a className="underline" href={`https://creativecommons.org/licenses/${c.demoPhoto.license}/`}>CC {c.demoPhoto.license.replace("/", " ").toUpperCase()}</a>
-      {" · Imagem redimensionada."}
-    </figcaption>}</figure>
-    <section className="card-dark space-y-4 p-6"><h2 className="font-display text-2xl font-bold">Características</h2>
-     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">{[["Marca",c.brand],["Modelo",c.model],["Versão",c.version],["Ano",c.year],["Quilometragem",formatKm(c.mileageKm)],["Combustível",FUEL_LABEL[c.fuel]||c.fuel],["Câmbio",TRANSMISSION_LABEL[c.transmission]||c.transmission],["Cor",c.color],["Localização",c.city && c.state ? `${c.city}/${c.state}` : "Não informada"]].map(([label,value])=><div key={label} className="rounded-lg bg-[#15151a] p-3"><p className="text-xs text-[#92929d]">{label}</p><p className="mt-1 font-semibold">{value}</p></div>)}</div>
-    </section>
-    <section className="card-dark p-6"><h2 className="font-display mb-3 text-2xl font-bold">Descrição do anúncio</h2><p className="whitespace-pre-wrap leading-relaxed text-[#c3c3cc]">{c.description}</p></section>
-    {similar.length>0&&<section className="space-y-4"><h2 className="font-display text-2xl font-bold">Veículos semelhantes</h2><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{similar.map(x=><CarCard key={x.id} car={x}/>)}</div></section>}
-   </div>
-   <aside className="space-y-5"><div className="card-dark sticky top-24 space-y-5 p-6">
-    <span className="text-xs uppercase tracking-[.22em] text-[#d4af37]">Auto Minas • {c.status==="ativo"?"Anúncio público":c.status.replace(/_/g," ")}</span>
-    <h1 className="font-display text-3xl font-bold">{c.brand} {c.model} <span className="text-xl text-[#9b9ba4]">{c.year}</span></h1>
-    <p className="gold-text font-display text-3xl font-bold">{formatPrice(c.price)}</p>
-    <p className="text-sm text-[#9b9ba4]">Anunciante: <Link className="underline" href={`/perfil/${c.userId}`}>{c.name}</Link> • Criado em {formatDate(c.createdAt)}</p>
-    <PublicVerificationSummary adId={c.id} token={token||undefined}/>
-    <p className="rounded-lg border border-[#d4af37]/20 bg-[#d4af37]/5 p-3 text-xs text-[#c7c2b2]">Análise humana de documentos não equivale a certificação governamental ou garantia de propriedade e pagamento.</p>
-    {owner?<CarOwnerActions carId={c.id} status={c.status}/>:c.status==="ativo"?<><ChatCta carId={c.id} price={c.price} loggedIn={!!session} nextPath={`/carros/${c.id}`}/><ReportButton carId={c.id} loggedIn={!!session}/></>:<p className="text-amber-300">Este anúncio não está disponível para negociação.</p>}
-   </div></aside>
-  </div>
- </div>;
+
+function SpecIcon({ type }: { type: "year" | "km" | "fuel" | "gear" }) {
+  if (type === "year") {
+    return <><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M8 3v4M16 3v4M4 10h16" /></>;
+  }
+  if (type === "km") {
+    return <><circle cx="12" cy="12" r="8" /><path d="M12 12l4-4M7 15a6 6 0 0 1 10-6" /></>;
+  }
+  if (type === "fuel") {
+    return <><path d="M6 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16" /><path d="M6 10h10M16 7h2l2 2v7a2 2 0 0 1-4 0v-3" /></>;
+  }
+  return <><path d="M5 4v16M12 4v16M19 4v16M5 9h14M12 15h7" /><circle cx="5" cy="4" r="1" /><circle cx="12" cy="4" r="1" /><circle cx="19" cy="4" r="1" /></>;
+}
+
+export default async function Detail({ params }: Props) {
+  const { id } = await params;
+  if (!/^\d+$/.test(id)) notFound();
+
+  const session = await getSession();
+  const token = await getApiToken();
+
+  let car;
+  try {
+    car = await carById(Number(id), token || undefined);
+  } catch (error) {
+    if (error instanceof BackendError && error.status === 404) notFound();
+    throw error;
+  }
+
+  const [profile, verification] = await Promise.all([
+    backendFetch<PublicProfile>(`/v1/perfis/${car.userId}?pagina=0`).catch(() => null),
+    backendFetch<VerificationSummary>(`/v1/anuncio/${car.id}/verificacoes`, {}, token || undefined).catch(() => null),
+  ]);
+
+  const owner = session?.id === car.userId;
+  const sellerLevel = Math.max(0, Math.min(4, profile?.nivel ?? 0));
+  const vehicleVerified = verification?.veiculo.analisadaManualmente ?? false;
+  const sellerVerified = verification?.vendedor.analisadaManualmente ?? sellerLevel > 0;
+
+  const specs = [
+    { label: "Ano", value: String(car.year), icon: "year" as const },
+    { label: "Quilometragem", value: formatKm(car.mileageKm), icon: "km" as const },
+    { label: "Combustível", value: FUEL_LABEL[car.fuel] ?? car.fuel, icon: "fuel" as const },
+    { label: "Câmbio", value: TRANSMISSION_LABEL[car.transmission] ?? car.transmission, icon: "gear" as const },
+  ];
+
+  return (
+    <div className="vehicle-detail-screen">
+      <header className="vehicle-detail-topbar">
+        <HistoryBackButton fallback="/carros" className="vehicle-detail-icon-button" ariaLabel="Voltar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+        </HistoryBackButton>
+
+        <Link href="/" className="vehicle-detail-brand" aria-label="Auto Minas">
+          <span className="vehicle-detail-brand-mark">AM</span>
+          <span>Auto Minas</span>
+        </Link>
+
+        <div className="vehicle-detail-top-actions">
+          <button type="button" className="vehicle-detail-icon-button is-disabled" aria-label="Favoritos ainda não disponível" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
+          </button>
+          <button type="button" className="vehicle-detail-icon-button is-disabled" aria-label="Compartilhamento pelo navegador" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3M7 8l5-5 5 5" /><path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <ImageGallery images={car.images} title={`${car.brand} ${car.model}`} />
+
+        {car.demoPhoto && (
+          <p className="vehicle-detail-demo-note">
+            Anúncio demonstrativo · Foto ilustrativa do modelo.
+          </p>
+        )}
+
+        <section className="vehicle-detail-main-info">
+          <div className="vehicle-detail-heading-row">
+            <div>
+              <h1>{car.brand} {car.model} {car.year}</h1>
+              <p>
+                {car.version ? `${car.version} · ` : ""}
+                {FUEL_LABEL[car.fuel] ?? car.fuel} · {TRANSMISSION_LABEL[car.transmission] ?? car.transmission}
+              </p>
+              <strong>{formatPrice(car.price)}</strong>
+            </div>
+
+            {vehicleVerified && (
+              <span className="vehicle-verified-pill">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 2.9 8.1 7 10 4.1-1.9 7-5.5 7-10V6l-7-3Z" /><path d="m9 12 2 2 4-4" /></svg>
+                Veículo verificado
+              </span>
+            )}
+          </div>
+
+          <div className="vehicle-spec-grid">
+            {specs.map((spec) => (
+              <div key={spec.label} className="vehicle-spec-card">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><SpecIcon type={spec.icon} /></svg>
+                <strong>{spec.value}</strong>
+                <span>{spec.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="vehicle-detail-description">
+          <h2>Descrição</h2>
+          <p>{car.description}</p>
+          <details>
+            <summary>Ver mais</summary>
+            <dl>
+              <div><dt>Cor</dt><dd>{car.color}</dd></div>
+              <div><dt>Categoria</dt><dd>{car.category}</dd></div>
+              <div><dt>Documentação</dt><dd>{car.documentation}</dd></div>
+              <div><dt>Garantia</dt><dd>{car.warranty}</dd></div>
+            </dl>
+          </details>
+        </section>
+
+        <section className="vehicle-seller-card">
+          <Link href={`/perfil/${car.userId}`} className="vehicle-seller-main">
+            <div className="vehicle-seller-avatar">
+              {profile?.temFoto ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={`/perfil/${car.userId}/foto`} alt={`Foto de ${profile.nome}`} />
+              ) : (
+                <span>{(profile?.nome ?? car.name).slice(0, 2).toUpperCase()}</span>
+              )}
+            </div>
+
+            <div className="vehicle-seller-copy">
+              <h2>
+                {profile?.nome ?? car.name}
+                {sellerVerified && <span className="vehicle-seller-check" aria-label="Vendedor analisado">✓</span>}
+              </h2>
+              <p>{sellerVerified ? "Vendedor analisado" : "Vendedor"}{sellerLevel > 0 ? ` · Nível ${sellerLevel}` : ""}</p>
+              <p className="vehicle-seller-location">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
+                {car.city && car.state ? `${car.city} - ${car.state}` : "Localização não informada"}
+              </p>
+            </div>
+
+            <span className="vehicle-seller-chevron" aria-hidden="true">›</span>
+          </Link>
+        </section>
+
+        <section className="vehicle-verification-card">
+          <div className="vehicle-verification-heading">
+            <span className="vehicle-verification-shield" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 2.9 8.1 7 10 4.1-1.9 7-5.5 7-10V6l-7-3Z" /><path d="m9 12 2 2 4-4" /></svg>
+            </span>
+            <div>
+              <p>Nível de verificação: {sellerLevel} de 4</p>
+              <span>{verification?.aviso ?? "A análise pública informa o que foi revisado pela equipe Auto Minas."}</span>
+            </div>
+          </div>
+
+          <div className="vehicle-verification-progress" aria-label={`Nível de verificação ${sellerLevel} de 4`}>
+            {[1, 2, 3, 4].map((level) => (
+              <span key={level} className={level <= sellerLevel ? "is-complete" : ""}>
+                {level < sellerLevel ? "✓" : level}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        <section className="vehicle-detail-actions">
+          <button type="button" className="vehicle-call-button" disabled title="Telefone público não disponível neste anúncio">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-3 2a15 15 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2C10 21 3 14 3 6a2 2 0 0 1 2-2Z" /></svg>
+            Ligar
+          </button>
+
+          {owner ? (
+            <div className="vehicle-owner-actions"><CarOwnerActions carId={car.id} status={car.status} /></div>
+          ) : car.status === "ativo" ? (
+            <ChatCta carId={car.id} price={car.price} loggedIn={!!session} nextPath={`/carros/${car.id}`} variant="detail" />
+          ) : (
+            <p className="vehicle-unavailable">Este anúncio não está disponível para negociação.</p>
+          )}
+        </section>
+
+        <div className="vehicle-detail-report">
+          <ReportButton carId={car.id} loggedIn={!!session} />
+        </div>
+      </main>
+    </div>
+  );
 }
