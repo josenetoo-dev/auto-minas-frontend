@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { backendFetch } from "@/lib/backend";
 import AccountLogoutButton from "@/components/account-logout-button";
+import HistoryBackButton from "@/components/history-back-button";
 
 export const dynamic="force-dynamic";
 export const metadata: Metadata = { title: "Meu perfil" };
@@ -18,7 +19,7 @@ export default async function Account() {
   return (
     <div className="account-reference-screen">
       <header className="account-reference-topbar">
-        <Link href="/" className="account-reference-back" aria-label="Voltar para o início">←</Link>
+        <HistoryBackButton fallback="/" className="account-reference-back" ariaLabel="Voltar">←</HistoryBackButton>
         <Link href="/" className="account-reference-brand"><span>AM</span><strong>Auto Minas</strong></Link>
       </header>
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { backendFetch, getApiToken } from "@/lib/backend";
 import ProfileEditForm from "@/components/profile-edit-form";
+import HistoryBackButton from "@/components/history-back-button";
 
 export const dynamic="force-dynamic";
 export const metadata: Metadata = { title: "Editar perfil" };
@@ -24,7 +25,7 @@ export default async function EditProfilePage() {
   return (
     <div className="profile-edit-reference-screen">
       <header className="account-reference-topbar">
-        <Link href="/conta" className="account-reference-back" aria-label="Voltar para o perfil">←</Link>
+        <HistoryBackButton fallback="/conta" className="account-reference-back" ariaLabel="Voltar">←</HistoryBackButton>
         <Link href="/" className="account-reference-brand"><span>AM</span><strong>Auto Minas</strong></Link>
       </header>
 

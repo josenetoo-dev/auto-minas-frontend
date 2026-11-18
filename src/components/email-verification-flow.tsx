@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import HistoryBackButton from "@/components/history-back-button";
 
 export default function EmailVerificationFlow({
   email,
@@ -124,9 +125,9 @@ export default function EmailVerificationFlow({
 
   return (
     <div className="email-verify-screen">
-      <Link href="/conta" className="flow-back-button" aria-label="Voltar para a conta">
+      <HistoryBackButton fallback="/conta" className="flow-back-button" ariaLabel="Voltar">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
-      </Link>
+      </HistoryBackButton>
 
       <header className="flow-brand">
         <span className="flow-brand-mark">AM</span>

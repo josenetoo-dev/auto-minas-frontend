@@ -8,6 +8,7 @@ import ImageGallery from "@/components/image-gallery";
 import ChatCta from "@/components/chat-cta";
 import CarOwnerActions from "@/components/car-owner-actions";
 import ReportButton from "@/components/report-button";
+import HistoryBackButton from "@/components/history-back-button";
 import { formatPrice, formatKm } from "@/lib/format";
 import { FUEL_LABEL, TRANSMISSION_LABEL } from "@/lib/constants";
 
@@ -90,9 +91,9 @@ export default async function Detail({ params }: Props) {
   return (
     <div className="vehicle-detail-screen">
       <header className="vehicle-detail-topbar">
-        <Link href="/carros" className="vehicle-detail-icon-button" aria-label="Voltar para veículos">
+        <HistoryBackButton fallback="/carros" className="vehicle-detail-icon-button" ariaLabel="Voltar">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
-        </Link>
+        </HistoryBackButton>
 
         <Link href="/" className="vehicle-detail-brand" aria-label="Auto Minas">
           <span className="vehicle-detail-brand-mark">AM</span>

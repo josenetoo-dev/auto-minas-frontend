@@ -3,7 +3,7 @@ import { carById, type CarData } from "@/lib/car";
 
 export type ChatOther = {id:number;name:string;avatarUrl:string|null};
 export type ChatCar = {id:number;brand:string;model:string;year:number;price:number;image:string|null;status:string};
-export type ChatSummary = {id:number;carId:number;car:ChatCar|null;other:ChatOther;lastMessage:string|null;lastAt:string;unread:number;status:string;value:number};
+export type ChatSummary = {id:number;carId:number;car:ChatCar|null;other:ChatOther;lastMessage:string|null;lastAt:string;unread:number;status:string;value:number;myRole:"buyer"|"seller"};
 export type ChatMessageDTO={id:number;proposalId?:number;senderId:number;content:string|null;createdAt:string;readAt:string|null;deleted?:boolean;attachment?:{name:string;mime:string;size:number;url:string}};
 export type ChatThread={conversation:{id:number;carId:number;myRole:"buyer"|"seller";status:string;value:number};car:ChatCar|null;other:ChatOther|null;messages:ChatMessageDTO[]};
 export type BackendProposal={id:number;valor:number;descricao:string;status:string;criadoEm:string;anuncio:number;comprador:number;contrapropostaValor:number|null;contrapropostaDescricao:string|null;contrapropostaFeita:boolean};
@@ -17,11 +17,11 @@ async function otherName(id:number,token:string):Promise<ChatOther>{
 export async function getConversationSummaries(userId:number):Promise<ChatSummary[]> {
  const token=await getApiToken();if(!token)return [];
  const [proposals, unread] = await Promise.all([allPages<BackendProposal>("/v1/proposta/minhas",token), unreadByProposal(token)]);
- const conversations = await Promise.all(proposals.map(async p=>{
+ const conversations:ChatSummary[] = await Promise.all(proposals.map(async p=>{
   const car=await carSafe(p.anuncio,token);
   const partnerId=p.comprador===userId?(car?.userId??0):p.comprador;
   const other=partnerId?await otherName(partnerId,token):{id:0,name:"Participante",avatarUrl:null};
-  return {id:p.id,carId:p.anuncio,car:chatCar(car),other,lastMessage:p.descricao,lastAt:p.criadoEm,unread:unread[p.id] ?? 0,status:p.status,value:Number(p.valor)};
+  return {id:p.id,carId:p.anuncio,car:chatCar(car),other,lastMessage:p.descricao,lastAt:p.criadoEm,unread:unread[p.id] ?? 0,status:p.status,value:Number(p.valor),myRole:p.comprador===userId?"buyer":"seller"};
  }));
  const grouped = new Map<number,ChatSummary>();
  for (const item of conversations.sort((a,b)=>a.id-b.id)) {

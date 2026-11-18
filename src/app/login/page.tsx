@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import AuthForm from "@/components/auth-form";
+import HistoryBackButton from "@/components/history-back-button";
 import { safeNextPath } from "@/lib/redirect";
 
 export const metadata: Metadata = {
@@ -21,9 +22,9 @@ export default async function LoginPage({
 
   return (
     <div className={`auth-reference-screen ${mode === "register" ? "is-register" : "is-login"}`}>
-      <a href="/" className="auth-reference-back" aria-label="Voltar para a página inicial">
+      <HistoryBackButton fallback="/" className="auth-reference-back" ariaLabel="Voltar">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
-      </a>
+      </HistoryBackButton>
 
       <section className="auth-reference-hero">
         <div className="auth-reference-brand">
