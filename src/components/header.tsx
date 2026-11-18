@@ -114,7 +114,7 @@ export default function Header({ user, unreadCount: initialCount }: Props) {
     router.refresh();
   }
 
-  if (pathname === "/login" || pathname === "/recuperar-senha" || pathname === "/verificar-email" || pathname === "/vender" || pathname === "/meus-anuncios" || pathname === "/conta" || pathname === "/conta/editar" || /^\/vender\/editar\/\d+$/.test(pathname) || /^\/carros\/\d+$/.test(pathname)) {
+  if (pathname === "/login" || pathname === "/recuperar-senha" || pathname === "/verificar-email" || pathname === "/vender" || pathname === "/meus-anuncios" || /^\/meus-anuncios\/\d+$/.test(pathname) || pathname === "/conta" || pathname === "/conta/editar" || /^\/vender\/editar\/\d+$/.test(pathname) || /^\/carros\/\d+$/.test(pathname)) {
     return null;
   }
 
