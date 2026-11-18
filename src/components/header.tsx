@@ -114,7 +114,7 @@ export default function Header({ user, unreadCount: initialCount }: Props) {
     router.refresh();
   }
 
-  if (/^\/carros\/\d+$/.test(pathname)) {
+  if (pathname === "/login" || /^\/carros\/\d+$/.test(pathname)) {
     return null;
   }
 
