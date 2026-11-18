@@ -5,7 +5,7 @@ import CarCard from "@/components/car-card";
 import CarFilters from "@/components/car-filters";
 import { BRANDS, FUEL_OPTIONS, TRANSMISSION_OPTIONS } from "@/lib/constants";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 20;
 
 export const metadata: Metadata = {
   title: "Comprar veículos",
