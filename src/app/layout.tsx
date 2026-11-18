@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { countUnreadMessages } from "@/lib/chat";
 import Header from "@/components/header";
 import CookiePreferences from "@/components/cookie-preferences";
 import MobileActions from "@/components/mobile-actions";
@@ -24,7 +23,6 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const session = await getSession();
-  const unread = session ? await countUnreadMessages().catch(() => 0) : 0;
 
   return (
     <html lang="pt-BR">
@@ -46,7 +44,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               ? { name: session.name, avatarUrl: session.avatarUrl }
               : null
           }
-          unreadCount={unread}
+          unreadCount={0}
         />
         <main id="conteudo-principal" tabIndex={-1} className="min-h-[60vh]">{children}</main>
         <Footer />

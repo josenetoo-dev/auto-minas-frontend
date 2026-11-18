@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import CarOwnerActions from "@/components/car-owner-actions";
 import HistoryBackButton from "@/components/history-back-button";
@@ -35,7 +36,16 @@ const statusLabel:Record<string,string>={
 };
 
 export default function MyAdsDashboard({ads}:{ads:Ad[]}) {
+  const router=useRouter();
   const [filter,setFilter]=useState<Filter>("all");
+
+  function openAd(event:React.MouseEvent<HTMLElement>|React.KeyboardEvent<HTMLElement>, id:number) {
+    const target=event.target as HTMLElement;
+    if(target.closest("a,button,summary,details,input,select,textarea,label")) return;
+    if("key" in event && event.key!=="Enter" && event.key!==" ") return;
+    event.preventDefault();
+    router.push(`/meus-anuncios/${id}`);
+  }
 
   const counts=useMemo(()=>({
     all:ads.length,
@@ -89,7 +99,15 @@ export default function MyAdsDashboard({ads}:{ads:Ad[]}) {
           )}
 
           {visible.map(ad=>(
-            <article key={ad.id} className="my-ad-card">
+            <article
+              key={ad.id}
+              className="my-ad-card is-clickable"
+              role="link"
+              tabIndex={0}
+              aria-label={`Gerenciar anúncio ${ad.brand} ${ad.model}`}
+              onClick={(event)=>openAd(event,ad.id)}
+              onKeyDown={(event)=>openAd(event,ad.id)}
+            >
               <div className="my-ad-main">
                 <Link href={`/meus-anuncios/${ad.id}`} className="my-ad-image">
                   {/* eslint-disable-next-line @next/next/no-img-element */}

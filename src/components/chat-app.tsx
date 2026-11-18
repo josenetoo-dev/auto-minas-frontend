@@ -104,6 +104,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
     let cancelled = false;
 
     const tick = async () => {
+      if (document.visibilityState !== "visible") return;
       try {
         const response = await fetch("/api/conversations");
         if (!response.ok) return;
@@ -115,7 +116,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
     };
 
     void tick();
-    const timer = window.setInterval(tick, 3000);
+    const timer = window.setInterval(tick, 12000);
 
     return () => {
       cancelled = true;
@@ -128,6 +129,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
     let cancelled = false;
 
     const load = async () => {
+      if (document.visibilityState !== "visible") return;
       try {
         const response = await fetch(`/api/conversations/${activeId}/messages`);
         if (!response.ok || cancelled) return;
@@ -139,7 +141,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
     };
 
     void load();
-    const timer = window.setInterval(load, 2500);
+    const timer = window.setInterval(load, 5000);
 
     return () => {
       cancelled = true;

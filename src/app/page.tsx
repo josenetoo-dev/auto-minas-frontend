@@ -118,7 +118,7 @@ export default async function HomePage() {
                 <Link href={`/carros/${car.id}`} key={car.id} className="home-reference-vehicle-card">
                   <div className="home-reference-vehicle-media">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={image} alt={`${car.brand} ${car.model}`} />
+                    <img src={image} alt={`${car.brand} ${car.model}`} loading="lazy" decoding="async" />
                     {car.status === "ativo" && <span className="home-published-badge">Publicado</span>}
                   </div>
                   <div className="home-reference-vehicle-info">

@@ -35,7 +35,7 @@ export default function CarCard({
       <Link href={`/carros/${car.id}`} className={`cars-result-card ${sold ? "is-sold" : ""}`}>
         <div className="cars-result-media">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={image} alt={`${car.brand} ${car.model} ${car.year}`} loading="lazy" />
+          <img src={image} alt={`${car.brand} ${car.model} ${car.year}`} loading="lazy" decoding="async" />
         </div>
 
         <div className="cars-result-copy">
@@ -80,6 +80,7 @@ export default function CarCard({
           src={image}
           alt={`${car.brand} ${car.model} ${car.year}`}
           loading="lazy"
+          decoding="async"
           className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${sold ? "grayscale" : ""}`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e12]/80 via-transparent to-transparent" />

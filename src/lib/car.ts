@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { allPages, backendFetch, getApiToken, type SpringPage } from "@/lib/backend";
 
 export type AdStatus = "ATIVO" | "PENDENTE" | "REJEITADO" | "PAUSADO" | "VENDIDO" | "ARQUIVADO" | "SUSPENSO";
@@ -55,42 +56,73 @@ export async function adPhotos(id:number, token?:string):Promise<BackendPhoto[]>
  const photoPage=await backendFetch<SpringPage<BackendPhoto>>(`/v1/anuncio/${id}/fotos?page=0&size=20`,{},token);
  return photoPage.content;
 }
+const cachedPublicCarDetail = unstable_cache(
+ async (id:number):Promise<CarData> => {
+  const ad=await backendFetch<BackendAd>(`/v1/anuncio/${id}`);
+  const photos=await adPhotos(id);
+  return fromBackendAd(ad,photos);
+ },
+ ["public-car-detail-v1"],
+ {revalidate:30},
+);
+
+const cachedPublicCarSummary = unstable_cache(
+ async (id:number):Promise<CarData> => {
+  const ad=await backendFetch<BackendAd>(`/v1/anuncio/${id}`);
+  return fromBackendAd(ad);
+ },
+ ["public-car-summary-v1"],
+ {revalidate:30},
+);
+
 export async function carById(id:number, token?:string):Promise<CarData> {
+ if(!token) return cachedPublicCarDetail(id);
  const ad=await backendFetch<BackendAd>(`/v1/anuncio/${id}`,{},token);
  const photos=await adPhotos(id,token);
  return fromBackendAd(ad,photos);
 }
+
+export async function carSummaryById(id:number, token?:string):Promise<CarData> {
+ if(!token) return cachedPublicCarSummary(id);
+ const ad=await backendFetch<BackendAd>(`/v1/anuncio/${id}`,{},token);
+ return fromBackendAd(ad);
+}
 export async function publicCars(maxPages=10):Promise<CarData[]> {
  const ads=await allPages<BackendAd>("/v1/anuncio",undefined,maxPages);
- return Promise.all(ads.filter(a=>a.status==="ATIVO").map(async ad=>{
-  try {return fromBackendAd(ad,await adPhotos(ad.id));}
-  catch {return fromBackendAd(ad);}
- }));
+ return ads.filter(a=>a.status==="ATIVO").map(ad=>fromBackendAd(ad));
 }
+const cachedFeaturedCars = unstable_cache(
+ async (limit:number):Promise<CarData[]> => {
+  const page=await backendFetch<SpringPage<BackendAd>>(`/v1/anuncio/destaques?page=0&size=${Math.max(1,Math.min(12,limit))}`);
+  return page.content.map(ad=>fromBackendAd(ad));
+ },
+ ["featured-cars-v2"],
+ {revalidate:30},
+);
+
 export async function featuredCars(limit=6):Promise<CarData[]> {
- const page=await backendFetch<SpringPage<BackendAd>>(`/v1/anuncio/destaques?page=0&size=${Math.max(1,Math.min(12,limit))}`);
- return Promise.all(page.content.map(async ad=>{
-  try{return fromBackendAd(ad,await adPhotos(ad.id));}
-  catch{return fromBackendAd(ad);}
- }));
+ return cachedFeaturedCars(limit);
 }
 export type PublicCarFilters={q?:string;tipo?:string;brand?:string;city?:string;state?:string;fuel?:string;transmission?:string;minPrice?:number;maxPrice?:number;yearMin?:number;sort?:string;page?:number};
+const cachedSearchPage = unstable_cache(
+ async (query:string):Promise<SpringPage<BackendAd>> => backendFetch<SpringPage<BackendAd>>(`/v1/anuncio/buscar?${query}`),
+ ["public-car-search-v2"],
+ {revalidate:20},
+);
+
 export async function searchPublicCars(filters:PublicCarFilters):Promise<{cars:CarData[];total:number;totalPages:number;page:number}> {
  const params=new URLSearchParams();
  const values:Record<string,string|undefined>={q:filters.q,tipo:filters.tipo,marca:filters.brand,cidade:filters.city,uf:filters.state,combustivel:filters.fuel?.toUpperCase(),cambio:filters.transmission?.toUpperCase(),precoMin:filters.minPrice?.toString(),precoMax:filters.maxPrice?.toString(),anoMin:filters.yearMin?.toString(),sort:filters.sort??"recentes",page:String(filters.page??0),size:"18"};
  for(const [key,value] of Object.entries(values))if(value)params.set(key,value);
- const result=await backendFetch<SpringPage<BackendAd>>(`/v1/anuncio/buscar?${params.toString()}`);
- const cars=await Promise.all(result.content.map(async ad=>{try{return fromBackendAd(ad,await adPhotos(ad.id));}catch{return fromBackendAd(ad);}}));
+ const result=await cachedSearchPage(params.toString());
+ const cars=result.content.map(ad=>fromBackendAd(ad));
  return {cars,total:result.totalElements,totalPages:result.totalPages,page:result.number};
 }
 export async function myCars():Promise<CarData[]> {
  const token=await getApiToken();
  if(!token) return [];
  const ads=await allPages<BackendAd>("/v1/anuncio/meus",token);
- return Promise.all(ads.map(async ad=>{
-  try{return fromBackendAd(ad,await adPhotos(ad.id,token));}
-  catch{return fromBackendAd(ad);}
- }));
+ return ads.map(ad=>fromBackendAd(ad));
 }
 
 export type CarFormInput={brand:string;model:string;version?:string|null;year:number;price:number;mileageKm:number;
