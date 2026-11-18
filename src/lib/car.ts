@@ -1,11 +1,13 @@
 import { unstable_cache } from "next/cache";
+import { BRANDS } from "@/lib/constants";
+import { HISTORY_QUESTIONS, completeHistory, normalizeHistory, type VehicleHistory } from "@/lib/vehicle-history";
 import { allPages, backendFetch, getApiToken, type SpringPage } from "@/lib/backend";
 
 export type AdStatus = "ATIVO" | "PENDENTE" | "REJEITADO" | "PAUSADO" | "VENDIDO" | "ARQUIVADO" | "SUSPENSO";
 export type BackendAd = {
  id:number; codigo:string; titulo:string; descricao:string; preco:number; marca:string; modelo:string; versao:string;
  ano:number; quilometragem:number; combustivel:string; cambio:string; cor:string; status:AdStatus;
- segundaMao:boolean; categoria:string; fotoCapaUrl:string|null; usuarioId:number; usuarioNome:string;
+ segundaMao:boolean; categoria:string; historicoVeiculo?:VehicleHistory|null; fotoCapaUrl:string|null; usuarioId:number; usuarioNome:string;
  criadoEm:string; veiculoId:number|null; cidade?:string|null; uf?:string|null; motivoRejeicao?:string|null; laudoCautelar?:string|null; documentacao:string; garantia:string;
 };
 type DemoPhoto = { model: string; brand: string; year: number; image: string; author: string; file: string; license: string };
@@ -20,7 +22,7 @@ export type CarData = {
  id:number;userId:number;name:string; brand:string;model:string;version:string;year:number;price:number;mileageKm:number;
  fuel:string;transmission:string;color:string;description:string;images:string[];imageIds:number[];
  status:string; statusApi:AdStatus; isDemo?:boolean; demoPhoto?:DemoPhoto; createdAt:string; city:string;state:string;vehicleId:number|null;rejectionReason:string|null;
- category:string;secondHand:boolean;documentation:string;warranty:string;inspectionReport:string;
+ category:string;secondHand:boolean;vehicleHistory:VehicleHistory|null;documentation:string;warranty:string;inspectionReport:string;
 };
 export type BackendPhoto = {id:number;url:string;ordem:number;tipoFoto:string;anuncioId:number};
 
@@ -48,7 +50,7 @@ export function fromBackendAd(ad:BackendAd, photos:BackendPhoto[]=[]):CarData {
   fuel:ad.combustivel.toLowerCase(),transmission:ad.cambio.toLowerCase(),color:ad.cor,
   description:ad.descricao, images:imgs,imageIds:photos.map(p=>p.id),status:fromApiStatus[ad.status]||"pendente",
   statusApi:ad.status, isDemo:ad.codigo?.startsWith("DEMO-") ?? false, createdAt:ad.criadoEm,city:ad.cidade ?? "",state:ad.uf ?? "",vehicleId:ad.veiculoId,rejectionReason:ad.motivoRejeicao??null,
-  category:ad.categoria,secondHand:ad.segundaMao,documentation:ad.documentacao,warranty:ad.garantia,inspectionReport:ad.laudoCautelar||"",
+  category:ad.categoria,secondHand:ad.segundaMao,vehicleHistory:ad.historicoVeiculo?normalizeHistory(ad.historicoVeiculo):null,documentation:ad.documentacao,warranty:ad.garantia,inspectionReport:ad.laudoCautelar||"",
  };
 }
 
@@ -126,26 +128,29 @@ export async function myCars():Promise<CarData[]> {
 }
 
 export type CarFormInput={brand:string;model:string;version?:string|null;year:number;price:number;mileageKm:number;
- fuel:string;transmission:string;color:string;city?:string;state?:string;description:string;category?:string;secondHand?:boolean;documentation?:string;warranty?:string;inspectionReport?:string;};
+ fuel:string;transmission:string;color:string;vehicleHistory:VehicleHistory;city?:string;state?:string;description:string;category?:string;secondHand?:boolean;documentation?:string;warranty?:string;inspectionReport?:string;};
 const fuelList=["GASOLINA","ETANOL","FLEX","DIESEL","ELETRICO","HIBRIDO"];
-const categoryList=["SEMINOVOS","PREMIUM","BLINDADOS","MOTOS","CONSIGNACAO"];
+const categoryList=["SEMINOVOS","PREMIUM","BLINDADOS","CONSIGNACAO"];
 const transmissionList=["MANUAL","AUTOMATICO","AUTOMATIZADO"];
 export function apiAdPayload(form:CarFormInput) {
  const combustivel=form.fuel.toUpperCase(), cambio=form.transmission.toUpperCase();
  if(!fuelList.includes(combustivel)||!transmissionList.includes(cambio)) throw new Error("Combustível ou câmbio não suportado pela API.");
  if(form.category && !categoryList.includes(form.category))throw new Error("Categoria inválida.");
  if(!form.brand?.trim()||!form.model?.trim()||!form.color?.trim()||!form.description?.trim())throw new Error("Preencha os dados obrigatórios.");
+ if(!BRANDS.some((brand)=>brand===form.brand.trim()))throw new Error("Marca de veículo inválida.");
+ if(!completeHistory(form.vehicleHistory))throw new Error("Responda ao histórico e às condições do veículo.");
+ if(HISTORY_QUESTIONS.some(({key})=>form.vehicleHistory[`detalhes${key.charAt(0).toUpperCase()}${key.slice(1)}` as keyof VehicleHistory]?.length>500))throw new Error("Detalhes do histórico excedem 500 caracteres.");
  const cidade=form.city?.trim() ?? "";
  const uf=form.state?.trim().toUpperCase() ?? "";
  const validUF=["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
  if(!cidade || cidade.length>100 || !validUF.includes(uf))
   throw new Error("Informe cidade e UF do veículo. A localização é declarada pelo anunciante.");
- if(!Number.isFinite(form.price)||form.price<=0||!Number.isFinite(form.year)||!Number.isFinite(form.mileageKm)||form.mileageKm<0)throw new Error("Preço, ano ou quilometragem inválidos.");
+ if(!Number.isFinite(form.price)||form.price<=0||!Number.isInteger(form.year)||form.year<1900||form.year>new Date().getFullYear()+1||!Number.isFinite(form.mileageKm)||form.mileageKm<0)throw new Error("Preço, ano ou quilometragem inválidos.");
  return {
-  marca:form.brand.trim(),modelo:form.model.trim(),versao:form.version?.trim()||"Não informada",
+  marca:form.brand.trim(),modelo:form.model.trim(),
   ano:form.year,preco:form.price,quilometragem:form.mileageKm,cor:form.color.trim(),combustivel,cambio,
   descricao:form.description.trim().slice(0,255),titulo:`${form.brand.trim()} ${form.model.trim()} ${form.year}`.slice(0,255),
   cidade,uf,
-  categoria:form.category||"SEMINOVOS",segundaMao:form.secondHand??true,documentacao:form.documentation?.trim()||"A verificar",garantia:form.warranty?.trim()||"Não informada",laudoCautelar:form.inspectionReport?.trim()||null,
+  categoria:form.category||"SEMINOVOS",historicoVeiculo:form.vehicleHistory,documentacao:form.documentation?.trim()||"A verificar",garantia:form.warranty?.trim()||"Não informada",laudoCautelar:form.inspectionReport?.trim()||null,
  };
 }
