@@ -7,11 +7,13 @@ import { useListingDocuments } from "@/components/listing-documents";
 import { BRANDS, FUEL_OPTIONS, TRANSMISSION_OPTIONS } from "@/lib/constants";
 import { formatPrice } from "@/lib/format";
 import HistoryBackButton from "@/components/history-back-button";
+import { HISTORY_QUESTIONS, HISTORY_OPTIONS, EMPTY_HISTORY, historyDetailKey, completeHistory, normalizeHistory, type VehicleHistory } from "@/lib/vehicle-history";
 
 export type SellFormData = {
   brand: string;
   model: string;
   version: string;
+  vehicleHistory: VehicleHistory;
   year: string;
   price: string;
   mileageKm: string;
@@ -34,6 +36,7 @@ const EMPTY: SellFormData = {
   brand: "",
   model: "",
   version: "",
+  vehicleHistory: { ...EMPTY_HISTORY },
   year: String(new Date().getFullYear()),
   price: "",
   mileageKm: "",
@@ -53,6 +56,10 @@ const EMPTY: SellFormData = {
 
 const UF_LIST = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"] as const;
 const MAX_FILE = 4 * 1024 * 1024;
+const YEARS = Array.from(
+  { length: new Date().getFullYear() + 2 - 1900 },
+  (_, i) => String(new Date().getFullYear() + 1 - i),
+);
 
 const STEPS = [
   { number: 1, short: "Dados", title: "Dados do veículo", subtitle: "Informe as informações principais do seu veículo." },
@@ -84,7 +91,7 @@ export default function SellForm({
   initialStep?: number;
 }) {
   const router = useRouter();
-  const [data, setData] = useState<SellFormData>({ ...EMPTY, ...initial });
+  const [data, setData] = useState<SellFormData>({ ...EMPTY, ...initial, vehicleHistory: normalizeHistory(initial?.vehicleHistory) });
   const [step, setStep] = useState(Math.min(6, Math.max(1, initialStep)));
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -100,6 +107,13 @@ export default function SellForm({
 
   function update(key: keyof SellFormData, value: string | boolean) {
     setData((old) => ({ ...old, [key]: value }));
+  }
+
+  function updateHistory(key: keyof VehicleHistory, value: string) {
+    setData((old) => ({
+      ...old,
+      vehicleHistory: { ...old.vehicleHistory, [key]: value },
+    }));
   }
 
   useEffect(() => {
@@ -133,14 +147,14 @@ export default function SellForm({
 
   function stepValid(target = step) {
     if (target === 1) {
-      return Boolean(data.brand.trim() && data.model.trim() && data.version.trim() && data.year && data.mileageKm);
+      return Boolean(data.brand.trim() && data.model.trim() && YEARS.includes(data.year) && data.mileageKm !== "");
     }
     if (target === 2) {
       return Boolean(data.fuel && data.transmission && data.color.trim() && data.category);
     }
     if (target === 3) return true;
     if (target === 4) {
-      return Boolean(Number(data.price) > 0 && data.description.trim().length >= 20);
+      return Boolean(Number(data.price) > 0 && data.description.trim().length >= 20 && completeHistory(data.vehicleHistory));
     }
     if (target === 5) {
       return Boolean(data.city.trim() && data.state);
@@ -176,6 +190,7 @@ export default function SellForm({
         year: Number(data.year),
         price: Number(data.price),
         mileageKm: Number(data.mileageKm),
+        vehicleHistory: data.vehicleHistory,
       };
       const payload = JSON.stringify(payloadObject);
 
@@ -266,7 +281,7 @@ export default function SellForm({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={reviewImage} alt="" />
             <div>
-              <strong>{data.brand} {data.model} {data.version}</strong>
+              <strong>{data.brand} {data.model}</strong>
               <span>{formatPrice(Number(data.price || 0))}</span>
             </div>
             <span className="sell-status-pill">Em análise</span>
@@ -361,8 +376,13 @@ export default function SellForm({
                 </select>
               </label>
               {input("Modelo", "model", { required: true, placeholder: "Ex.: Hilux" })}
-              {input("Versão", "version", { required: true, placeholder: "Ex.: SRX" })}
-              {input("Ano", "year", { type: "number", min: 1900, max: new Date().getFullYear() + 1, required: true })}
+              <label className="sell-field">
+                <span>Ano <em>*</em></span>
+                <select required value={data.year} onChange={(event) => update("year",event.target.value)}>
+                  <option value="" disabled>Selecione o ano</option>
+                  {YEARS.map((year) => <option key={year} value={year}>{year}</option>)}
+                </select>
+              </label>
               {input("Quilometragem", "mileageKm", { type: "number", min: 0, required: true, placeholder: "56300" })}
             </div>
           )}
@@ -393,18 +413,10 @@ export default function SellForm({
                   <option value="SEMINOVOS">Seminovos</option>
                   <option value="PREMIUM">Premium</option>
                   <option value="BLINDADOS">Blindados</option>
-                  <option value="MOTOS">Motos</option>
                   <option value="CONSIGNACAO">Consignação</option>
                 </select>
               </label>
 
-              <label className="sell-toggle-row">
-                <span>
-                  <strong>Veículo de segunda mão?</strong>
-                  <small>Marque se o veículo já teve proprietário anterior.</small>
-                </span>
-                <input type="checkbox" checked={data.secondHand} onChange={(event) => update("secondHand", event.target.checked)} />
-              </label>
             </div>
           )}
 
@@ -452,13 +464,6 @@ export default function SellForm({
             <div className="sell-price-step">
               {input("Preço do veículo", "price", { type: "number", min: 1, required: true, placeholder: "289900" })}
 
-              <div className="sell-condition-row">
-                <span>Condição do veículo</span>
-                <div>
-                  <button type="button" className={data.secondHand ? "is-active" : ""} onClick={() => update("secondHand", true)}>Usado</button>
-                  <button type="button" className={!data.secondHand ? "is-active" : ""} onClick={() => update("secondHand", false)}>Novo</button>
-                </div>
-              </div>
 
               <label className="sell-field">
                 <span>Descrição <em>*</em></span>
@@ -472,6 +477,38 @@ export default function SellForm({
                 />
                 <small>{data.description.length}/255</small>
               </label>
+
+
+              <fieldset className="sell-history-section">
+                <legend>Histórico e condições do veículo</legend>
+                <p>Informações declaradas pelo vendedor, não verificadas pelo Auto Minas. Responda às sete perguntas.</p>
+                {HISTORY_QUESTIONS.map(({key,label}) => (
+                  <div className="sell-history-question" key={key}>
+                    <label htmlFor={`history-${key}`}>
+                      {label} <em>*</em>
+                    </label>
+                    <select
+                      id={`history-${key}`}
+                      required
+                      value={data.vehicleHistory[key]}
+                      onChange={(event)=>updateHistory(key, event.target.value)}
+                    >
+                      <option value="" disabled>Selecione uma resposta</option>
+                      {HISTORY_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                    {data.vehicleHistory[key] === "SIM" && (
+                      <textarea
+                        maxLength={500}
+                        placeholder="Descreva o ocorrido (opcional)"
+                        value={data.vehicleHistory[historyDetailKey(key)]}
+                        onChange={(event)=>updateHistory(historyDetailKey(key), event.target.value)}
+                      />
+                    )}
+                  </div>
+                ))}
+              </fieldset>
 
               <div className="sell-fields-grid">
                 {input("Documentação informada", "documentation", { placeholder: "A verificar" })}
@@ -508,17 +545,17 @@ export default function SellForm({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={reviewImage} alt="" />
                 <div>
-                  <strong>{data.brand || "Marca"} {data.model || "Modelo"} {data.version}</strong>
+                  <strong>{data.brand || "Marca"} {data.model || "Modelo"}</strong>
                   <p>{data.year} · {data.fuel || "Combustível"} · {data.transmission || "Câmbio"}</p>
                   <span>{formatPrice(Number(data.price || 0))}</span>
                 </div>
               </div>
 
               {[
-                ["Dados do veículo", `${data.brand} · ${data.model} · ${data.version} · ${data.year} · ${data.mileageKm || 0} km`, 1],
+                ["Dados do veículo", `${data.brand} · ${data.model} · ${data.year} · ${data.mileageKm || 0} km`, 1],
                 ["Características", `${data.fuel || "—"} · ${data.transmission || "—"} · ${data.color || "—"} · ${data.category}`, 2],
                 ["Fotos", `${allPreviewImages.length} foto(s) adicionada(s)`, 3],
-                ["Preço e anúncio", `${formatPrice(Number(data.price || 0))} · ${data.secondHand ? "Usado" : "Novo"}`, 4],
+                ["Preço e anúncio", `${formatPrice(Number(data.price || 0))} · Histórico declarado`, 4],
                 ["Localização", `${data.city || "—"} · ${data.state || "—"}`, 5],
               ].map(([title, summary, target]) => (
                 <button key={String(title)} type="button" className="sell-review-row" onClick={() => setStep(Number(target))}>
