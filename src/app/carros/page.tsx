@@ -5,6 +5,7 @@ import { searchPublicCars } from "@/lib/car";
 import CarCard from "@/components/car-card";
 import CarFilters from "@/components/car-filters";
 import { BRANDS, FUEL_OPTIONS, TRANSMISSION_OPTIONS } from "@/lib/constants";
+import "@/styles/cars.css";
 
 export const revalidate = 20;
 
