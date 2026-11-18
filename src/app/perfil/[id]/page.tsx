@@ -4,6 +4,7 @@ import { backendFetch, BackendError } from "@/lib/backend";
 import { carSummaryById } from "@/lib/car";
 import { formatPrice } from "@/lib/format";
 import HistoryBackButton from "@/components/history-back-button";
+import "@/styles/account-plans.css";
 
 type Perfil = {
   nome: string;
