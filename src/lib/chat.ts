@@ -17,7 +17,7 @@ async function otherName(id:number,token:string):Promise<ChatOther>{
 export async function getConversationSummaries(userId:number):Promise<ChatSummary[]> {
  const token=await getApiToken();if(!token)return [];
  const [proposals, unread] = await Promise.all([allPages<BackendProposal>("/v1/proposta/minhas",token), unreadByProposal(token)]);
- const conversations = await Promise.all(proposals.map(async p=>{
+ const conversations:ChatSummary[] = await Promise.all(proposals.map(async p=>{
   const car=await carSafe(p.anuncio,token);
   const partnerId=p.comprador===userId?(car?.userId??0):p.comprador;
   const other=partnerId?await otherName(partnerId,token):{id:0,name:"Participante",avatarUrl:null};
