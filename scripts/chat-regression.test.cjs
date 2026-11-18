@@ -55,7 +55,7 @@ test('conversation identity includes the announcement',()=>{
  const route=fs.readFileSync('src/app/api/conversations/route.ts','utf8');
  assert.match(chat,/item\.carId/);
  assert.match(route,/item\.carId===data\.carId/);
- assert.match(chat,/candidate\.anuncio===p\.anuncio/);
+ assert.match(chat,/\/v1\/proposta\/\$\{id\}\/relacionadas/);
 });
 
 test('mobile chat gestures and zoom do not disable manual zoom',()=>{
@@ -64,5 +64,5 @@ test('mobile chat gestures and zoom do not disable manual zoom',()=>{
  assert.match(css,/touch-action:pan-y/);
  assert.match(css,/-webkit-overflow-scrolling:touch/);
  assert.match(global,/font-size: 16px !important/);
- assert.doesNotMatch(global,/user-scalable=no/);
+ assert.doesNotMatch(global.replace(/\/\*[\s\S]*?\*\//g,""),/user-scalable=no/);
 });
