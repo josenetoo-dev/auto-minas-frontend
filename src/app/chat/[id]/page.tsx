@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import ChatApp from "@/components/chat-app";
 import { getChatThread, getConversationSummaries } from "@/lib/chat";
 import { requireUser } from "@/lib/auth";
+import "@/styles/chat.css";
 
 export const dynamic = "force-dynamic";
 
