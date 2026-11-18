@@ -124,7 +124,7 @@ export default async function CarrosPage({
               <circle cx="11" cy="11" r="7" />
               <path d="M21 21l-4.35-4.35M8 11h6" />
             </svg>
-            <h2>Nenhum {tipo === "MOTO" ? "moto" : "carro"} encontrado</h2>
+            <h2>Nenhum carro encontrado</h2>
             <p>Tente ajustar os filtros ou buscar por outro modelo.</p>
             <Link href="/carros">Limpar filtros</Link>
           </div>
