@@ -414,6 +414,7 @@ export default function SellForm({
                   <option value="PREMIUM">Premium</option>
                   <option value="BLINDADOS">Blindados</option>
                   <option value="CONSIGNACAO">Consignação</option>
+                  {data.category === "MOTOS" && <option value="MOTOS" disabled>Categoria legada: Moto (não disponível)</option>}
                 </select>
               </label>
 
