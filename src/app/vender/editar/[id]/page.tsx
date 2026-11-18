@@ -4,6 +4,7 @@ import { getApiToken } from "@/lib/backend";
 import { getSession } from "@/lib/auth";
 import { carById } from "@/lib/car";
 import SellForm from "@/components/sell-form";
+import "@/styles/sell.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Editar anúncio" };
