@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { backendFetch } from "@/lib/backend";
 import VerificationsDashboard from "@/components/verifications-dashboard";
 import HistoryBackButton from "@/components/history-back-button";
+import "@/styles/account-plans.css";
 
 export const metadata: Metadata = { title: "Verificações" };
 
