@@ -12,7 +12,7 @@ export function mergeThread(previous:ChatThread | null, incoming:ChatThread):Cha
       const difference=Math.abs(new Date(server.createdAt).getTime()-new Date(item.createdAt).getTime());
       return difference <= 15000 && (
         server.content===item.content
-        || (item.content.startsWith("Imagem:") && !!server.attachment)
+        || (item.content?.startsWith("Imagem:") && !!server.attachment)
       );
     });
     return !confirmed;
