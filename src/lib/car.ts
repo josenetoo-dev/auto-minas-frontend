@@ -132,10 +132,10 @@ export type CarFormInput={brand:string;model:string;version?:string|null;year:nu
 const fuelList=["GASOLINA","ETANOL","FLEX","DIESEL","ELETRICO","HIBRIDO"];
 const categoryList=["SEMINOVOS","PREMIUM","BLINDADOS","CONSIGNACAO"];
 const transmissionList=["MANUAL","AUTOMATICO","AUTOMATIZADO"];
-export function apiAdPayload(form:CarFormInput) {
+export function apiAdPayload(form:CarFormInput, allowLegacyMoto = false) {
  const combustivel=form.fuel.toUpperCase(), cambio=form.transmission.toUpperCase();
  if(!fuelList.includes(combustivel)||!transmissionList.includes(cambio)) throw new Error("Combustível ou câmbio não suportado pela API.");
- if(form.category && !categoryList.includes(form.category))throw new Error("Categoria inválida.");
+ if(form.category && !categoryList.includes(form.category) && !(allowLegacyMoto && form.category==="MOTOS"))throw new Error("Categoria inválida.");
  if(!form.brand?.trim()||!form.model?.trim()||!form.color?.trim()||!form.description?.trim())throw new Error("Preencha os dados obrigatórios.");
  if(!BRANDS.some((brand)=>brand===form.brand.trim()))throw new Error("Marca de veículo inválida.");
  if(!completeHistory(form.vehicleHistory))throw new Error("Responda ao histórico e às condições do veículo.");
