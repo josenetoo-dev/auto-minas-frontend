@@ -4,10 +4,11 @@ import type { ChatThread } from "@/lib/chat";
 export function mergeThread(previous:ChatThread | null, incoming:ChatThread):ChatThread {
   if (!previous || previous.conversation.id !== incoming.conversation.id) return incoming;
   const ids=new Set(incoming.messages.map((item)=>item.id));
+  const alreadyShown=new Set(previous.messages.filter((item)=>item.id>0).map((item)=>item.id));
   const local=previous.messages.filter((item)=>{
     if(item.id>=0 || ids.has(item.id)) return false;
     const confirmed=incoming.messages.some((server)=>{
-      if(server.senderId!==item.senderId) return false;
+      if(server.senderId!==item.senderId || alreadyShown.has(server.id)) return false;
       const difference=Math.abs(new Date(server.createdAt).getTime()-new Date(item.createdAt).getTime());
       return difference <= 15000 && (
         server.content===item.content
