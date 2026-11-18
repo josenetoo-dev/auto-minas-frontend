@@ -41,6 +41,8 @@ function Avatar({ name, url, className = "h-8 w-8" }: { name: string; url: strin
 }
 
 export default function Header() {
+  const pathname = usePathname();
+  const router = useRouter();
   const [user, setUser] = useState<HeaderUser | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notice, setNotice] = useState("");
@@ -87,8 +89,6 @@ export default function Header() {
     void refresh();
     return ()=>{stopped=true;clearTimeout(timer);};
   },[accountName]);
-  const pathname = usePathname();
-  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
