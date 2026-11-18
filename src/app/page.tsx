@@ -2,7 +2,7 @@ import Link from "next/link";
 import { featuredCars } from "@/lib/car";
 import { formatPrice } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 const categories = [
   { label: "Carros", href: "/carros?tipo=CARRO", icon: "car" },
