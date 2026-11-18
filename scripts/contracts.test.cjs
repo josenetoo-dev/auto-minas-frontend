@@ -11,7 +11,17 @@ src=src.replace(/^import .*?from .*?;\n/gm,'');
 src=src.replace(/^export /gm,'');
 src+='\nmodule.exports={fromBackendAd,apiAdPayload};';
 const code=ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
-const context={module:{exports:{}},console};vm.runInNewContext(code,context);
+const historySource=fs.readFileSync('src/lib/vehicle-history.ts','utf8')
+ .replace(/^export /gm,'')+'\nmodule.exports={HISTORY_QUESTIONS,EMPTY_HISTORY,completeHistory,normalizeHistory};';
+const historyCode=ts.transpileModule(historySource,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+const historyContext={module:{exports:{}},console};
+vm.runInNewContext(historyCode,historyContext);
+const history=historyContext.module.exports;
+const validHistory=Object.fromEntries(history.HISTORY_QUESTIONS.map(({key})=>[key,'NAO_SEI_INFORMAR']));
+const context={module:{exports:{}},console,unstable_cache:fn=>fn,
+ BRANDS:['Chevrolet','Toyota'],
+ ...history};
+vm.runInNewContext(code,context);
 const {fromBackendAd,apiAdPayload}=context.module.exports;
 const ad={id:55,codigo:'AM-055',titulo:'Chevrolet Onix',descricao:'Carro de uso pessoal',preco:64900,
  marca:'Chevrolet',modelo:'Onix',versao:'LT',ano:2022,quilometragem:58000,combustivel:'FLEX',cambio:'MANUAL',cor:'Branco',
@@ -30,7 +40,7 @@ test('valid image URLs are proxied to same origin and arbitrary domains are neve
  assert.deepEqual(c.images,['/api/media/00000000-0000-4000-8000-000000000001.png']);assert.deepEqual(Array.from(c.imageIds),[12,13]);
 });
 test('ad creation payload uses names and enums of AnuncioRequest exactly',()=>{
- const p=apiAdPayload({brand:'Chevrolet',model:'Onix',version:'LT',year:2022,price:64900,mileageKm:58000,fuel:'flex',transmission:'manual',color:'Branco',city:'Várzea da Palma',state:'MG',description:'Carro revisado e em boas condições.'});
+ const p=apiAdPayload({brand:'Chevrolet',model:'Onix',version:'LT',year:2022,price:64900,mileageKm:58000,fuel:'flex',transmission:'manual',color:'Branco',city:'Várzea da Palma',state:'MG',vehicleHistory:validHistory,description:'Carro revisado e em boas condições.'});
  assert.equal(p.combustivel,'FLEX');assert.equal(p.cambio,'MANUAL');assert.equal(p.quilometragem,58000);
  assert.equal(p.preco,64900);assert.equal(p.categoria,'SEMINOVOS');assert.equal(p.titulo,'Chevrolet Onix 2022');
  assert.equal(p.documentacao,'A verificar');assert.equal(p.cidade,'Várzea da Palma');assert.equal(p.uf,'MG');
@@ -46,10 +56,21 @@ test('real listing location is mapped, legacy remains unknown',()=>{
 test('UF must be real and city cannot be missing',()=>{
  const base={brand:'Chevrolet',model:'Onix',year:2022,price:64900,mileageKm:58000,
   fuel:'flex',transmission:'manual',color:'Branco',
-  description:'Anúncio de veículo somente para testes de integração',state:'MG'};
+  description:'Anúncio de veículo somente para testes de integração',vehicleHistory:validHistory,state:'MG'};
  assert.throws(()=>apiAdPayload({...base,city:''}),/cidade e UF/);
  assert.throws(()=>apiAdPayload({...base,city:'Pirapora',state:'ZZ'}),/cidade e UF/);
  assert.equal(apiAdPayload({...base,city:'Pirapora',state:'MG'}).cidade,'Pirapora');
+});
+
+test('new listing rejects missing history, moto and placeholder brand',()=>{
+ const base={brand:'Chevrolet',model:'Onix',year:2022,price:64900,mileageKm:58000,
+  fuel:'flex',transmission:'manual',color:'Branco',city:'Pirapora',state:'MG',
+  description:'Histórico e condições declaradas com validação obrigatória',
+  vehicleHistory:validHistory};
+ assert.throws(()=>apiAdPayload({...base,vehicleHistory:undefined}),/histórico/);
+ assert.throws(()=>apiAdPayload({...base,category:'MOTOS'}),/Categoria/);
+ assert.throws(()=>apiAdPayload({...base,brand:'Selecione um carro'}),/Marca/);
+ assert.equal(apiAdPayload({...base}).historicoVeiculo.sinistro,'NAO_SEI_INFORMAR');
 });
 
 test('the frontend does not contain the original PostgreSQL Drizzle schema',()=>{
