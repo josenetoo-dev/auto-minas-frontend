@@ -13,7 +13,13 @@ export async function GET(_request:Request,{params}:{params:Promise<{filename:st
   if(!upstream.ok)return new Response(null,{status:upstream.status===401?404:upstream.status});
   const bytes=await upstream.arrayBuffer();
   const type=upstream.headers.get("Content-Type");
-  return new Response(bytes,{headers:{"Content-Type":type?.startsWith("image/")?type:"application/octet-stream",
-     "Cache-Control":"no-store, private","X-Content-Type-Options":"nosniff"}});
+  const cacheControl = token
+    ? "private, max-age=300, stale-while-revalidate=60"
+    : "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800";
+  return new Response(bytes,{headers:{
+    "Content-Type":type?.startsWith("image/")?type:"application/octet-stream",
+    "Cache-Control":cacheControl,
+    "X-Content-Type-Options":"nosniff"
+  }});
  }catch {return new Response(null,{status:503});}
 }
