@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChatMessageDTO, ChatSummary, ChatThread } from "@/lib/chat";
 import { formatClock, formatPrice, timeAgo } from "@/lib/format";
 import HistoryBackButton from "@/components/history-back-button";
+import { mergeThread } from "@/lib/chat-sync";
 
 type Props = {
   meId: number;
@@ -56,20 +57,6 @@ function dayLabel(iso: string) {
   if (sameDay(date, today)) return "Hoje";
   if (sameDay(date, yesterday)) return "Ontem";
   return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(date);
-}
-
-/** Não descarta envios otimistas/falhos quando chega atualização do servidor. */
-function mergeThread(previous:ChatThread | null, incoming:ChatThread):ChatThread {
-  if (!previous || previous.conversation.id !== incoming.conversation.id) return incoming;
-  const ids=new Set(incoming.messages.map((item)=>item.id));
-  const local=previous.messages.filter((item)=>item.id<0 && !ids.has(item.id));
-  return {
-    ...incoming,
-    messages:[...incoming.messages,...local].sort((a,b)=>{
-      const delta=new Date(a.createdAt).getTime()-new Date(b.createdAt).getTime();
-      return delta || a.id-b.id;
-    }),
-  };
 }
 
 export default function ChatApp({ meId, initialConversations, initialThread }: Props) {
