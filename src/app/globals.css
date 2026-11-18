@@ -8571,3 +8571,161 @@ body:has(.plans-reference-screen) {
     height:132px;
   }
 }
+
+
+/* ---------- Shell global: continuidade entre páginas ---------- */
+body:has(.site-global-hotbar) {
+  padding-bottom: calc(84px + env(safe-area-inset-bottom)) !important;
+}
+
+.site-global-hotbar {
+  z-index: 120;
+}
+
+.site-desktop-back {
+  display: none;
+}
+
+/* Todos os cards de anúncio devem comunicar e aceitar clique de forma previsível. */
+.home-reference-vehicle-card,
+.cars-result-card,
+.public-profile-car-card,
+.my-ad-card.is-clickable {
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: rgba(212,175,55,.14);
+}
+
+.home-reference-vehicle-card::before,
+.home-reference-vehicle-card::after,
+.cars-result-card::before,
+.cars-result-card::after,
+.public-profile-car-card::before,
+.public-profile-car-card::after,
+.my-ad-card.is-clickable::before,
+.my-ad-card.is-clickable::after {
+  pointer-events: none;
+}
+
+.home-reference-vehicle-card:focus-visible,
+.cars-result-card:focus-visible,
+.public-profile-car-card:focus-visible,
+.my-ad-card.is-clickable:focus-visible {
+  outline: 2px solid #f2d87e;
+  outline-offset: 3px;
+}
+
+.my-ad-card.is-clickable {
+  transition: border-color .18s ease, transform .18s ease, background-color .18s ease;
+}
+
+.my-ad-card.is-clickable:hover {
+  border-color: rgba(212,175,55,.42);
+  transform: translateY(-1px);
+}
+
+/* Imagens decorativas nunca devem interceptar cliques. */
+.home-reference-car,
+.home-reference-glow,
+.cars-reference-hero-car,
+.account-hub-car,
+.public-profile-hero-car,
+.ad-management-bottom-glow,
+.account-hub-bottom-glow,
+.plans-reference-glow,
+.subscription-reference-glow,
+.plan-intent-glow,
+.verification-reference-glow {
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .site-global-hotbar.home-bottom-nav {
+    display: grid !important;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    transform: none;
+  }
+}
+
+@media (min-width: 768px) {
+  body:has(.site-global-hotbar) {
+    padding-bottom: 112px !important;
+  }
+
+  .site-global-hotbar.home-bottom-nav {
+    right: auto;
+    bottom: 18px;
+    left: 50%;
+    display: grid !important;
+    width: min(580px, calc(100vw - 180px));
+    min-height: 70px;
+    transform: translateX(-50%);
+    overflow: hidden;
+    border: 1px solid rgba(212,175,55,.22);
+    border-radius: 18px;
+    background: rgba(10,10,9,.94);
+    padding: 7px 10px;
+    box-shadow:
+      0 18px 50px rgba(0,0,0,.5),
+      0 0 0 1px rgba(255,255,255,.025) inset;
+    backdrop-filter: blur(20px);
+  }
+
+  .site-global-hotbar .home-bottom-nav-item {
+    min-height: 54px;
+    font-size: .68rem;
+  }
+
+  .site-global-hotbar .home-bottom-nav-icon {
+    width: 34px;
+    height: 30px;
+  }
+
+  .site-desktop-back {
+    position: fixed;
+    z-index: 121;
+    bottom: 27px;
+    left: 20px;
+    display: inline-flex;
+    min-height: 52px;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(212,175,55,.25);
+    border-radius: 14px;
+    background: rgba(10,10,9,.94);
+    padding: 0 15px;
+    color: #f2d87e;
+    box-shadow: 0 14px 38px rgba(0,0,0,.42);
+    backdrop-filter: blur(18px);
+  }
+
+  .site-desktop-back > span {
+    font-size: 1.1rem;
+  }
+
+  .site-desktop-back > strong {
+    font-size: .72rem;
+    font-weight: 900;
+  }
+
+  .site-desktop-back:hover {
+    border-color: rgba(242,216,126,.5);
+    background: #15130c;
+  }
+
+  /* A navegação inferior é o elemento persistente do shell também no desktop. */
+  .home-bottom-nav {
+    display: grid !important;
+  }
+}
+
+@media (min-width: 1180px) {
+  .site-desktop-back {
+    left: max(24px, calc(50% - 410px));
+  }
+}
