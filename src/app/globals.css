@@ -4400,3 +4400,799 @@ body:has(.sell-wizard-screen) .home-bottom-nav-icon svg {
     grid-template-columns: repeat(5,minmax(0,1fr));
   }
 }
+
+
+/* ---------- Meus anúncios + perfil redesign ---------- */
+body:has(.my-ads-reference-screen),
+body:has(.account-reference-screen),
+body:has(.profile-edit-reference-screen) {
+  background: #070707;
+}
+body:has(.my-ads-reference-screen) > footer,
+body:has(.my-ads-reference-screen) > div[role="note"],
+body:has(.account-reference-screen) > footer,
+body:has(.account-reference-screen) > div[role="note"],
+body:has(.profile-edit-reference-screen) > footer,
+body:has(.profile-edit-reference-screen) > div[role="note"] {
+  display:none;
+}
+
+.my-ads-reference-screen,
+.account-reference-screen,
+.profile-edit-reference-screen {
+  position:relative;
+  width:min(100%,980px);
+  min-height:100dvh;
+  margin-inline:auto;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 84% 10%, rgba(212,175,55,.055), transparent 18rem),
+    linear-gradient(180deg,#090909 0%,#090909 82%,#151007 100%);
+  color:#f5f4ee;
+}
+
+.my-ads-topbar,
+.account-reference-topbar {
+  display:flex;
+  min-height:68px;
+  align-items:center;
+  gap:12px;
+  padding:0 14px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  background:rgba(9,9,9,.96);
+  backdrop-filter:blur(16px);
+}
+.my-ads-back,
+.account-reference-back {
+  display:grid;
+  width:40px;
+  height:40px;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:11px;
+  background:#11110f;
+  color:#efeee8;
+  font-size:1.2rem;
+}
+.my-ads-brand,
+.account-reference-brand {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  color:#f6f5ef;
+}
+.my-ads-brand span,
+.account-reference-brand span {
+  display:grid;
+  width:35px;
+  height:35px;
+  place-items:center;
+  border:2px solid #d4af37;
+  border-radius:50%;
+  color:#f2d87e;
+  font-size:.58rem;
+  font-style:italic;
+  font-weight:900;
+  letter-spacing:-.08em;
+}
+.my-ads-brand strong,
+.account-reference-brand strong {
+  font-size:1.08rem;
+  font-weight:900;
+}
+
+.my-ads-content {
+  position:relative;
+  z-index:2;
+  padding:24px 12px 120px;
+}
+.my-ads-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+.my-ads-heading h1 {
+  color:#f7f6f1;
+  font-size:2rem;
+  font-weight:900;
+  letter-spacing:-.045em;
+}
+.my-ads-heading p {
+  margin-top:5px;
+  color:#aaa9a2;
+  font-size:.83rem;
+}
+.my-ads-new-button {
+  display:inline-flex;
+  min-height:48px;
+  flex:none;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #f2d87e;
+  border-radius:12px;
+  background:linear-gradient(135deg,#f2d87e,#d4af37 55%,#aa8421);
+  padding:0 16px;
+  color:#171004;
+  font-size:.8rem;
+  font-weight:900;
+}
+
+.my-ads-tabs {
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  margin-top:24px;
+  padding-bottom:4px;
+  scrollbar-width:none;
+}
+.my-ads-tabs::-webkit-scrollbar {display:none}
+.my-ads-tabs button {
+  min-height:42px;
+  flex:0 0 auto;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:999px;
+  background:#11110f;
+  padding:0 15px;
+  color:#aaa9a2;
+  font-size:.7rem;
+  font-weight:800;
+}
+.my-ads-tabs button.is-active {
+  border-color:#d4af37;
+  background:rgba(212,175,55,.12);
+  color:#f2d87e;
+}
+
+.my-ads-list {
+  display:grid;
+  gap:12px;
+  margin-top:18px;
+}
+.my-ad-card {
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:15px;
+  background:
+    radial-gradient(circle at 94% 0%, rgba(212,175,55,.035), transparent 42%),
+    linear-gradient(180deg,#131312,#0f0f0e);
+  padding:10px;
+}
+.my-ad-main {
+  position:relative;
+  display:grid;
+  grid-template-columns:34% minmax(0,1fr) auto;
+  gap:10px;
+  align-items:start;
+}
+.my-ad-image {
+  overflow:hidden;
+  border-radius:10px;
+  background:#171716;
+}
+.my-ad-image img {
+  width:100%;
+  aspect-ratio:1.4/1;
+  object-fit:cover;
+}
+.my-ad-copy {
+  min-width:0;
+}
+.my-ad-title-row {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+.my-ad-title-row h2 {
+  color:#f4f3ed;
+  font-size:.82rem;
+  font-weight:900;
+  line-height:1.2;
+}
+.my-ad-title-row strong {
+  display:block;
+  margin-top:4px;
+  color:#f2d87e;
+  font-size:1rem;
+  font-weight:900;
+}
+.my-ad-status {
+  position:absolute;
+  right:26px;
+  top:0;
+  display:inline-flex;
+  min-height:27px;
+  align-items:center;
+  gap:5px;
+  border-radius:999px;
+  padding:0 8px;
+  font-size:.56rem;
+  font-weight:900;
+}
+.my-ad-status i {
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:currentColor;
+}
+.my-ad-status.status-ativo {
+  border:1px solid rgba(34,197,94,.2);
+  background:rgba(34,197,94,.12);
+  color:#6ee7a0;
+}
+.my-ad-status.status-pendente {
+  border:1px solid rgba(212,175,55,.22);
+  background:rgba(212,175,55,.12);
+  color:#f2d87e;
+}
+.my-ad-status.status-pausado {
+  border:1px solid rgba(148,163,184,.18);
+  background:rgba(148,163,184,.08);
+  color:#cbd5e1;
+}
+.my-ad-status.status-rejeitado,
+.my-ad-status.status-suspenso {
+  border:1px solid rgba(248,113,113,.22);
+  background:rgba(127,29,29,.15);
+  color:#fecaca;
+}
+.my-ad-status.status-vendido,
+.my-ad-status.status-arquivado {
+  border:1px solid rgba(255,255,255,.12);
+  background:#171716;
+  color:#a7a6a0;
+}
+.my-ad-date,
+.my-ad-location {
+  display:flex;
+  align-items:center;
+  gap:5px;
+  margin-top:7px;
+  color:#8e8d86;
+  font-size:.61rem;
+}
+.my-ad-menu {
+  position:relative;
+}
+.my-ad-menu summary {
+  display:grid;
+  width:24px;
+  height:30px;
+  cursor:pointer;
+  place-items:center;
+  color:#d8d6ce;
+  font-size:1.3rem;
+  list-style:none;
+}
+.my-ad-menu summary::-webkit-details-marker {display:none}
+.my-ad-menu > div {
+  position:absolute;
+  z-index:30;
+  right:0;
+  top:34px;
+  width:min(270px,82vw);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  background:#0d0d0c;
+  padding:10px;
+  box-shadow:0 22px 50px rgba(0,0,0,.55);
+}
+.my-ad-menu .grid {
+  grid-template-columns:1fr !important;
+}
+.my-ad-menu .btn-outline,
+.my-ad-menu button {
+  width:100%;
+}
+.my-ad-analysis-note,
+.my-ad-rejection-note {
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  margin-top:10px;
+  border-radius:11px;
+  padding:10px;
+}
+.my-ad-analysis-note {
+  border:1px solid rgba(212,175,55,.15);
+  background:rgba(212,175,55,.06);
+}
+.my-ad-analysis-note > span {
+  color:#f2d87e;
+  font-size:1rem;
+}
+.my-ad-analysis-note strong,
+.my-ad-rejection-note strong {
+  display:block;
+  color:#eeeDE7;
+  font-size:.68rem;
+}
+.my-ad-analysis-note small {
+  display:block;
+  margin-top:2px;
+  color:#9a9992;
+  font-size:.58rem;
+}
+.my-ad-rejection-note {
+  display:block;
+  border:1px solid rgba(248,113,113,.18);
+  background:rgba(127,29,29,.11);
+}
+.my-ad-rejection-note p {
+  margin-top:4px;
+  color:#fecaca;
+  font-size:.62rem;
+}
+.my-ad-verification-link {
+  display:inline-flex;
+  margin-top:10px;
+  color:#f2d87e;
+  font-size:.62rem;
+  font-weight:800;
+}
+.my-ads-empty {
+  border:1px dashed rgba(212,175,55,.22);
+  border-radius:14px;
+  padding:28px 18px;
+  text-align:center;
+}
+.my-ads-empty p {
+  color:#aaa9a2;
+  font-size:.78rem;
+}
+.my-ads-empty a {
+  display:inline-flex;
+  margin-top:10px;
+  color:#f2d87e;
+  font-size:.74rem;
+  font-weight:900;
+}
+.my-ads-bottom-glow,
+.account-reference-glow {
+  position:absolute;
+  z-index:0;
+  right:-10%;
+  bottom:-105px;
+  left:-10%;
+  height:210px;
+  border-top:2px solid rgba(212,175,55,.62);
+  border-radius:50% 50% 0 0;
+  box-shadow:0 -18px 60px rgba(212,175,55,.08);
+  pointer-events:none;
+}
+
+/* Perfil */
+body:has(.account-reference-screen),
+body:has(.profile-edit-reference-screen) {
+  padding-bottom:calc(66px + env(safe-area-inset-bottom));
+}
+.account-reference-content,
+.profile-edit-reference-content {
+  position:relative;
+  z-index:2;
+  padding:20px 14px 100px;
+}
+.account-reference-heading,
+.profile-edit-heading {
+  position:relative;
+  min-height:135px;
+  overflow:hidden;
+}
+.account-reference-heading h1,
+.profile-edit-heading h1 {
+  position:relative;
+  z-index:2;
+  color:#f7f6f1;
+  font-size:2rem;
+  font-weight:900;
+  letter-spacing:-.045em;
+}
+.account-reference-heading p,
+.profile-edit-heading p {
+  position:relative;
+  z-index:2;
+  max-width:28ch;
+  margin-top:7px;
+  color:#aaa9a2;
+  font-size:.82rem;
+  line-height:1.45;
+}
+.account-reference-car {
+  position:absolute;
+  right:-19%;
+  top:-22px;
+  width:59%;
+  height:145px;
+  pointer-events:none;
+}
+.account-reference-car img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:32% 50%;
+  opacity:.49;
+  filter:saturate(.2) sepia(.18) contrast(1.18) brightness(.62);
+  mix-blend-mode:screen;
+  mask-image:linear-gradient(90deg,transparent 0%,#000 30%,#000 100%);
+}
+
+.account-reference-identity {
+  display:grid;
+  place-items:center;
+  margin-top:-16px;
+  text-align:center;
+}
+.account-reference-avatar,
+.profile-edit-avatar {
+  position:relative;
+  display:grid;
+  width:102px;
+  height:102px;
+  place-items:center;
+  overflow:visible;
+  border:3px solid #d4af37;
+  border-radius:50%;
+  background:linear-gradient(135deg,#242015,#12100a);
+}
+.account-reference-avatar img,
+.profile-edit-avatar img {
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  object-fit:cover;
+}
+.account-reference-avatar > span,
+.profile-avatar-placeholder {
+  color:#d9d6ca;
+  font-size:2.4rem;
+}
+.account-reference-avatar i,
+.profile-edit-avatar i {
+  position:absolute;
+  right:-3px;
+  bottom:4px;
+  display:grid;
+  width:31px;
+  height:31px;
+  place-items:center;
+  border:2px solid #090909;
+  border-radius:50%;
+  background:#d4af37;
+  color:#171004;
+  font-size:.7rem;
+  font-style:normal;
+  font-weight:900;
+}
+.account-reference-identity h2 {
+  margin-top:10px;
+  color:#f6f5ef;
+  font-size:1.45rem;
+  font-weight:900;
+}
+.account-level-pill {
+  display:inline-flex;
+  min-height:30px;
+  align-items:center;
+  justify-content:center;
+  margin-top:7px;
+  border:1px solid rgba(212,175,55,.32);
+  border-radius:999px;
+  background:rgba(212,175,55,.09);
+  padding:0 10px;
+  color:#f2d87e;
+  font-size:.68rem;
+  font-weight:900;
+}
+.account-email-warning {
+  margin-top:8px;
+  color:#f2d87e;
+  font-size:.62rem;
+  font-weight:800;
+}
+
+.account-reference-menu {
+  display:grid;
+  gap:8px;
+  margin-top:22px;
+}
+.account-reference-menu > a {
+  display:grid;
+  grid-template-columns:36px minmax(0,1fr) auto;
+  min-height:64px;
+  align-items:center;
+  gap:10px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  background:linear-gradient(180deg,#151514,#10100f);
+  padding:9px 11px;
+}
+.account-menu-icon {
+  display:grid;
+  width:34px;
+  height:34px;
+  place-items:center;
+  border-radius:9px;
+  background:rgba(212,175,55,.06);
+  color:#d4af37;
+  font-size:1rem;
+}
+.account-reference-menu strong {
+  display:block;
+  color:#efeee8;
+  font-size:.76rem;
+}
+.account-reference-menu small {
+  display:block;
+  margin-top:2px;
+  color:#8f8e87;
+  font-size:.6rem;
+}
+.account-reference-menu b {
+  color:#c7c6bf;
+  font-size:1.5rem;
+  font-weight:400;
+}
+.account-reference-logout {
+  display:inline-flex;
+  width:100%;
+  min-height:48px;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  margin-top:20px;
+  border:1px solid rgba(248,113,113,.34);
+  border-radius:11px;
+  background:rgba(127,29,29,.08);
+  color:#fca5a5;
+  font-size:.78rem;
+  font-weight:900;
+}
+.account-reference-logout:disabled {opacity:.55}
+
+/* Editar perfil */
+.profile-edit-reference-form {
+  display:grid;
+  gap:13px;
+  margin-top:-18px;
+}
+.profile-edit-avatar-wrap {
+  display:grid;
+  place-items:center;
+  margin-bottom:4px;
+}
+.profile-edit-avatar {
+  cursor:pointer;
+}
+.profile-edit-avatar-wrap small {
+  margin-top:8px;
+  color:#8f8e87;
+  font-size:.6rem;
+}
+.profile-edit-field {
+  display:grid;
+  gap:6px;
+}
+.profile-edit-field > span {
+  color:#efeee8;
+  font-size:.73rem;
+  font-weight:900;
+}
+.profile-edit-field > div {
+  display:grid;
+  grid-template-columns:24px minmax(0,1fr);
+  min-height:48px;
+  align-items:center;
+  gap:9px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:10px;
+  background:linear-gradient(180deg,#171716,#111110);
+  padding:0 12px;
+}
+.profile-edit-field > div:focus-within {
+  border-color:#d4af37;
+  box-shadow:0 0 0 3px rgba(212,175,55,.08);
+}
+.profile-edit-field > div.is-readonly {
+  opacity:.78;
+}
+.profile-edit-field b {
+  color:#d8d6ce;
+  font-size:.9rem;
+  font-weight:400;
+}
+.profile-edit-field input {
+  width:100%;
+  min-width:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#f1f0ea;
+  font-size:.8rem;
+}
+.profile-edit-field small {
+  color:#77766f;
+  font-size:.58rem;
+  line-height:1.4;
+}
+.profile-edit-submit {
+  display:inline-flex;
+  min-height:52px;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  margin-top:7px;
+  border:1px solid #f2d87e;
+  border-radius:11px;
+  background:linear-gradient(135deg,#f2d87e,#d4af37 55%,#aa8421);
+  color:#171004;
+  font-size:.85rem;
+  font-weight:900;
+}
+.profile-edit-submit:disabled {opacity:.5}
+.profile-edit-success,
+.profile-edit-error {
+  border-radius:9px;
+  padding:9px 10px;
+  font-size:.68rem;
+}
+.profile-edit-success {
+  border:1px solid rgba(34,197,94,.2);
+  background:rgba(34,197,94,.07);
+  color:#86efac;
+}
+.profile-edit-error {
+  border:1px solid rgba(248,113,113,.22);
+  background:rgba(127,29,29,.12);
+  color:#fecaca;
+}
+
+body:has(.account-reference-screen) .home-bottom-nav,
+body:has(.profile-edit-reference-screen) .home-bottom-nav {
+  min-height:calc(64px + env(safe-area-inset-bottom));
+  padding:6px 6px calc(5px + env(safe-area-inset-bottom));
+}
+body:has(.account-reference-screen) .home-bottom-nav-item,
+body:has(.profile-edit-reference-screen) .home-bottom-nav-item {
+  gap:2px;
+  font-size:.58rem;
+}
+body:has(.account-reference-screen) .home-bottom-nav-icon,
+body:has(.profile-edit-reference-screen) .home-bottom-nav-icon {
+  width:29px;
+  height:27px;
+}
+body:has(.account-reference-screen) .home-bottom-nav-icon svg,
+body:has(.profile-edit-reference-screen) .home-bottom-nav-icon svg {
+  width:21px;
+  height:21px;
+}
+
+@media (max-width:420px) {
+  .my-ads-heading h1,
+  .account-reference-heading h1,
+  .profile-edit-heading h1 {
+    font-size:1.75rem;
+  }
+  .my-ads-new-button {
+    min-height:44px;
+    padding-inline:13px;
+    font-size:.7rem;
+  }
+  .my-ad-main {
+    grid-template-columns:35% minmax(0,1fr) auto;
+  }
+  .my-ad-status {
+    position:static;
+    width:max-content;
+    margin-top:6px;
+  }
+  .my-ad-title-row {
+    display:block;
+  }
+}
+
+@media (min-width:640px) {
+  .my-ads-content,
+  .account-reference-content,
+  .profile-edit-reference-content {
+    padding-inline:24px;
+  }
+  .my-ad-main {
+    grid-template-columns:180px minmax(0,1fr) auto;
+  }
+  .my-ad-image img {
+    aspect-ratio:16/10;
+  }
+}
+
+@media (min-width:768px) {
+  body:has(.account-reference-screen),
+  body:has(.profile-edit-reference-screen) {
+    padding-bottom:0;
+  }
+  .my-ads-reference-screen,
+  .account-reference-screen,
+  .profile-edit-reference-screen {
+    width:min(100% - 40px,1040px);
+    margin-block:22px 40px;
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:24px;
+  }
+  .my-ads-topbar,
+  .account-reference-topbar {
+    min-height:76px;
+    padding-inline:24px;
+    border-radius:24px 24px 0 0;
+  }
+  .my-ads-content {
+    padding:34px 32px 90px;
+  }
+  .my-ads-heading h1 {
+    font-size:2.5rem;
+  }
+  .my-ads-tabs {
+    margin-top:28px;
+  }
+  .my-ads-list {
+    gap:14px;
+  }
+  .my-ad-card {
+    padding:14px;
+  }
+  .my-ad-main {
+    grid-template-columns:210px minmax(0,1fr) auto;
+    gap:16px;
+  }
+  .my-ad-title-row h2 {
+    font-size:1.05rem;
+  }
+  .my-ad-title-row strong {
+    font-size:1.2rem;
+  }
+  .my-ad-date,
+  .my-ad-location {
+    font-size:.7rem;
+  }
+
+  .account-reference-content,
+  .profile-edit-reference-content {
+    max-width:700px;
+    margin-inline:auto;
+    padding:34px 30px 80px;
+  }
+  .account-reference-heading,
+  .profile-edit-heading {
+    min-height:165px;
+  }
+  .account-reference-heading h1,
+  .profile-edit-heading h1 {
+    font-size:2.5rem;
+  }
+  .account-reference-car {
+    right:-4%;
+    width:48%;
+    height:180px;
+  }
+  .account-reference-avatar,
+  .profile-edit-avatar {
+    width:118px;
+    height:118px;
+  }
+  .account-reference-menu > a {
+    min-height:72px;
+  }
+  .profile-edit-reference-form {
+    margin-top:-24px;
+  }
+}
+
+@media (min-width:1024px) {
+  .my-ads-content {
+    max-width:940px;
+    margin-inline:auto;
+  }
+  .account-reference-content,
+  .profile-edit-reference-content {
+    max-width:760px;
+  }
+}
