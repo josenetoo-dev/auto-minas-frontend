@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import SellerAdOnboarding from "@/components/seller-ad-onboarding";
 import { getSession } from "@/lib/auth";
+import "@/styles/sell.css";
 
 export const dynamic = "force-dynamic";
 
