@@ -55,21 +55,7 @@ export async function getChatThread(userId:number,id:number):Promise<ChatThread|
  const isBuyer=p.comprador===userId;
  const partnerId=isBuyer?(car?.userId??0):p.comprador;
  const other=partnerId?await otherName(partnerId,token):{id:0,name:"Participante",avatarUrl:null};
- const proposals=await allPages<BackendProposal>("/v1/proposta/minhas",token);
- const carCache=new Map<number,Promise<CarData|null>>([[p.anuncio,Promise.resolve(car)]]);
- const getCar=(adId:number)=>{
-  const cached=carCache.get(adId);
-  if(cached)return cached;
-  const pending=carSafe(adId,token);
-  carCache.set(adId,pending);
-  return pending;
- };
- const related = await Promise.all(proposals.map(async candidate=>{
-   const ad=await getCar(candidate.anuncio);
-   const partner=candidate.comprador===userId?ad?.userId:candidate.comprador;
-   return partnerId && partner===partnerId && candidate.anuncio===p.anuncio ? candidate.id : null;
- }));
- const ids=related.filter((value):value is number=>value!==null);
+ const ids = await backendFetch<number[]>(`/v1/proposta/${id}/relacionadas`,{},token);
  if(!ids.includes(id))ids.push(id);
  const messages=(await Promise.all(ids.map(proposalId=>allPages<BackendMessage>(`/v1/proposta/${proposalId}/mensagens`,token)))).flat();
  return {conversation:{id:p.id,carId:p.anuncio,myRole:isBuyer?"buyer":"seller",status:p.status,value:Number(p.valor)},
