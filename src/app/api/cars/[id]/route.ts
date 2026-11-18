@@ -18,7 +18,12 @@ export async function PATCH(request:Request,context:Ctx){
    const updated=await privateApi<BackendAd>(`/v1/anuncio/${id}/${suffix}`,{method:"POST",body:saleBody});
    return NextResponse.json({ok:true,id:updated.id,status:updated.status});
   }
-  const ad=await privateApi<BackendAd>(`/v1/anuncio/${id}`,{method:"PUT",body:JSON.stringify(apiAdPayload(body))});
+  // Não converte anúncios legados de moto silenciosamente em carros.
+  const previous=await privateApi<BackendAd>(`/v1/anuncio/${id}`);
+  const ad=await privateApi<BackendAd>(`/v1/anuncio/${id}`,{
+    method:"PUT",
+    body:JSON.stringify(apiAdPayload(body,previous.categoria==="MOTOS"))
+  });
   return NextResponse.json({ok:true,id:ad.id,status:ad.status});
  }catch(e){return clientError(e);}
 }
