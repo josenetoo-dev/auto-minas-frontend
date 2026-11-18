@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { featuredCars } from "@/lib/car";
 import { formatPrice } from "@/lib/format";
+import "@/styles/home.css";
 
 export const revalidate = 30;
 
