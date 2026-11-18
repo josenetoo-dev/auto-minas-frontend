@@ -505,9 +505,8 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
                       setSendError(null);
                       event.target.value = "";
                     }}
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 12 5-5a3 3 0 0 1 4 4l-7 7a5 5 0 0 1-7-7l8-8" /></svg>
-                  </input>
+                  />
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 12 5-5a3 3 0 0 1 4 4l-7 7a5 5 0 0 1-7-7l8-8" /></svg>
                 </label>
 
                 <textarea
