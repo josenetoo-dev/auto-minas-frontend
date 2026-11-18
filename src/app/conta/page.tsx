@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { requireUser } from "@/lib/auth";
 import Link from "next/link";
 import FotoPerfil from "@/components/foto-perfil";
-import EmailActivation from "@/components/email-activation";
 
 export const metadata: Metadata = { title: "Minha conta" };
 export default async function Account() {
@@ -36,7 +35,7 @@ export default async function Account() {
       </nav>
       <Link href="/privacidade/solicitacoes" className="mt-7 inline-flex min-h-11 items-center text-sm text-[#e4ca91] underline">Meus dados e pedidos de exclusão</Link>
       {user.role === "ADMIN" && <Link href="/moderacao/privacidade" className="ml-5 inline-flex min-h-11 items-center text-sm text-[#e4ca91] underline">Solicitações de privacidade</Link>}
-      {pending && <div className="mt-8"><EmailActivation /></div>}
+      {pending && <Link href="/verificar-email" className="btn-gold mt-8">Verificar meu e-mail</Link>}
       {(user.role === "ADMIN" || user.role === "REVIEWER") && <Link href="/moderacao" className="btn-outline mt-8">Abrir moderação</Link>}
     </div>
   </div>;
