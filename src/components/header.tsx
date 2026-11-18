@@ -48,7 +48,7 @@ export default function Header() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notice, setNotice] = useState("");
 
-  const hidden = pathname === "/login" || pathname === "/recuperar-senha" || pathname === "/verificar-email" || pathname === "/vender" || pathname === "/meus-anuncios" || /^\/meus-anuncios\/\d+$/.test(pathname) || pathname === "/chat" || /^\/chat\/\d+$/.test(pathname) || pathname === "/planos" || pathname === "/assinatura" || pathname === "/vender/planos" || pathname === "/verificacoes" || /^\/perfil\/\d+$/.test(pathname) || pathname === "/conta" || pathname === "/conta/editar" || pathname === "/moderacao" || pathname.startsWith("/moderacao/") || /^\/vender\/editar\/\d+$/.test(pathname) || /^\/carros\/\d+$/.test(pathname);
+  const hidden = pathname === "/login" || pathname === "/recuperar-senha" || pathname === "/verificar-email" || pathname === "/vender" || pathname === "/meus-anuncios" || /^\/meus-anuncios\/\d+$/.test(pathname) || pathname === "/chat" || /^\/chat\/\d+$/.test(pathname) || pathname === "/planos" || pathname === "/assinatura" || pathname === "/vender/planos" || pathname === "/verificacoes" || /^\/perfil\/\d+$/.test(pathname) || pathname === "/conta" || pathname === "/conta/editar" || pathname === "/moderacao" || pathname.startsWith("/moderacao/") || pathname === "/termos" || pathname === "/privacidade" || pathname.startsWith("/privacidade/") || pathname === "/cookies" || pathname === "/legal" || pathname === "/reembolsos" || pathname === "/feira" || /^\/vender\/editar\/\d+$/.test(pathname) || /^\/carros\/\d+$/.test(pathname);
 
   useEffect(() => {
     if (hidden) return;
