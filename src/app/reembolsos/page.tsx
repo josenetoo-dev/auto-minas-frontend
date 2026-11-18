@@ -1,4 +1,5 @@
 import LegalPage from "@/components/legal-page";
+import "@/styles/legal-info.css";
 export const metadata={title:"Cancelamento e reembolso"};
 export default function Refunds(){return <LegalPage title="Cancelamento e reembolso">
 <section><h2>Estado atual</h2><p>Pagamentos estão desativados. Preparar anúncio ou registrar intenção não gera cobrança. A demonstração não possui pagamentos a reembolsar. Se recebeu cobrança atribuída ao Auto Minas, confira a origem antes de fornecer dados ou efetuar novo pagamento.</p></section>
