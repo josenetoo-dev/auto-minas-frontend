@@ -22,16 +22,16 @@ test("anonymous users retain the selected plan through login and registration", 
   assert.match(authForm, /: \{ name, email, phone, password, next, termsAccepted \}/);
 });
 
-test("demonstrative acceptance is local and never calls the backend acceptance route", () => {
-  assert.match(flow, /function simulateAcceptance\(\) \{ if \(acknowledged\) setAccepted\(true\); \}/);
+test("the demo acknowledgement is local and does not activate a subscription", () => {
+  assert.match(flow, /checked=\{acknowledged\}/);
+  assert.match(flow, /setAcknowledged\(event\.target\.checked\)/);
   assert.doesNotMatch(flow, /contracts\/\$\{contract\.id\}\/accept/);
-  assert.match(flow, /disabled=\{!acknowledged \|\| accepted\}/);
-  assert.match(flow, /disabled=\{busy \|\| !!intent \|\| !accepted\}/);
-  assert.match(flow, /Nenhum aceite foi persistido e nenhuma assinatura foi ativada/);
+  assert.match(flow, /disabled=\{busy \|\| !!intent \|\| !acknowledged\}/);
+  assert.match(flow, /não é pagamento, não ativa assinatura/);
 });
 
 test("only the existing authenticated intent API is used, with server-side plan validation", () => {
-  assert.match(flow, /fetch\("\/api\/commercial\/intents", \{ method: "POST"/);
+  assert.match(flow, /fetch\("\/api\/commercial\/intents",\s*\{\s*method: "POST"/);
   assert.match(intentRoute, /\/v1\/assinaturas\/intencoes/);
   assert.match(intentRoute, /\["AVULSO", "RECORRENTE"\]/);
   assert.match(flow, /response\.json\(\)\.catch\(\(\) => \(\{\}\)\)/);

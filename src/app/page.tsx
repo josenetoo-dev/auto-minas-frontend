@@ -8,7 +8,6 @@ export const revalidate = 30;
 
 const categories = [
   { label: "Carros", href: "/carros?tipo=CARRO", icon: "car" },
-  { label: "Motos", href: "/carros?tipo=MOTO", icon: "moto" },
   { label: "Utilitários", href: "/carros?tipo=CARRO", icon: "utility" },
   { label: "Caminhões", href: "/carros?tipo=CARRO", icon: "truck" },
   { label: "Outros", href: "/carros", icon: "more" },
@@ -19,9 +18,6 @@ const brands = ["Volkswagen", "Chevrolet", "Fiat", "Toyota", "Hyundai"];
 function CategoryIcon({ type }: { type: (typeof categories)[number]["icon"] }) {
   if (type === "car") {
     return <><path d="M5 13l1.6-4.2A2 2 0 0 1 8.5 7.5h7a2 2 0 0 1 1.9 1.3L19 13"/><path d="M4 13h16v4H4z"/><circle cx="7" cy="17.5" r="1.5"/><circle cx="17" cy="17.5" r="1.5"/></>;
-  }
-  if (type === "moto") {
-    return <><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M8.5 17h5l-3-6h4l3.5 6M10.5 11l2-3h3"/></>;
   }
   if (type === "utility") {
     return <><path d="M3 8h12v9H3zM15 11h3l3 3v3h-6z"/><circle cx="7" cy="18" r="1.5"/><circle cx="18" cy="18" r="1.5"/></>;

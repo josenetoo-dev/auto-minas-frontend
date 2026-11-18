@@ -767,3 +767,57 @@ body:has(.chat-reference-screen.is-list) .home-bottom-nav-icon svg {
     max-width:62%;
   }
 }
+
+/* O container de mensagens, não o documento inteiro, é a região rolável.
+ * Os gestos pan-y devem funcionar sobre bolhas, avatares e espaços vazios. */
+.chat-thread-messages {
+  min-height:0;
+  flex:1 1 0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  touch-action:pan-y;
+  -webkit-overflow-scrolling:touch;
+}
+.chat-thread-message-row,
+.chat-thread-message-wrap,
+.chat-thread-bubble,
+.chat-thread-bubble p {
+  touch-action:pan-y;
+}
+.chat-reference-thread {
+  min-height:0;
+  overflow:hidden;
+}
+.chat-thread-header,
+.chat-thread-car-card,
+.chat-thread-quick-actions,
+.chat-thread-composer {
+  flex-shrink:0;
+}
+.chat-thread-composer {
+  position:relative;
+  z-index:2;
+}
+.chat-thread-bubble.is-pending {opacity:.64}
+.chat-thread-bubble.is-failed {border:1px solid rgba(248,113,113,.6)}
+.chat-thread-send-status {margin-top:3px;color:#d4af37;font-size:.65rem}
+.chat-thread-send-status.is-failed {color:#fca5a5}
+@media (max-width:767px) {
+  .chat-reference-screen.has-thread {
+    height:var(--chat-visual-height, 100dvh);
+    min-height:0;
+    overflow:hidden;
+    margin:0;
+  }
+  .chat-reference-screen.has-thread .chat-reference-thread {
+    display:flex;
+    height:100%;
+    min-height:0;
+    overflow:hidden;
+  }
+  .chat-reference-screen.has-thread .chat-thread-messages {
+    flex:1 1 0;
+    min-height:0;
+    max-height:none;
+  }
+}

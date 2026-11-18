@@ -25,10 +25,13 @@ type Props = {
   total: number;
 };
 
-const YEAR_OPTIONS = ["2015", "2018", "2020", "2022", "2023", "2024", "2025"];
+const YEAR_OPTIONS = Array.from({length:new Date().getFullYear()+2-1900},(_,i)=>String(new Date().getFullYear()+1-i));
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
 export default function CarFilters({ initial, brands, fuelOptions, transmissionOptions, total }: Props) {
+  const validBrands = useMemo(() => [...new Set(brands.map((b) => b.trim()).filter((b) =>
+    b.length > 1 && !/^(selecione( um| uma)? (carro|marca|veículo)?|marca|todas?)$/i.test(b)
+  ))], [brands]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [state, setState] = useState<FilterState>(initial);
@@ -36,11 +39,18 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
   const [typing, setTyping] = useState(initial.q);
 
   useEffect(() => {
-    setState(initial);
-    setTyping(initial.q);
+    let canceled = false;
+    queueMicrotask(() => {
+      if (!canceled) {
+        setState(initial);
+        setTyping(initial.q);
+      }
+    });
+    return () => { canceled = true; };
   }, [initial]);
 
   function navigate(next: FilterState) {
+    next = { ...next, brand: validBrands.includes(next.brand) ? next.brand : "", tipo:"CARRO" };
     const params = new URLSearchParams(searchParams.toString());
     Object.entries(next).forEach(([key, value]) => {
       if (value) params.set(key, value);
@@ -83,7 +93,6 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
   }
 
   const activeCount = useMemo(() =>
-    (state.tipo === "MOTO" ? 1 : 0) +
     (state.brand ? 1 : 0) +
     (state.city ? 1 : 0) +
     (state.state ? 1 : 0) +
@@ -110,7 +119,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
           <input
             value={typing}
             onChange={(event) => setTyping(event.target.value)}
-            placeholder="Busque por marca, modelo ou versão..."
+            placeholder="Busque por marca ou modelo..."
           />
         </form>
 
@@ -134,13 +143,6 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
           </button>
           <button
             type="button"
-            className={`cars-filter-chip ${state.tipo === "MOTO" ? "is-active" : ""}`}
-            onClick={() => quickApply({ tipo: "MOTO" })}
-          >
-            Motos
-          </button>
-          <button
-            type="button"
             className={`cars-filter-chip ${state.maxPrice === "70000" ? "is-active" : ""}`}
             onClick={() => quickApply({ minPrice: "", maxPrice: state.maxPrice === "70000" ? "" : "70000" })}
           >
@@ -154,7 +156,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
               <span>Marca</span>
               <select value={state.brand} onChange={(e) => setState((prev) => ({ ...prev, brand: e.target.value }))}>
                 <option value="">Todas</option>
-                {brands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}
+                {validBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}
               </select>
             </label>
 

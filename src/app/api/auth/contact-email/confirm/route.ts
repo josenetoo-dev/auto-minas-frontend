@@ -14,8 +14,8 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json() as { token?: string };
-    if (!body.token?.trim()) {
-      return NextResponse.json({ error: "Informe o código de confirmação." }, { status: 400 });
+    if (!body.token || !/^[0-9]{6}$/.test(body.token)) {
+      return NextResponse.json({ error: "Informe os 6 dígitos do código." }, { status: 400 });
     }
 
     const result = await backendFetch<{ token: string }>(

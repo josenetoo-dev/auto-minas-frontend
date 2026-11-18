@@ -2112,3 +2112,9 @@ body:has(.plans-reference-screen) {
     height:132px;
   }
 }
+
+.plans-reference-locked {
+  display:flex;min-height:38px;align-items:center;justify-content:center;
+  margin-top:12px;border:1px solid rgba(255,255,255,.1);border-radius:9px;
+  color:#8a8983;font-size:.62rem;font-weight:700;text-align:center;
+}

@@ -32,6 +32,7 @@ export default async function Edit({ params, searchParams }: { params: Promise<{
         brand: car.brand,
         model: car.model,
         version: car.version,
+        vehicleHistory: car.vehicleHistory ?? undefined,
         year: String(car.year),
         price: String(car.price),
         mileageKm: String(car.mileageKm),

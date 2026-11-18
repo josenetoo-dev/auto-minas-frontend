@@ -4,7 +4,7 @@ import { carSummaryById, type CarData } from "@/lib/car";
 export type ChatOther = {id:number;name:string;avatarUrl:string|null};
 export type ChatCar = {id:number;brand:string;model:string;year:number;price:number;image:string|null;status:string};
 export type ChatSummary = {id:number;carId:number;car:ChatCar|null;other:ChatOther;lastMessage:string|null;lastAt:string;unread:number;status:string;value:number;myRole:"buyer"|"seller"};
-export type ChatMessageDTO={id:number;proposalId?:number;senderId:number;content:string|null;createdAt:string;readAt:string|null;deleted?:boolean;attachment?:{name:string;mime:string;size:number;url:string}};
+export type ChatMessageDTO={id:number;proposalId?:number;pending?:boolean;failed?:boolean;senderId:number;content:string|null;createdAt:string;readAt:string|null;deleted?:boolean;attachment?:{name:string;mime:string;size:number;url:string}};
 export type ChatThread={conversation:{id:number;carId:number;myRole:"buyer"|"seller";status:string;value:number};car:ChatCar|null;other:ChatOther|null;messages:ChatMessageDTO[]};
 export type BackendProposal={id:number;valor:number;descricao:string;status:string;criadoEm:string;anuncio:number;comprador:number;contrapropostaValor:number|null;contrapropostaDescricao:string|null;contrapropostaFeita:boolean};
 export type BackendMessage={id:number;propostaId:number;remetenteId:number;remetenteNome:string;conteudo:string|null;criadoEm:string;lidaEm?:string|null;excluida?:boolean;arquivoNome?:string|null;tipoMidia?:string|null;arquivoTamanho?:number|null;anexoDisponivel?:boolean};
@@ -39,9 +39,9 @@ export async function getConversationSummaries(userId:number):Promise<ChatSummar
   const other=partnerId?await getOther(partnerId):{id:0,name:"Participante",avatarUrl:null};
   return {id:p.id,carId:p.anuncio,car:chatCar(car),other,lastMessage:p.descricao,lastAt:p.criadoEm,unread:unread[p.id] ?? 0,status:p.status,value:Number(p.valor),myRole:p.comprador===userId?"buyer":"seller"};
  }));
- const grouped = new Map<number,ChatSummary>();
+ const grouped = new Map<string,ChatSummary>();
  for (const item of conversations.sort((a,b)=>a.id-b.id)) {
-  const key=item.other.id || -item.id;
+  const key=`${item.myRole}:${item.other.id || -item.id}:${item.carId}`;
   const existing=grouped.get(key);
   if(existing) existing.unread += item.unread;
   else grouped.set(key,item);
@@ -55,21 +55,7 @@ export async function getChatThread(userId:number,id:number):Promise<ChatThread|
  const isBuyer=p.comprador===userId;
  const partnerId=isBuyer?(car?.userId??0):p.comprador;
  const other=partnerId?await otherName(partnerId,token):{id:0,name:"Participante",avatarUrl:null};
- const proposals=await allPages<BackendProposal>("/v1/proposta/minhas",token);
- const carCache=new Map<number,Promise<CarData|null>>([[p.anuncio,Promise.resolve(car)]]);
- const getCar=(adId:number)=>{
-  const cached=carCache.get(adId);
-  if(cached)return cached;
-  const pending=carSafe(adId,token);
-  carCache.set(adId,pending);
-  return pending;
- };
- const related = await Promise.all(proposals.map(async candidate=>{
-   const ad=await getCar(candidate.anuncio);
-   const partner=candidate.comprador===userId?ad?.userId:candidate.comprador;
-   return partnerId && partner===partnerId ? candidate.id : null;
- }));
- const ids=related.filter((value):value is number=>value!==null);
+ const ids = await backendFetch<number[]>(`/v1/proposta/${id}/relacionadas`,{},token);
  if(!ids.includes(id))ids.push(id);
  const messages=(await Promise.all(ids.map(proposalId=>allPages<BackendMessage>(`/v1/proposta/${proposalId}/mensagens`,token)))).flat();
  return {conversation:{id:p.id,carId:p.anuncio,myRole:isBuyer?"buyer":"seller",status:p.status,value:Number(p.valor)},

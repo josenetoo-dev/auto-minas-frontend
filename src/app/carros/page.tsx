@@ -34,7 +34,8 @@ export default async function CarrosPage({
 }) {
   const sp = await searchParams;
   const q = str(sp.q)?.trim() || undefined;
-  const brand = str(sp.brand) || undefined;
+  const rawBrand = str(sp.brand)?.trim();
+  const brand = rawBrand && BRANDS.includes(rawBrand as typeof BRANDS[number]) ? rawBrand : undefined;
   const city = str(sp.city)?.trim() || undefined;
   const state = str(sp.state) || undefined;
   const fuel = str(sp.fuel) || undefined;
@@ -43,7 +44,7 @@ export default async function CarrosPage({
   const maxPrice = num(sp.maxPrice);
   const yearMin = num(sp.yearMin);
   const sort = str(sp.sort) || "recentes";
-  const tipo = str(sp.tipo) === "MOTO" ? "MOTO" : "CARRO";
+  const tipo = "CARRO";
   const page = Math.max(0, num(sp.page) ?? 0);
 
   const catalog = await searchPublicCars({
@@ -123,7 +124,7 @@ export default async function CarrosPage({
               <circle cx="11" cy="11" r="7" />
               <path d="M21 21l-4.35-4.35M8 11h6" />
             </svg>
-            <h2>Nenhum {tipo === "MOTO" ? "moto" : "carro"} encontrado</h2>
+            <h2>Nenhum carro encontrado</h2>
             <p>Tente ajustar os filtros ou buscar por outro modelo.</p>
             <Link href="/carros">Limpar filtros</Link>
           </div>

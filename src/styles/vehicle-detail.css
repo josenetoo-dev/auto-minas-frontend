@@ -710,3 +710,15 @@ body:has(.vehicle-detail-screen) > div[role="note"] {
     padding-inline: 24px;
   }
 }
+
+.vehicle-history-card {
+  margin:14px 12px;padding:16px;border:1px solid rgba(212,175,55,.2);
+  border-radius:15px;background:linear-gradient(160deg,#181710,#10100e);
+}
+.vehicle-history-card h2 {color:#f2d87e;font-size:1rem;font-weight:800}
+.vehicle-history-card > p {margin-top:7px;color:#aaa9a2;font-size:.78rem;line-height:1.5}
+.vehicle-history-card dl {display:grid;gap:10px;margin-top:14px}
+.vehicle-history-card dl > div {border-top:1px solid rgba(255,255,255,.08);padding-top:9px}
+.vehicle-history-card dt {color:#eeeae0;font-size:.78rem}
+.vehicle-history-card dd {margin-top:4px;color:#f2d87e;font-size:.8rem;font-weight:800}
+.vehicle-history-card dd.vehicle-history-detail {color:#a9a9a2;font-weight:500;white-space:pre-wrap}

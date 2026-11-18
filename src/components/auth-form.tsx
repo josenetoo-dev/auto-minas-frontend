@@ -47,15 +47,22 @@ export default function AuthForm({
           : null;
 
   useEffect(() => {
-    setMode(initialMode);
+    let canceled = false;
+    queueMicrotask(() => { if (!canceled) setMode(initialMode); });
+    return () => { canceled = true; };
   }, [initialMode]);
 
   useEffect(() => {
     const remembered = window.localStorage.getItem("auto-minas-login-email");
-    if (remembered) {
-      setEmail(remembered);
-      setRememberEmail(true);
-    }
+    if (!remembered) return;
+    let canceled = false;
+    queueMicrotask(() => {
+      if (!canceled) {
+        setEmail(remembered);
+        setRememberEmail(true);
+      }
+    });
+    return () => { canceled = true; };
   }, []);
 
   function changeMode(nextMode: Mode) {

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChatMessageDTO, ChatSummary, ChatThread } from "@/lib/chat";
 import { formatClock, formatPrice, timeAgo } from "@/lib/format";
 import HistoryBackButton from "@/components/history-back-button";
+import { mergeThread } from "@/lib/chat-sync";
 
 type Props = {
   meId: number;
@@ -71,7 +72,9 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
   const [sendError, setSendError] = useState<string | null>(null);
   const [deletingMessage, setDeletingMessage] = useState<number | null>(null);
   const [clientNow, setClientNow] = useState<number | null>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
+  const chatRootRef = useRef<HTMLDivElement>(null);
+  const previousThreadId = useRef<number | null>(null);
 
   const totalUnread = conversations.reduce((sum, item) => sum + item.unread, 0);
 
@@ -127,25 +130,64 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
   useEffect(() => {
     if (!activeId) return;
     let cancelled = false;
+    let loading = false;
+    let source: EventSource | null = null;
 
     const load = async () => {
-      if (document.visibilityState !== "visible") return;
+      if (cancelled || loading || document.visibilityState !== "visible") return;
+      loading = true;
       try {
-        const response = await fetch(`/api/conversations/${activeId}/messages`);
+        const response = await fetch(`/api/conversations/${activeId}/messages`, {cache:"no-store"});
         if (!response.ok || cancelled) return;
         const data: ChatThread = await response.json();
-        if (!cancelled) setThread(data);
+        if (!cancelled) setThread((current)=>mergeThread(current,data));
       } catch {
-        // mantém a conversa atual quando o polling falha
+        // Mantém mensagens locais. A próxima reconexão sincroniza novamente.
+      } finally {
+        loading = false;
       }
     };
 
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void load();
+    };
     void load();
-    const timer = window.setInterval(load, 5000);
+
+    // EventSource reconecta automaticamente quando perde a conexão.
+    // A API só emite mudanças após commit, nunca conteúdo sem autorização.
+    source = new EventSource(`/api/conversations/${activeId}/stream`);
+    source.addEventListener("ready", () => void load());
+    source.addEventListener("changed", () => void load());
+
+    // Recuperação para queda de stream, deploy, clientes suspensos e mensagens legadas.
+    const timer = window.setInterval(() => void load(), 12000);
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
 
     return () => {
       cancelled = true;
+      source?.close();
       window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
+  }, [activeId]);
+
+  useEffect(() => {
+    if (!activeId || !window.visualViewport) return;
+    const viewport = window.visualViewport;
+    const sync = () => {
+      chatRootRef.current?.style.setProperty(
+        "--chat-visual-height",
+        `${Math.floor(viewport.height)}px`,
+      );
+    };
+    sync();
+    viewport.addEventListener("resize",sync);
+    viewport.addEventListener("scroll",sync);
+    return () => {
+      viewport.removeEventListener("resize",sync);
+      viewport.removeEventListener("scroll",sync);
     };
   }, [activeId]);
 
@@ -184,7 +226,12 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
   }, [thread, activeId, meId]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "auto", block: "nearest" });
+    const node = messagesRef.current;
+    if (!node) return;
+    const switched = previousThreadId.current !== activeId;
+    previousThreadId.current = activeId;
+    const nearBottom = node.scrollHeight-node.scrollTop-node.clientHeight < 250;
+    if (switched || nearBottom) node.scrollTop = node.scrollHeight;
   }, [thread?.messages.length, activeId]);
 
   function openConversation(id: number) {
@@ -210,6 +257,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
     const tempId = -Date.now();
     const temp: ChatMessageDTO = {
       id: tempId,
+      pending: true,
       senderId: meId,
       content: selectedFile ? `Imagem: ${selectedFile.name}` : content,
       createdAt: new Date().toISOString(),
@@ -246,13 +294,10 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
         current
           ? {
               ...current,
-              messages: current.messages.map((message) =>
-                message.id === tempId
-                  ? data.message.attachment
-                    ? data.message
-                    : { ...data.message, attachment: undefined }
-                  : message,
-              ),
+              messages: [
+                ...current.messages.filter((message)=>message.id!==tempId && message.id!==data.message.id),
+                { ...data.message, pending:false, failed:false },
+              ].sort((a,b)=>new Date(a.createdAt).getTime()-new Date(b.createdAt).getTime()),
             }
           : current,
       );
@@ -261,7 +306,9 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
       setInput("");
     } catch (cause) {
       setThread((current) =>
-        current ? { ...current, messages: current.messages.filter((message) => message.id !== tempId) } : current,
+        current ? { ...current, messages: current.messages.map((message) =>
+          message.id === tempId ? {...message,pending:false,failed:true} : message
+        ) } : current,
       );
       if (content) setInput(content);
       setSendError(cause instanceof Error ? cause.message : "Falha de conexão. Tente novamente.");
@@ -304,7 +351,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
   const myRole = thread?.conversation.myRole;
 
   return (
-    <div className={`chat-reference-screen ${activeId ? "has-thread" : "is-list"}`}>
+    <div ref={chatRootRef} className={`chat-reference-screen ${activeId ? "has-thread" : "is-list"}`}>
       <aside className={`chat-reference-list ${activeId ? "is-hidden-mobile" : ""}`}>
         <header className="chat-reference-brandbar">
           <Link href="/" className="chat-reference-brand">
@@ -416,7 +463,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
               </Link>
             )}
 
-            <div className="chat-thread-messages">
+            <div ref={messagesRef} className="chat-thread-messages">
               {thread.messages.length === 0 && (
                 <div className="chat-thread-empty">
                   Diga olá para <strong>{other.name}</strong> e comece a negociar.
@@ -436,7 +483,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
                       {!mine && <Avatar name={other.name} url={other.avatarUrl} className="chat-message-avatar" />}
 
                       <div className="chat-thread-message-wrap">
-                        <div className="chat-thread-bubble">
+                        <div className={`chat-thread-bubble ${message.pending ? "is-pending" : ""} ${message.failed ? "is-failed" : ""}`}>
                           {message.attachment && !message.deleted && (
                             <a href={message.attachment.url} download className="chat-thread-attachment">
                               Imagem · {message.attachment.name}
@@ -446,9 +493,21 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
                           <span>
                             {formatClock(message.createdAt)}
                             {mine && message.id > 0 && <b>{message.readAt ? "✓✓" : "✓"}</b>}
+                            {mine && message.pending && <b>Enviando…</b>}
+                            {mine && message.failed && <b>Falha</b>}
                           </span>
                         </div>
 
+                        {mine && message.failed && (
+                          <button type="button" className="chat-thread-send-status is-failed" onClick={() => {
+                            setThread((current)=>current
+                              ? {...current,messages:current.messages.filter((item)=>item.id!==message.id)}
+                              : current);
+                            if (message.content && !message.content.startsWith("Imagem:")) setInput(message.content);
+                          }}>
+                            Reenviar mensagem
+                          </button>
+                        )}
                         {mine &&
                           message.id > 0 &&
                           !message.deleted &&
@@ -468,7 +527,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
                   </div>
                 );
               })}
-              <div ref={bottomRef} />
+
             </div>
 
             <div className="chat-thread-quick-actions">

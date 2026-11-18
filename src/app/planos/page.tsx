@@ -63,14 +63,20 @@ export default async function PlanosPage() {
           {!plans && <p role="alert" className="plans-reference-error">Não foi possível carregar os planos.</p>}
 
           <div className="plans-reference-grid">
-            {plans?.map((plan) => (
-              <PlanCard
-                key={plan.codigo}
-                plan={plan}
-                href={`/vender/planos?plano=${encodeURIComponent(plan.codigo)}`}
-                active={current?.codigoPlano === plan.codigo}
-              />
-            ))}
+            {plans?.filter((plan) => plan.codigo !== current?.codigoPlano).map((plan) => {
+              const comparable = current?.periodicidade === "MENSAL" && plan.periodicidade === "MENSAL";
+              const upgrade = Boolean(comparable && current && Number(plan.mensalidade)>Number(current.mensalidade));
+              const downgradeBlocked = Boolean(comparable && current && Number(plan.mensalidade)<=Number(current.mensalidade));
+              return (
+                <PlanCard
+                  key={plan.codigo}
+                  plan={plan}
+                  href={`/vender/planos?plano=${encodeURIComponent(plan.codigo)}`}
+                  upgrade={upgrade}
+                  downgradeBlocked={downgradeBlocked}
+                />
+              );
+            })}
           </div>
         </section>
 

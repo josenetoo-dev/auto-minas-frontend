@@ -24,10 +24,17 @@ export default function ProfileEditForm({userId,initialName,email,initialPhone,c
   const [error,setError]=useState("");
 
   useEffect(()=>{
-    if(!photo){setPreview(null);return;}
+    let canceled=false;
+    if(!photo){
+      queueMicrotask(()=>{if(!canceled)setPreview(null);});
+      return()=>{canceled=true;};
+    }
     const url=URL.createObjectURL(photo);
-    setPreview(url);
-    return()=>URL.revokeObjectURL(url);
+    queueMicrotask(()=>{if(!canceled)setPreview(url);});
+    return()=>{
+      canceled=true;
+      URL.revokeObjectURL(url);
+    };
   },[photo]);
 
   async function save(event:React.FormEvent) {

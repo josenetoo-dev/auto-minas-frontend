@@ -67,7 +67,15 @@ try {
       fuel:"FLEX",transmission:"AUTOMATICO",color:"Branco",
       city:"Pirapora",state:"MG",
       description:"Anúncio fictício para testar cadastro e moderação do Auto Minas.",
-      category:"SEMINOVOS",secondHand:true
+      category:"SEMINOVOS",vehicleHistory:{
+        colisao:"NAO_SEI_INFORMAR",
+        repintura:"NAO_SEI_INFORMAR",
+        pecasAcidente:"NAO_SEI_INFORMAR",
+        leilao:"NAO_SEI_INFORMAR",
+        alagamento:"NAO_SEI_INFORMAR",
+        problemaMecanico:"NAO_SEI_INFORMAR",
+        sinistro:"NAO_SEI_INFORMAR"
+      },
     }
   });
   expectCode(newAd,201,"Cadastro de anúncio via Next/Spring");
