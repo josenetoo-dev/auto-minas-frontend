@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useListingDocuments } from "@/components/listing-documents";
 import { BRANDS, FUEL_OPTIONS, TRANSMISSION_OPTIONS } from "@/lib/constants";
 import { formatPrice } from "@/lib/format";
+import HistoryBackButton from "@/components/history-back-button";
 
 export type SellFormData = {
   brand: string;
@@ -543,7 +544,7 @@ export default function SellForm({
           {step > 1 ? (
             <button type="button" className="sell-back-action" onClick={previousStep}>← Voltar</button>
           ) : (
-            <Link href="/" className="sell-back-action">← Voltar</Link>
+            <HistoryBackButton fallback="/" className="sell-back-action">← Voltar</HistoryBackButton>
           )}
 
           {step < 6 ? (
@@ -562,7 +563,7 @@ export default function SellForm({
 function SellTopBar() {
   return (
     <header className="sell-wizard-topbar">
-      <Link href="/" className="sell-wizard-back" aria-label="Voltar para o início">←</Link>
+      <HistoryBackButton fallback="/" className="sell-wizard-back" ariaLabel="Voltar">←</HistoryBackButton>
       <Link href="/" className="sell-wizard-brand" aria-label="Auto Minas">
         <span>AM</span>
         <strong>Auto Minas</strong>
