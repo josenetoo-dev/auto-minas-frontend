@@ -75,14 +75,16 @@ export default function SellForm({
   mode,
   carId,
   initial,
+  initialStep = 1,
 }: {
   mode: "create" | "edit";
   carId?: number;
   initial?: Partial<SellFormData>;
+  initialStep?: number;
 }) {
   const router = useRouter();
   const [data, setData] = useState<SellFormData>({ ...EMPTY, ...initial });
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(Math.min(6, Math.max(1, initialStep)));
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [removed, setRemoved] = useState<number[]>([]);

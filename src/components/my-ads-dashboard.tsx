@@ -90,7 +90,7 @@ export default function MyAdsDashboard({ads}:{ads:Ad[]}) {
           {visible.map(ad=>(
             <article key={ad.id} className="my-ad-card">
               <div className="my-ad-main">
-                <Link href={`/carros/${ad.id}`} className="my-ad-image">
+                <Link href={`/meus-anuncios/${ad.id}`} className="my-ad-image">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={ad.images[0]||"/images/car-placeholder.svg"} alt={`${ad.brand} ${ad.model} ${ad.year}`} />
                 </Link>
@@ -98,7 +98,7 @@ export default function MyAdsDashboard({ads}:{ads:Ad[]}) {
                 <div className="my-ad-copy">
                   <div className="my-ad-title-row">
                     <div>
-                      <Link href={`/carros/${ad.id}`}><h2>{ad.brand} {ad.model} {ad.version || ad.year}</h2></Link>
+                      <Link href={`/meus-anuncios/${ad.id}`}><h2>{ad.brand} {ad.model} {ad.version || ad.year}</h2></Link>
                       <strong>{formatPrice(ad.price)}</strong>
                     </div>
                     <span className={`my-ad-status status-${ad.status}`}>
