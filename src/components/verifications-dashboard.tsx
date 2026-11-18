@@ -24,11 +24,11 @@ export default function VerificationsDashboard() {
     }).catch(cause=>{if(active)setError(cause.message);}).finally(()=>{if(active)setLoading(false);});
     return()=>{active=false;};
   },[]);
-  return <div className="space-y-5">
-    {error&&<p role="alert" className="text-red-300">{error}</p>}
-    {loading?<p role="status">Carregando seus veículos…</p>:ads.length===0?<p className="card-dark p-5">Seus documentos são enviados junto do anúncio. <Link href="/vender" className="underline text-[#e4ca91]">Cadastrar veículo</Link></p>:<>
-      <div className="card-dark p-5"><label htmlFor="document-vehicle" className="label-dark">Escolha seu veículo</label>
-        <select id="document-vehicle" className="input-dark" value={selected} onChange={event=>setSelected(event.target.value)}>
+  return <div className="verification-dashboard">
+    {error&&<p role="alert" className="verification-dashboard-error">{error}</p>}
+    {loading?<p role="status" className="verification-dashboard-loading">Carregando seus veículos…</p>:ads.length===0?<p className="verification-dashboard-empty">Seus documentos são enviados junto do anúncio. <Link href="/vender">Cadastrar veículo</Link></p>:<>
+      <div className="verification-vehicle-selector"><label htmlFor="document-vehicle">Escolha seu veículo</label>
+        <select id="document-vehicle" className="verification-vehicle-select" value={selected} onChange={event=>setSelected(event.target.value)}>
           {ads.map(ad=><option key={ad.id} value={ad.id}>{ad.marca} {ad.modelo} · {ad.ano}</option>)}
         </select>
       </div>
