@@ -42,7 +42,7 @@ export default async function Edit({ params, searchParams }: { params: Promise<{
         city: car.city,
         state: car.state,
         description: car.description,
-        category: car.category === "MOTOS" ? "SEMINOVOS" : car.category,
+        category: car.category,
         secondHand: car.secondHand,
         documentation: car.documentation,
         warranty: car.warranty,
