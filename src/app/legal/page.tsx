@@ -1,4 +1,5 @@
 import LegalPage from "@/components/legal-page";
+import "@/styles/legal-info.css";
 export const dynamic="force-dynamic";
 export const metadata={title:"Responsável e contato"};
 export default function Legal(){
