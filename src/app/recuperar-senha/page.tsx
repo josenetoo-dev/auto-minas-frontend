@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import HistoryBackButton from "@/components/history-back-button";
 
 type Phase = 0 | 1 | 2 | 3;
 
@@ -154,14 +155,23 @@ export default function ResetPassword() {
 
   return (
     <div className="recovery-reference-screen">
-      <Link href={phase === 0 ? "/login" : "#"} onClick={(event) => {
-        if (phase === 0) return;
-        event.preventDefault();
-        setError("");
-        setPhase((value) => Math.max(0, value - 1) as Phase);
-      }} className="flow-back-button" aria-label="Voltar">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
-      </Link>
+      {phase === 0 ? (
+        <HistoryBackButton fallback="/login" className="flow-back-button" ariaLabel="Voltar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+        </HistoryBackButton>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            setError("");
+            setPhase((value) => Math.max(0, value - 1) as Phase);
+          }}
+          className="flow-back-button"
+          aria-label="Voltar para a etapa anterior"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+        </button>
+      )}
 
       <header className="flow-brand">
         <span className="flow-brand-mark">AM</span>
