@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { backendFetch, BackendError } from "@/lib/backend";
-import { carById } from "@/lib/car";
+import { carSummaryById } from "@/lib/car";
 import { formatPrice } from "@/lib/format";
 import HistoryBackButton from "@/components/history-back-button";
 
@@ -38,7 +38,7 @@ export default async function PerfilPage({
 
   const level = Math.max(0, Math.min(4, perfil.nivel ?? 0));
   const cars = await Promise.all(
-    perfil.veiculos.map((vehicle) => carById(vehicle.id).catch(() => null)),
+    perfil.veiculos.map((vehicle) => carSummaryById(vehicle.id).catch(() => null)),
   );
 
   return (
