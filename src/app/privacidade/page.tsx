@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LegalPage from "@/components/legal-page";
+import "@/styles/legal-info.css";
 export const metadata = {title:"Aviso de privacidade"};
 export default function Privacy() { return <LegalPage title="Aviso de privacidade">
 <section><h2>Dados e finalidades</h2><p>Para criar e manter sua conta, tratamos nome, e-mail, telefone, senha em hash e registros de aceitação dos termos. Anúncios incluem informações e fotos do veículo e localização informada. Propostas, mensagens e imagens do chat permitem a negociação. Não envie dados bancários, documentos ou informações de terceiros no chat.</p></section>
