@@ -11,6 +11,7 @@ import ReportButton from "@/components/report-button";
 import HistoryBackButton from "@/components/history-back-button";
 import { formatPrice, formatKm } from "@/lib/format";
 import { FUEL_LABEL, TRANSMISSION_LABEL } from "@/lib/constants";
+import "@/styles/vehicle-detail.css";
 
 export const dynamic = "force-dynamic";
 
