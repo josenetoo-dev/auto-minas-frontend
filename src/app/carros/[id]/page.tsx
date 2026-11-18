@@ -12,6 +12,7 @@ import HistoryBackButton from "@/components/history-back-button";
 import { formatPrice, formatKm } from "@/lib/format";
 import { FUEL_LABEL, TRANSMISSION_LABEL } from "@/lib/constants";
 import "@/styles/vehicle-detail.css";
+import { HISTORY_QUESTIONS, HISTORY_OPTIONS, historyDetailKey } from "@/lib/vehicle-history";
 
 export const dynamic = "force-dynamic";
 
@@ -163,6 +164,26 @@ export default async function Detail({ params }: Props) {
             </dl>
           </details>
         </section>
+
+        {car.vehicleHistory && (
+          <section className="vehicle-history-card">
+            <h2>Histórico e condições do veículo</h2>
+            <p>Declarações fornecidas pelo vendedor. Estas respostas não constituem verificação ou garantia do Auto Minas.</p>
+            <dl>
+              {HISTORY_QUESTIONS.map(({key,label}) => {
+                const answer = car.vehicleHistory![key];
+                const details = car.vehicleHistory![historyDetailKey(key)];
+                return (
+                  <div key={key}>
+                    <dt>{label}</dt>
+                    <dd>{HISTORY_OPTIONS.find((option)=>option.value===answer)?.label ?? "Não informado"}</dd>
+                    {answer === "SIM" && details && <dd className="vehicle-history-detail">{details}</dd>}
+                  </div>
+                );
+              })}
+            </dl>
+          </section>
+        )}
 
         <section className="vehicle-seller-card">
           <Link href={`/perfil/${car.userId}`} className="vehicle-seller-main">
