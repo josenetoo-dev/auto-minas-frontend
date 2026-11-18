@@ -12,24 +12,37 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; error?: string; mode?: string }>;
 }) {
   if (await getSession()) redirect("/");
-  const { next, error } = await searchParams;
+  const { next, error, mode: requestedMode } = await searchParams;
   const safeNext = safeNextPath(next);
+  const mode = requestedMode === "register" ? "register" : "login";
 
   return (
-    <div className="auth-reference-screen">
-      <LinkBack />
+    <div className={`auth-reference-screen ${mode === "register" ? "is-register" : "is-login"}`}>
+      <a href="/" className="auth-reference-back" aria-label="Voltar para a página inicial">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+      </a>
+
       <section className="auth-reference-hero">
         <div className="auth-reference-brand">
           <span className="auth-reference-brand-mark">AM</span>
           <span>Auto Minas</span>
         </div>
 
-        <div className="auth-reference-hero-copy auth-login-copy">
-          <h1>Acesse sua conta no <span>Auto Minas</span></h1>
-          <p>Entre para anunciar, negociar e acompanhar seus veículos.</p>
+        <div className="auth-reference-hero-copy">
+          {mode === "login" ? (
+            <>
+              <h1>Acesse sua conta no <span>Auto Minas</span></h1>
+              <p>Entre para anunciar, negociar e acompanhar seus veículos.</p>
+            </>
+          ) : (
+            <>
+              <h1>Criar sua conta no <span>Auto Minas</span></h1>
+              <p>Junte-se à plataforma e anuncie, negocie e encontre o seu próximo veículo com mais segurança.</p>
+            </>
+          )}
         </div>
 
         <div className="auth-reference-car" aria-hidden="true">
@@ -39,18 +52,10 @@ export default async function LoginPage({
       </section>
 
       <div className="auth-reference-form-wrap">
-        <AuthForm next={safeNext} error={error} />
+        <AuthForm next={safeNext} error={error} initialMode={mode} />
       </div>
 
       <div className="auth-reference-glow" aria-hidden="true" />
     </div>
-  );
-}
-
-function LinkBack() {
-  return (
-    <a href="/" className="auth-reference-back" aria-label="Voltar para a página inicial">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
-    </a>
   );
 }
