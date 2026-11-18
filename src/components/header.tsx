@@ -8,6 +8,7 @@ import Logo from "./logo";
 export type HeaderUser = {
   name: string;
   avatarUrl: string | null;
+  role: "USER" | "REVIEWER" | "ADMIN";
 };
 
 const NAV = [
@@ -176,6 +177,7 @@ export default function Header() {
             })}
             {!user && <Link href="/login" onClick={() => setMenuOpen(false)}>Entrar</Link>}
             {user && <Link href="/meus-anuncios" onClick={() => setMenuOpen(false)}>Meus anúncios</Link>}
+            {user && user.role !== "USER" && <Link href="/moderacao" onClick={() => setMenuOpen(false)}>{user.role === "ADMIN" ? "Administração" : "Moderação"}</Link>}
             {user && <button type="button" onClick={logout}>Sair</button>}
           </nav>
         )}
@@ -265,6 +267,16 @@ export default function Header() {
                       </svg>
                       Meus anúncios
                     </Link>
+                    {user.role !== "USER" && (
+                      <Link
+                        href="/moderacao"
+                        onClick={() => setUserOpen(false)}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-[#f2d87e] transition-colors hover:bg-[#d4af37]/10"
+                      >
+                        <span className="grid h-4 w-4 place-items-center">⌘</span>
+                        {user.role === "ADMIN" ? "Administração" : "Moderação"}
+                      </Link>
+                    )}
                     <Link
                       href="/vender"
                       onClick={() => setUserOpen(false)}
@@ -352,6 +364,15 @@ export default function Header() {
                 </Link>
               );
             })}
+            {user && user.role !== "USER" && (
+              <Link
+                href="/moderacao"
+                className={`rounded-lg px-4 py-3 text-sm font-semibold ${isActive("/moderacao") ? "bg-[#d4af37]/10 text-[#f2d87e]" : "text-[#f2d87e]"}`}
+                onClick={() => { setMenuOpen(false); setUserOpen(false); }}
+              >
+                {user.role === "ADMIN" ? "Administração" : "Moderação"}
+              </Link>
+            )}
             {user && (
               <Link
                 href="/meus-anuncios"
