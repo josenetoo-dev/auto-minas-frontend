@@ -10,11 +10,6 @@ export type HeaderUser = {
   avatarUrl: string | null;
 };
 
-type Props = {
-  user: HeaderUser | null;
-  unreadCount: number;
-};
-
 const NAV = [
   { href: "/", label: "Início" },
   { href: "/carros", label: "Comprar" },
@@ -45,9 +40,27 @@ function Avatar({ name, url, className = "h-8 w-8" }: { name: string; url: strin
   );
 }
 
-export default function Header({ user, unreadCount: initialCount }: Props) {
-  const [unreadCount, setUnreadCount] = useState(initialCount);
+export default function Header() {
+  const [user, setUser] = useState<HeaderUser | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [notice, setNotice] = useState("");
+
+  const hidden = pathname === "/login" || pathname === "/recuperar-senha" || pathname === "/verificar-email" || pathname === "/vender" || pathname === "/meus-anuncios" || /^\/meus-anuncios\/\d+$/.test(pathname) || pathname === "/chat" || /^\/chat\/\d+$/.test(pathname) || pathname === "/planos" || pathname === "/assinatura" || pathname === "/vender/planos" || pathname === "/verificacoes" || /^\/perfil\/\d+$/.test(pathname) || pathname === "/conta" || pathname === "/conta/editar" || /^\/vender\/editar\/\d+$/.test(pathname) || /^\/carros\/\d+$/.test(pathname);
+
+  useEffect(() => {
+    if (hidden) return;
+    let cancelled = false;
+    void fetch("/api/auth/session", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : { user: null })
+      .then((body) => {
+        if (!cancelled) setUser(body.user ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setUser(null);
+      });
+    return () => { cancelled = true; };
+  }, [hidden]);
+
   const accountName = user?.name;
   useEffect(() => {
     if (!accountName) return;
@@ -114,9 +127,7 @@ export default function Header({ user, unreadCount: initialCount }: Props) {
     router.refresh();
   }
 
-  if (pathname === "/login" || pathname === "/recuperar-senha" || pathname === "/verificar-email" || pathname === "/vender" || pathname === "/meus-anuncios" || /^\/meus-anuncios\/\d+$/.test(pathname) || pathname === "/chat" || /^\/chat\/\d+$/.test(pathname) || pathname === "/planos" || pathname === "/assinatura" || pathname === "/vender/planos" || pathname === "/verificacoes" || /^\/perfil\/\d+$/.test(pathname) || pathname === "/conta" || pathname === "/conta/editar" || /^\/vender\/editar\/\d+$/.test(pathname) || /^\/carros\/\d+$/.test(pathname)) {
-    return null;
-  }
+  if (hidden) return null;
 
   if (pathname === "/" || pathname === "/carros") {
     return (
