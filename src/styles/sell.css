@@ -816,3 +816,34 @@ body:has(.sell-wizard-screen) .home-bottom-nav-icon svg {
     grid-template-columns: repeat(5,minmax(0,1fr));
   }
 }
+
+/* Questionário de histórico declarado pelo vendedor */
+.sell-history-section {
+  display:grid;
+  gap:12px;
+  margin:16px 0 18px;
+  border:1px solid rgba(212,175,55,.24);
+  border-radius:14px;
+  background:rgba(212,175,55,.035);
+  padding:14px;
+}
+.sell-history-section legend {
+  padding:0 6px;
+  color:#f2d87e;
+  font-size:.94rem;
+  font-weight:800;
+}
+.sell-history-section > p {
+  color:#aaa9a2;
+  font-size:.8rem;
+  line-height:1.45;
+}
+.sell-history-question {display:grid;gap:7px;border-top:1px solid rgba(255,255,255,.08);padding-top:12px}
+.sell-history-question > label {color:#f1eee5;font-size:.86rem;font-weight:700}
+.sell-history-question em {color:#f2d87e}
+.sell-history-question select,.sell-history-question textarea {
+  width:100%;min-height:46px;border:1px solid rgba(255,255,255,.18);
+  border-radius:10px;background:#151513;color:#f5f3ed;padding:10px 12px;
+  font-size:16px;line-height:1.4;
+}
+.sell-history-question textarea {min-height:80px;resize:vertical}
