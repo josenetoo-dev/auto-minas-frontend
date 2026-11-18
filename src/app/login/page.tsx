@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import AuthForm from "@/components/auth-form";
 import HistoryBackButton from "@/components/history-back-button";
 import { safeNextPath } from "@/lib/redirect";
+import "@/styles/auth.css";
 
 export const metadata: Metadata = {
   title: "Entrar",
