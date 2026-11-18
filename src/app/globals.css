@@ -367,8 +367,61 @@ body:has(.site-global-hotbar) {
   padding-bottom: calc(84px + env(safe-area-inset-bottom)) !important;
 }
 
-.site-global-hotbar {
+.site-global-hotbar.home-bottom-nav {
+  position: fixed;
   z-index: 120;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  min-height: calc(72px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255,255,255,.10);
+  background: rgba(11,11,10,.97);
+  padding: 8px 8px calc(6px + env(safe-area-inset-bottom));
+  backdrop-filter: blur(18px);
+}
+
+.site-global-hotbar .home-bottom-nav-item {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 10px;
+  color: #e0dfd8;
+  font-size: .66rem;
+  font-weight: 700;
+}
+
+.site-global-hotbar .home-bottom-nav-item.is-active {
+  color: #d4af37;
+}
+
+.site-global-hotbar .home-bottom-nav-item.is-primary .home-bottom-nav-icon {
+  border: 1px solid #f2d87e;
+  border-radius: 10px;
+  background: linear-gradient(135deg,#f2d87e,#d4af37 55%,#a88323);
+  color: #171004;
+  box-shadow: 0 0 20px rgba(212,175,55,.22);
+}
+
+.site-global-hotbar .home-bottom-nav-icon {
+  display: grid;
+  width: 34px;
+  height: 31px;
+  place-items: center;
+}
+
+.site-global-hotbar .home-bottom-nav-icon svg {
+  width: 25px;
+  height: 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .site-desktop-back {
@@ -517,4 +570,13 @@ body:has(.site-global-hotbar) {
   .site-desktop-back {
     left: max(24px, calc(50% - 410px));
   }
+}
+
+/* Evita caudas vazias de scroll nas telas com shell próprio. */
+body:has(.account-hub-screen) #conteudo-principal,
+body:has(.admin-shell-screen) #conteudo-principal,
+body:has(.legal-page-screen) #conteudo-principal,
+body:has(.info-page-screen) #conteudo-principal,
+body:has(.fair-page-screen) #conteudo-principal {
+  min-height: 0;
 }
