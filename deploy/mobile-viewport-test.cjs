@@ -127,22 +127,47 @@ async function main() {
       await inspect(page, "meus-anuncios", width);
       await page.goto(BASE + "/chat", { waitUntil: "domcontentloaded" });
       await inspect(page, "chat", width);
-      if (width <= 390) {
-        const conversation = page.locator(".chat-reference-conversation").first();
-        if (await conversation.count()) {
-          await conversation.click();
-          const composer = page.getByRole("textbox", { name: "Mensagem", exact:true });
-          await composer.waitFor({ state: "visible", timeout: 10000 });
-          expect(await composer.isVisible(), "Compositor do chat inacessível no celular");
-          await page.waitForFunction(() => {
-            const box = document.querySelector('[aria-label="Mensagem"]')?.getBoundingClientRect();
-            if (!box || box.top < 0 || box.bottom > window.innerHeight) return false;
-            const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
-            return hit === document.querySelector('[aria-label="Mensagem"]');
-          }, {timeout:10000});
-          await inspect(page, "conversa", width);
-        }
+      const conversation = page.locator(".chat-reference-conversation").first();
+      await conversation.click();
+      const composer = page.getByRole("textbox", { name: "Mensagem", exact:true });
+      await composer.waitFor();
+      const composerAboveHotbar = () => page.waitForFunction(() => {
+        const input = document.querySelector(".chat-thread-composer textarea");
+        const send = document.querySelector(".chat-thread-send");
+        const hotbar = document.querySelector(".site-global-hotbar");
+        if (!input || !send || !hotbar) return false;
+        const navbar = hotbar.getBoundingClientRect();
+        if (navbar.height <= 0 || navbar.bottom > window.innerHeight + 1) return false;
+        return [input, send].every(element => {
+          const box = element.getBoundingClientRect();
+          const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+          return box.top >= 0 && box.bottom <= navbar.top + 1 && element.contains(hit);
+        });
+      }, undefined, { timeout:10000 });
+      await composerAboveHotbar();
+      const scrollsIndependently = await page.locator(".chat-thread-messages").evaluate(messages => {
+        const composer = document.querySelector(".chat-thread-composer");
+        const previousTop = composer.getBoundingClientRect().top;
+        const filler = document.createElement("div");
+        filler.style.height = "1500px";
+        messages.append(filler);
+        messages.scrollTop = messages.scrollHeight;
+        const result = messages.scrollTop > 0 && window.scrollY === 0 &&
+          composer.getBoundingClientRect().top === previousTop;
+        filler.remove();
+        return result;
+      });
+      expect(scrollsIndependently, "O histórico deve rolar sem mover a caixa de mensagem");
+      if (width === 390 || width === 1280) {
+        await page.setViewportSize({ width, height: width === 390 ? 360 : 580 });
+        await composerAboveHotbar();
+        await composer.fill("Mensagem de teste visual");
+        expect(await page.getByRole("button", {name:"Enviar mensagem",exact:true}).isEnabled(),
+          "O botão de envio deve funcionar sem rolar a tela");
+        await composer.fill("");
+        await page.setViewportSize({ width, height:790 });
       }
+      await inspect(page, "conversa", width);
       if (width === 390) {
         await page.goto(BASE + "/vender");
         const next = page.getByRole("button", {name:"Próxima etapa"});
