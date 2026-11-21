@@ -122,7 +122,7 @@ export default async function HomePage() {
             {featured.map((car) => {
               const image = car.images[0] ?? "/images/car-placeholder.svg";
               return (
-                <Link href={`/carros/${car.id}`} key={car.id} className="home-reference-vehicle-card">
+                <Link href={`/carros/${car.id}`} key={car.id} className="home-reference-vehicle-card cult-cutout-card">
                   <div className="home-reference-vehicle-media">
                     <Image
                       src={image}
@@ -132,7 +132,7 @@ export default async function HomePage() {
                       quality={72}
                       className="object-cover"
                     />
-                    {car.status === "ativo" && <span className="home-published-badge">Publicado</span>}
+                    {car.status === "ativo" && <span className="home-published-badge cult-halo-badge">Publicado</span>}
                   </div>
                   <div className="home-reference-vehicle-info">
                     <h3>{car.brand} {car.model} {car.year}</h3>
