@@ -147,15 +147,15 @@ async function main() {
         await page.goto(BASE + "/vender");
         const next = page.getByRole("button", {name:"Próxima etapa"});
         await next.click();
-        expect(await page.getByLabel("Marca *", {exact:true}).getAttribute("aria-invalid") === "true",
+        expect(await page.getByLabel(/^Marca \*/).getAttribute("aria-invalid") === "true",
           "Campos obrigatórios pendentes devem ser destacados");
-        await page.getByLabel("Marca *", {exact:true}).selectOption("Fiat");
+        await page.getByLabel(/^Marca \*/).selectOption("Fiat");
         await page.getByLabel("Modelo *", {exact:true}).fill("Argo");
-        await page.getByLabel("Ano *", {exact:true}).selectOption("2024");
+        await page.getByLabel(/^Ano \*/).selectOption("2024");
         await page.getByLabel("Quilometragem *", {exact:true}).fill("12000");
         await next.click();
-        await page.getByLabel("Combustível *", {exact:true}).selectOption("flex");
-        await page.getByLabel("Câmbio *", {exact:true}).selectOption("automatico");
+        await page.getByLabel(/^Combustível \*/).selectOption("flex");
+        await page.getByLabel(/^Câmbio \*/).selectOption("automatico");
         await page.getByLabel("Cor *", {exact:true}).fill("Branco");
         await next.click();
         const file={name:"documento-ficticio.png",mimeType:"image/png",buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGO8st6cARtgwio6aCUAXZAByo07EaIAAAAASUVORK5CYII=","base64")};
@@ -175,7 +175,7 @@ async function main() {
           "A descrição curta precisa ser identificada na etapa 4");
         await page.getByLabel(/Descrição \*/).fill("Veículo fictício para testar formulário e documentos juntos.");
         await next.click();
-        await page.getByLabel("Estado *", {exact:true}).selectOption("MG");
+        await page.getByLabel(/^Estado \*/).selectOption("MG");
         await page.getByLabel("Cidade *", {exact:true}).fill("Pirapora");
         await page.getByLabel("Documento do veículo (CRLV)", {exact:true}).setInputFiles(file);
         await next.click();
