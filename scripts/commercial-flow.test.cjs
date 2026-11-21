@@ -8,11 +8,9 @@ const login = fs.readFileSync("src/app/login/page.tsx", "utf8");
 const authForm = fs.readFileSync("src/components/auth-form.tsx", "utf8");
 const intentRoute = fs.readFileSync("src/app/api/commercial/intents/route.ts", "utf8");
 
-test("a missing current contract falls back to the clearly labeled local demo minuta", () => {
-  assert.match(page, /currentCommercialContract\(\)\.catch\(\(\) => null\)/);
-  assert.match(page, /versao: "1\.0-DEMO"/);
-  assert.match(page, /PENDENTE DE REVISÃO JURÍDICA/);
-  assert.match(page, /<SellerPlanFlow plan=\{plan\} contract=\{demoContract\} \/>/);
+test("requesting a plan never displays a sample contract", () => {
+  assert.doesNotMatch(page + flow, /1\.0-DEMO|minuta demonstrativa|hashSha256/i);
+  assert.match(page, /<SellerPlanFlow plan=\{plan\} \/>/);
 });
 
 test("anonymous users retain the selected plan through login and registration", () => {
@@ -22,12 +20,12 @@ test("anonymous users retain the selected plan through login and registration", 
   assert.match(authForm, /: \{ name, email, phone, password, next, termsAccepted \}/);
 });
 
-test("the demo acknowledgement is local and does not activate a subscription", () => {
+test("the request acknowledgement stays local and does not activate a subscription", () => {
   assert.match(flow, /checked=\{acknowledged\}/);
   assert.match(flow, /setAcknowledged\(event\.target\.checked\)/);
   assert.doesNotMatch(flow, /contracts\/\$\{contract\.id\}\/accept/);
-  assert.match(flow, /disabled=\{busy \|\| !!intent \|\| !acknowledged\}/);
-  assert.match(flow, /não é pagamento, não ativa assinatura/);
+  assert.match(flow, /disabled=\{busy \|\| requested \|\| !acknowledged\}/);
+  assert.match(flow, /nenhuma cobrança será feita agora/);
 });
 
 test("only the existing authenticated intent API is used, with server-side plan validation", () => {

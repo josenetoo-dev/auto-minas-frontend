@@ -847,3 +847,15 @@ body:has(.sell-wizard-screen) .home-bottom-nav-icon svg {
   font-size:16px;line-height:1.4;
 }
 .sell-history-question textarea {min-height:80px;resize:vertical}
+
+.sell-step-card select:has(option[value=""]:checked) {
+  color: #b7b3a9;
+}
+.sell-step-card select option {
+  color: #f1eee5;
+}
+.sell-step-card [aria-invalid="true"],
+.sell-photo-drop:has(input[aria-invalid="true"]) {
+  border-color: #f87171;
+  box-shadow: 0 0 0 1px #f87171;
+}

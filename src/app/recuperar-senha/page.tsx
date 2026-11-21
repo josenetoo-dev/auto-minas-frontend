@@ -179,11 +179,6 @@ export default function ResetPassword() {
         <span>Auto Minas</span>
       </header>
 
-      <div className="flow-car-accent" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/demo/hb20.jpg" alt="" />
-      </div>
-
       <main className="recovery-reference-content">
         <div className={`flow-hero-icon ${phase === 3 ? "is-success" : ""}`} aria-hidden="true">
           <FlowIcon phase={phase} />

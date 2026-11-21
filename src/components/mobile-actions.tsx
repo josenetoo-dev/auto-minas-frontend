@@ -83,7 +83,7 @@ export default function MobileActions() {
         </HistoryBackButton>
       )}
 
-      <nav aria-label="Navegação principal" className="home-bottom-nav site-global-hotbar">
+      {!path.startsWith("/chat/") && <nav aria-label="Navegação principal" className="home-bottom-nav site-global-hotbar">
         {items.map((item) => {
           const active =
             item.href === "/"
@@ -112,7 +112,7 @@ export default function MobileActions() {
             </Link>
           );
         })}
-      </nav>
+      </nav>}
     </>
   );
 }

@@ -49,7 +49,7 @@ export default async function LoginPage({
 
         <div className="auth-reference-car" aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/demo/hb20.jpg" alt="" />
+          <img src="/images/vehicle-illustration.svg" alt="" />
         </div>
       </section>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/format";
 
@@ -24,6 +24,8 @@ export default function ChatCta({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
+  const attempt = useRef<{ payload: string; requestId: string } | null>(null);
+  const sending = useRef(false);
 
   if (!loggedIn) {
     return (
@@ -40,13 +42,20 @@ export default function ChatCta({
   }
 
   async function send() {
+    if (sending.current) return;
+    sending.current = true;
     setBusy(true);
     setError("");
     try {
+      const proposal = { carId, price: Number(value), message: message.trim() };
+      const payload = JSON.stringify(proposal);
+      if (attempt.current?.payload !== payload) {
+        attempt.current = { payload, requestId: crypto.randomUUID() };
+      }
       const res = await fetch("/api/conversations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ carId, price: Number(value), message }),
+        body: JSON.stringify({ ...proposal, requestId: attempt.current.requestId }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Não foi possível enviar proposta");
@@ -55,6 +64,7 @@ export default function ChatCta({
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha de conexão");
     } finally {
+      sending.current = false;
       setBusy(false);
     }
   }

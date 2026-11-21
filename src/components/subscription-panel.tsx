@@ -3,14 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { CommercialSubscription } from "@/lib/commercial";
-
-const statusNames: Record<string, string> = {
-  INTENCAO: "Intenção registrada",
-  PENDENTE_PAGAMENTO_EXTERNO: "Aguardando confirmação externa",
-  ATIVA: "Ativa",
-  CANCELADA: "Cancelada",
-  EXPIRADA: "Expirada",
-};
+import { paymentStatus, subscriptionStatus } from "@/lib/commercial-labels";
 
 function formatMoney(value: number) {
   return Number(value).toLocaleString("pt-BR", {
@@ -57,7 +50,7 @@ export default function SubscriptionPanel({ initial }: { initial: CommercialSubs
       <section className="subscription-empty">
         <span aria-hidden="true">♛</span>
         <h2>Nenhuma assinatura registrada</h2>
-        <p>Escolha um plano para registrar sua intenção comercial.</p>
+        <p>Escolha um plano para solicitar uma assinatura.</p>
         <Link href="/planos">Ver planos</Link>
       </section>
     );
@@ -72,14 +65,14 @@ export default function SubscriptionPanel({ initial }: { initial: CommercialSubs
             <small>{current.status === "ATIVA" ? "Plano atual" : "Contratação em andamento"}</small>
             <h2>{current.nomePlano}</h2>
             <span className={current.status === "ATIVA" ? "is-active" : "is-pending"}>
-              {statusNames[current.status] ?? current.status}
+              {subscriptionStatus(current.status)}
             </span>
             <p>
               {current.status === "ATIVA" && current.vencimentoEm
                 ? `Vigência até ${formatDate(current.vencimentoEm)}.`
                 : current.status === "ATIVA"
                   ? "Assinatura ativa."
-                  : "Aguardando conclusão do processo comercial."}
+                  : "Aguardando confirmação do pagamento."}
             </p>
           </div>
         </section>
@@ -113,7 +106,7 @@ export default function SubscriptionPanel({ initial }: { initial: CommercialSubs
       <section className="subscription-history">
         <div className="subscription-history-heading">
           <h2>Histórico comercial</h2>
-          <p>Registros reais de intenção, vigência e situação financeira.</p>
+          <p>Acompanhe suas solicitações, vigências e pagamentos.</p>
         </div>
 
         <div className="subscription-history-list">
@@ -121,7 +114,7 @@ export default function SubscriptionPanel({ initial }: { initial: CommercialSubs
             <article key={item.id}>
               <div>
                 <strong>{item.nomePlano}</strong>
-                <span>{statusNames[item.status] ?? item.status}</span>
+                <span>{subscriptionStatus(item.status)}</span>
               </div>
               <p>
                 {formatMoney(item.mensalidade)}
@@ -132,7 +125,7 @@ export default function SubscriptionPanel({ initial }: { initial: CommercialSubs
                 {item.inicioVigencia ? ` · início ${formatDate(item.inicioVigencia)}` : ""}
                 {item.vencimentoEm ? ` · fim ${formatDate(item.vencimentoEm)}` : ""}
               </small>
-              <em>Situação financeira: {item.situacaoFinanceira}</em>
+              <em>Situação financeira: {paymentStatus(item.situacaoFinanceira)}</em>
             </article>
           ))}
         </div>
@@ -140,7 +133,7 @@ export default function SubscriptionPanel({ initial }: { initial: CommercialSubs
 
       <section className="subscription-reference-warning">
         <strong>Pagamentos e faturas ainda não estão disponíveis.</strong>
-        <p>Esta área não simula cartão, cobrança, fatura ou comprovante. Esses recursos entram apenas quando o fluxo financeiro real estiver implementado.</p>
+        <p>Aqui você acompanha a situação da sua assinatura.</p>
       </section>
 
       {error && <p role="alert" className="subscription-reference-error">{error}</p>}

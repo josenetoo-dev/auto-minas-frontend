@@ -55,7 +55,6 @@ export default async function PlanosPage() {
           <div className="plans-reference-section-heading">
             <div>
               <h2>Planos disponíveis</h2>
-              <p>Valores e benefícios são carregados do backend.</p>
             </div>
             {session && <Link href="/assinatura">Minhas assinaturas →</Link>}
           </div>
@@ -81,9 +80,9 @@ export default async function PlanosPage() {
         </section>
 
         <section className="plans-reference-grounding">
-          <strong>Contratação ainda não é pagamento.</strong>
+          <strong>Solicitação de assinatura</strong>
           <p>
-            O fluxo atual registra intenção comercial. Nenhum cartão é cobrado e nenhum plano é ativado sem confirmação válida do processo externo.
+            Você pode solicitar um plano sem cobrança. A assinatura só fica ativa após a confirmação do pagamento.
           </p>
         </section>
 

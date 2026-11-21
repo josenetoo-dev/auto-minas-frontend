@@ -58,13 +58,13 @@ export default async function HomePage() {
         <div className="home-reference-car" aria-hidden="true">
           <div className="home-reference-glow" />
           <Image
-            src="/images/demo/corolla.jpg"
+            src="/images/vehicle-illustration.svg"
             alt=""
             fill
             priority
             sizes="(max-width: 767px) 58vw, 520px"
             quality={74}
-            className="object-cover"
+            className="object-contain"
           />
         </div>
       </section>
@@ -154,7 +154,7 @@ export default async function HomePage() {
         <p className="home-video-caption">O vídeo começa automaticamente quando você chega a esta seção.</p>
         <HomeHoverVideo
           title="Seu próximo caminho começa aqui."
-          posterSrc="/images/demo/corolla.jpg"
+          posterSrc="/images/vehicle-illustration.svg"
           videoSrc="https://videos.pexels.com/video-files/13594876/13594876-hd_1920_1080_24fps.mp4"
         />
       </section>

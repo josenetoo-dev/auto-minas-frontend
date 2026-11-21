@@ -54,7 +54,6 @@ export default function AdminShell({
               {item.label}
             </Link>
           ))}
-          <Link href="/conta">Minha conta</Link>
         </nav>
 
         <section className="admin-shell-panel">

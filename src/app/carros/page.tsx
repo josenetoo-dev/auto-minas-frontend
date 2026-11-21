@@ -76,13 +76,13 @@ export default async function CarrosPage({
         </div>
         <div className="cars-reference-hero-car" aria-hidden="true">
           <Image
-            src="/images/demo/onix.jpg"
+            src="/images/vehicle-illustration.svg"
             alt=""
             fill
             priority
             sizes="(max-width: 767px) 48vw, 480px"
             quality={72}
-            className="object-cover"
+            className="object-contain"
           />
         </div>
       </section>

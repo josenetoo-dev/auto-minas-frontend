@@ -234,7 +234,8 @@ body:has(.cars-exact-screen) > div[role="note"] {
   font-size: 1.05rem;
 }
 .cars-results-toolbar select {
-  max-width: 158px;
+  width: 9.75rem;
+  flex: 0 0 auto;
   min-height: 43px;
   border: 1px solid rgba(255,255,255,.17);
   border-radius: 999px;
@@ -500,9 +501,6 @@ body:has(.cars-exact-screen) > div[role="note"] {
   .cars-results-toolbar {
     align-items: flex-start;
   }
-  .cars-results-toolbar select {
-    max-width: 142px;
-  }
 }
 
 @media (min-width: 640px) {
@@ -694,9 +692,9 @@ body:has(.cars-exact-screen) > div[role="note"] {
   }
 
   .cars-results-toolbar select {
-    max-width: 134px;
+    width: 8.5rem;
     min-height: 37px;
-    padding: 0 30px 0 11px;
+    padding: 0 25px 0 11px;
     font-size: .69rem;
   }
 

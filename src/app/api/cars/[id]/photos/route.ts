@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { backendFetch, getApiToken, clientError, sameOrigin } from "@/lib/backend";
-import type { BackendPhoto } from "@/lib/car";
+import { photoUrl, type BackendPhoto } from "@/lib/car";
 type Ctx={params:Promise<{id:string}>};
 export async function POST(request:Request,context:Ctx){
  if(!sameOrigin(request))return NextResponse.json({error:"Origem não permitida"},{status:403});
@@ -13,7 +13,7 @@ export async function POST(request:Request,context:Ctx){
    return NextResponse.json({error:"Envie uma foto JPG/PNG por requisição, com até 4 MiB."},{status:400});
   const multipart=new FormData();for(const file of files)multipart.append("fotos",file);
   const result=await backendFetch<BackendPhoto[]>(`/v1/anuncio/${id}/fotos`,{method:"POST",body:multipart},token);
-  return NextResponse.json({photos:result},{status:201});
+  return NextResponse.json({photos:result.map((photo) => ({ ...photo, image: photoUrl(photo.url) }))},{status:201});
  }catch(e){return clientError(e);}
 }
 export async function DELETE(request:Request,context:Ctx){
