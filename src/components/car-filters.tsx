@@ -124,7 +124,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
         </form>
 
         <div className="cars-filter-chips">
-          <button type="button" className="cars-filter-button" onClick={() => setOpen((value) => !value)}>
+          <button type="button" className="cars-filter-button cult-halo-control" onClick={() => setOpen((value) => !value)}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
               <circle cx="16" cy="7" r="2" />
@@ -151,7 +151,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
         </div>
 
         {open && (
-          <div className="cars-filter-panel">
+          <div className="cars-filter-panel cult-halo-form">
             <label>
               <span>Marca</span>
               <select value={state.brand} onChange={(e) => setState((prev) => ({ ...prev, brand: e.target.value }))}>
