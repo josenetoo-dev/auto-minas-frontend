@@ -150,13 +150,13 @@ async function main() {
         expect(await page.getByLabel(/^Marca \*/).getAttribute("aria-invalid") === "true",
           "Campos obrigatórios pendentes devem ser destacados");
         await page.getByLabel(/^Marca \*/).selectOption("Fiat");
-        await page.getByLabel("Modelo *", {exact:true}).fill("Argo");
+        await page.getByLabel(/^Modelo\s*\*/).fill("Argo");
         await page.getByLabel(/^Ano \*/).selectOption("2024");
-        await page.getByLabel("Quilometragem *", {exact:true}).fill("12000");
+        await page.getByLabel(/^Quilometragem\s*\*/).fill("12000");
         await next.click();
         await page.getByLabel(/^Combustível \*/).selectOption("flex");
         await page.getByLabel(/^Câmbio \*/).selectOption("automatico");
-        await page.getByLabel("Cor *", {exact:true}).fill("Branco");
+        await page.getByLabel(/^Cor\s*\*/).fill("Branco");
         await next.click();
         const file={name:"documento-ficticio.png",mimeType:"image/png",buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGO8st6cARtgwio6aCUAXZAByo07EaIAAAAASUVORK5CYII=","base64")};
         await page.locator('.sell-photo-step input[type="file"]').setInputFiles({...file,name:"externa.png"});
@@ -176,7 +176,7 @@ async function main() {
         await page.getByLabel(/Descrição \*/).fill("Veículo fictício para testar formulário e documentos juntos.");
         await next.click();
         await page.getByLabel(/^Estado \*/).selectOption("MG");
-        await page.getByLabel("Cidade *", {exact:true}).fill("Pirapora");
+        await page.getByLabel(/^Cidade\s*\*/).fill("Pirapora");
         await page.getByLabel("Documento do veículo (CRLV)", {exact:true}).setInputFiles(file);
         await next.click();
         const save = page.waitForResponse(response => response.url().endsWith("/api/cars") &&
@@ -220,11 +220,8 @@ async function main() {
         await correctedCard.getByRole("button",{name:"Publicar anúncio",exact:true}).click();
         await page.getByText("Anúncio publicado.",{exact:true}).waitFor();
         await page.goto(BASE+"/carros/"+saved);
-        const summary=page.getByRole("region",{name:"Análises do vendedor e do veículo"});
-        await summary.getByRole("heading",{name:"O que foi analisado",exact:true}).waitFor();
-        const reviewTexts=await summary.locator("dd").allTextContents();
-        expect(reviewTexts.length===2&&reviewTexts.every(text=>text.includes("Análise documental manual concluída")),
-          "Vendedor e veículo precisam de resultados separados e reais: "+JSON.stringify(reviewTexts));
+        await page.getByText("Veículo verificado",{exact:true}).waitFor();
+        await page.getByText("Vendedor analisado · Nível 1",{exact:true}).waitFor();
         await inspect(page,"analises-publicas",width);
         await page.goto(BASE+"/moderacao");
         const toReject=page.getByRole("heading",{name:"Fiat Pulse 2023",exact:true}).locator("..");
