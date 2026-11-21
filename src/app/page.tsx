@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { featuredCars } from "@/lib/car";
 import { formatPrice } from "@/lib/format";
+import HomeHoverVideo from "@/components/home-hover-video";
 import "@/styles/home.css";
 
 // Nunca manter anúncio suspenso no destaque por cache da página inicial.
@@ -147,6 +148,16 @@ export default async function HomePage() {
             })}
           </div>
         )}
+      </section>
+
+      <section className="home-reference-section home-video-section" aria-label="Prévia em vídeo do Auto Minas">
+        <div className="home-section-heading"><h2>Uma nova forma de encontrar seu próximo carro</h2></div>
+        <p className="home-video-caption">O vídeo começa automaticamente quando você chega a esta seção.</p>
+        <HomeHoverVideo
+          title="Seu próximo caminho começa aqui."
+          posterSrc="/images/demo/corolla.jpg"
+          videoSrc="https://videos.pexels.com/video-files/13594876/13594876-hd_1920_1080_24fps.mp4"
+        />
       </section>
 
       <section className="home-reference-section home-brand-section">
