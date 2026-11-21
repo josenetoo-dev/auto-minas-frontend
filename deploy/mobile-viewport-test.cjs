@@ -340,7 +340,7 @@ async function main() {
     await signupPage.getByLabel("Senha", {exact:true}).fill("Senha-ficticia-CI-2026!");
     await signupPage.getByRole("button", {name:"Entrar",exact:true}).click();
     await signupPage.waitForURL(BASE + "/");
-    await signupPage.getByRole("button", {name:"Abrir menu da conta",exact:true}).waitFor();
+    await signupPage.getByRole("link", {name:"Negociações",exact:true}).waitFor();
     await signupPage.goto(BASE + "/login");
     await signupPage.waitForURL(BASE + "/");
     expect(await signupPage.getByRole("region", {name:"Aviso de cookies"}).count() === 0, "Preferência de cookies não persistiu");
