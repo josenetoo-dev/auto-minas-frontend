@@ -652,3 +652,26 @@ body:has(.home-exact-screen) > div[role="note"] {
 .home-hover-video-overlay p{font-size:.9rem;color:#deddd8}
 @media(max-width:639px){.home-hover-video{min-height:310px;aspect-ratio:4/5}.home-hover-video-shade{background:linear-gradient(0deg,rgba(0,0,0,.85),rgba(0,0,0,.1))}.home-hover-video-overlay{justify-content:flex-end;padding:22px}.home-hover-video-overlay h3{font-size:1.6rem}}
 @media(prefers-reduced-motion:reduce){.home-hover-video *{transition:none!important}}
+
+/* Isolated Logo Carousel experiment: search navigation, not a partner endorsement. */
+.am-logo-carousel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(18px,5vw,55px);align-items:center;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:clamp(17px,3vw,30px);background:linear-gradient(115deg,#151411,#0c0c0b);}
+.am-logo-carousel-copy{display:flex;flex-direction:column;align-items:flex-start;gap:14px;}
+.am-logo-carousel-kicker{font-size:.7rem;letter-spacing:.14em;font-weight:850;color:#ddba61;}
+.am-logo-carousel-copy h3{max-width:19ch;font-size:clamp(1.35rem,2.4vw,2.2rem);font-weight:850;line-height:1.13;}
+.am-logo-carousel-copy p{max-width:43ch;color:#b8b7b0;font-size:.86rem;line-height:1.5;}
+.am-logo-carousel-cta{color:#edcc72;font-size:.86rem;font-weight:750;min-height:44px;display:inline-flex;align-items:center;gap:9px;}
+.am-logo-carousel-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;min-width:0;height:238px;overflow:hidden;mask-image:linear-gradient(to bottom,transparent 0,#000 13%,#000 87%,transparent 100%);}
+.am-logo-carousel-window{min-width:0;overflow:hidden;}
+.am-logo-carousel-track{display:flex;flex-direction:column;animation:am-brand-cycle 19s linear infinite;will-change:transform;}
+.am-logo-carousel-track-2{animation-duration:22s;animation-direction:reverse}
+.am-logo-carousel-track-3{animation-duration:25s}
+.am-logo-carousel-stack{display:flex;flex-direction:column;gap:8px;padding-bottom:8px;}
+.am-logo-carousel-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;height:72px;flex:none;border-radius:12px;background:#21201d;border:1px solid rgba(255,255,255,.13);color:#f5f1e8;font-size:clamp(.62rem,1vw,.82rem);text-align:center;min-width:0;}
+.am-logo-carousel-mark{color:#efcf76;font-size:1.25rem;line-height:1;font-weight:900;letter-spacing:-.07em;}
+.am-logo-carousel-tile:hover{border-color:#dfbc64;background:#2c281c;}
+.am-logo-carousel-tile:focus-visible{outline:2px solid #f3d47c;outline-offset:-3px}
+.am-logo-carousel-columns:hover .am-logo-carousel-track,.am-logo-carousel-columns:focus-within .am-logo-carousel-track{animation-play-state:paused;}
+@keyframes am-brand-cycle{to{transform:translateY(-50%)}}
+@media(max-width:740px){.am-logo-carousel{grid-template-columns:1fr;gap:18px}.am-logo-carousel-columns{height:238px}.am-logo-carousel-copy h3{max-width:28ch}}
+@media(max-width:360px){.am-logo-carousel-columns{gap:5px}.am-logo-carousel-tile{font-size:.57rem}}
+@media(prefers-reduced-motion:reduce){.am-logo-carousel-track{animation:none;will-change:auto}}
