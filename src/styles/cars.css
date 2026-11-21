@@ -831,3 +831,15 @@ body:has(.cars-exact-screen) > div[role="note"] {
     height: 21px;
   }
 }
+
+/* Cult UI-inspired marketplace primitives (dependency-free adaptation). */
+.cult-cutout-card {position:relative;isolation:isolate;transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease;}
+.cult-cutout-card::before {content:"";position:absolute;z-index:3;right:0;bottom:0;width:22px;height:22px;border-top-left-radius:15px;background:#090909;pointer-events:none;}
+.cult-cutout-card:hover {border-color:rgba(212,175,55,.48);box-shadow:0 12px 30px rgba(0,0,0,.28);transform:translateY(-2px);}
+.cult-halo-badge {box-shadow:0 0 0 1px rgba(244,210,111,.32),0 0 18px rgba(212,175,55,.12);}
+@media (hover:none),(prefers-reduced-motion:reduce){.cult-cutout-card:hover{transform:none}.cult-cutout-card{transition:none}}
+
+.cult-halo-form select,.cult-halo-form input {transition:border-color .18s ease,box-shadow .18s ease;}
+.cult-halo-form select:focus-visible,.cult-halo-form input:focus-visible {outline:2px solid #d4af37;outline-offset:2px;box-shadow:0 0 0 4px rgba(212,175,55,.10);}
+.cult-halo-control:focus-visible {outline:2px solid #f2d87e;outline-offset:3px;}
+@media(max-width:767px){.cult-halo-form select,.cult-halo-form input{font-size:16px;}}
