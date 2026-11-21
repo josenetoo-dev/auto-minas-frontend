@@ -343,7 +343,7 @@ async function main() {
     await signupPage.getByRole("link", {name:"Negociações",exact:true}).waitFor();
     await signupPage.goto(BASE + "/login");
     await signupPage.waitForURL(BASE + "/");
-    expect(await signupPage.getByRole("region", {name:"Aviso de cookies"}).count() === 0, "Preferência de cookies não persistiu");
+    await signupPage.getByRole("region", {name:"Aviso de cookies"}).waitFor({state:"hidden"});
     await signupContext.close();
     console.log("Cadastro pela interface abriu a home autenticada; painel confirmou e-mail pendente.");
     console.log("Responsividade: telas de 320, 360, 390, 768, 1024 e 1280px sem overflow; menu, filtros, formulário e chat verificados.");
