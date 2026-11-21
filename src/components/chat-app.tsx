@@ -174,20 +174,25 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
   }, [activeId]);
 
   useEffect(() => {
-    if (!activeId || !window.visualViewport) return;
+    const frame = chatRootRef.current;
     const viewport = window.visualViewport;
+    if (!activeId || !frame || !viewport) return;
+
     const sync = () => {
-      chatRootRef.current?.style.setProperty(
-        "--chat-visual-height",
-        `${Math.floor(viewport.height)}px`,
-      );
+      const unzoomed = viewport.scale === 1;
+      frame.style.setProperty("--chat-visual-height", unzoomed ? `${viewport.height}px` : "100dvh");
+      frame.style.setProperty("--chat-visual-top", unzoomed ? `${viewport.offsetTop}px` : "0px");
+      frame.toggleAttribute("data-keyboard-open", unzoomed && window.innerHeight - viewport.height > 120);
     };
     sync();
-    viewport.addEventListener("resize",sync);
-    viewport.addEventListener("scroll",sync);
+    viewport.addEventListener("resize", sync);
+    viewport.addEventListener("scroll", sync);
     return () => {
-      viewport.removeEventListener("resize",sync);
-      viewport.removeEventListener("scroll",sync);
+      viewport.removeEventListener("resize", sync);
+      viewport.removeEventListener("scroll", sync);
+      frame.style.removeProperty("--chat-visual-height");
+      frame.style.removeProperty("--chat-visual-top");
+      frame.removeAttribute("data-keyboard-open");
     };
   }, [activeId]);
 
