@@ -231,7 +231,7 @@ async function main() {
         await page.getByText("Decisão registrada e auditada.",{exact:true}).waitFor();
         await login(context,"comprador-demo@auto-minas.test",process.env.STAGING_DEMO_BUYER_PASSWORD);
         await page.goto(BASE+"/meus-anuncios");
-        await page.getByText("Motivo da rejeição: "+reason,{exact:true}).waitFor();
+        await page.locator(".my-ad-rejection-note").getByText(reason,{exact:true}).waitFor();
         await page.goto(BASE+"/conta");
         await page.goto(BASE+"/conta/editar");
         await page.locator('.profile-edit-reference-form input[type="file"]').setInputFiles(file);
@@ -257,12 +257,14 @@ async function main() {
           const baseline=await browserJson(page,unreadURL);
           const initial=baseline[shared.id]??0;
           const poll=page.waitForResponse(r=>r.url().endsWith(unreadURL)&&r.ok());
-          await page.goto(BASE+"/conta");
+          await page.goto(BASE+"/");
           await poll;
           await browserJson(sellerPage,"/api/conversations/"+shared.id+"/messages",{
             content:"Mensagem fictícia para validar o aviso de negociação."
           });
-          await page.getByText(/Você recebeu uma nova mensagem/).waitFor({timeout:20000});
+          const total = Object.values(baseline).reduce((sum,count) => sum + count, 0) + 1;
+          await page.waitForFunction(expected => document.querySelector(".home-notification-dot")?.textContent === expected,
+            total > 9 ? "9+" : String(total));
           await page.goto(BASE+"/chat");
           const counts=await browserJson(page,unreadURL);
           expect(counts[shared.id]===initial+1,"Mensagem precisa somar exatamente uma após navegação");
