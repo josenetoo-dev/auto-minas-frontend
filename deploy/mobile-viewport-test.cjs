@@ -88,12 +88,12 @@ async function main() {
       if (width <= 768) {
         // O nome acessível muda de "Abrir menu" para "Fechar menu" após o clique.
         // Um seletor pelo nome antigo deixa de localizar o mesmo botão.
-        const menu = page.locator('button[aria-controls="auto-minas-mobile-menu"]');
+        const menu = page.locator('button[aria-controls="home-mobile-menu"]');
         await menu.waitFor({ state: "visible", timeout: 10000 });
         expect(await menu.getAttribute("aria-expanded") === "false",
           "Menu deveria iniciar fechado em " + width + "px");
         await menu.click();
-        const nav = page.locator("#auto-minas-mobile-menu");
+        const nav = page.locator("#home-mobile-menu");
         await nav.waitFor({ state: "visible", timeout: 10000 });
         expect(await menu.getAttribute("aria-expanded") === "true",
           "Menu não anunciou aria-expanded em " + width + "px");
@@ -119,7 +119,7 @@ async function main() {
       await login(context, "comprador-demo@auto-minas.test",
         process.env.STAGING_DEMO_BUYER_PASSWORD);
       await page.goto(BASE + "/conta", { waitUntil: "domcontentloaded" });
-      await page.getByRole("heading", { name: /Olá,/ }).waitFor();
+      await page.getByRole("heading", { name: "Meu Perfil" }).waitFor();
       await inspect(page, "conta", width);
       await page.goto(BASE + "/vender", { waitUntil: "domcontentloaded" });
       await inspect(page, "vender", width);
@@ -128,37 +128,62 @@ async function main() {
       await page.goto(BASE + "/chat", { waitUntil: "domcontentloaded" });
       await inspect(page, "chat", width);
       if (width <= 390) {
-        const conversation = page.locator("aside button").first();
+        const conversation = page.locator(".chat-reference-conversation").first();
         if (await conversation.count()) {
           await conversation.click();
-          const composer = page.getByRole("textbox", { name: "Mensagem para negociação" });
+          const composer = page.getByRole("textbox", { name: "Mensagem", exact:true });
           await composer.waitFor({ state: "visible", timeout: 10000 });
           expect(await composer.isVisible(), "Compositor do chat inacessível no celular");
           await page.waitForFunction(() => {
-            const box = document.querySelector('[aria-label="Mensagem para negociação"]')?.getBoundingClientRect();
-            return box && box.top >= 0 && box.bottom <= window.innerHeight;
+            const box = document.querySelector('[aria-label="Mensagem"]')?.getBoundingClientRect();
+            if (!box || box.top < 0 || box.bottom > window.innerHeight) return false;
+            const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+            return hit === document.querySelector('[aria-label="Mensagem"]');
           }, {timeout:10000});
           await inspect(page, "conversa", width);
         }
       }
       if (width === 390) {
         await page.goto(BASE + "/vender");
+        const next = page.getByRole("button", {name:"Próxima etapa"});
+        await next.click();
+        expect(await page.getByLabel("Marca *", {exact:true}).getAttribute("aria-invalid") === "true",
+          "Campos obrigatórios pendentes devem ser destacados");
         await page.getByLabel("Marca *", {exact:true}).selectOption("Fiat");
         await page.getByLabel("Modelo *", {exact:true}).fill("Argo");
-        await page.getByLabel("Ano *", {exact:true}).fill("2024");
+        await page.getByLabel("Ano *", {exact:true}).selectOption("2024");
         await page.getByLabel("Quilometragem *", {exact:true}).fill("12000");
-        await page.getByLabel("Cor *", {exact:true}).fill("Branco");
-        await page.getByLabel("Cidade onde está o veículo *", {exact:true}).fill("Pirapora");
+        await next.click();
         await page.getByLabel("Combustível *", {exact:true}).selectOption("flex");
         await page.getByLabel("Câmbio *", {exact:true}).selectOption("automatico");
-        await page.getByLabel("Preço em reais (R$) *", {exact:true}).fill("65000");
-        await page.getByLabel("Descrição * (até 255 caracteres)", {exact:true}).fill("Veículo fictício para testar formulário e documentos juntos.");
+        await page.getByLabel("Cor *", {exact:true}).fill("Branco");
+        await next.click();
         const file={name:"documento-ficticio.png",mimeType:"image/png",buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGO8st6cARtgwio6aCUAXZAByo07EaIAAAAASUVORK5CYII=","base64")};
-        await page.getByLabel("Selecionar fotos JPG/PNG", {exact:true}).setInputFiles(file);
+        await page.locator('.sell-photo-step input[type="file"]').setInputFiles({...file,name:"externa.png"});
+        await next.click();
+        await page.getByRole("alert").filter({hasText:"Adicione pelo menos 2 fotos"}).waitFor();
+        await page.locator('.sell-photo-step input[type="file"]').setInputFiles({...file,name:"interna.png"});
+        await next.click();
+        const price = page.getByLabel("Preço do veículo *", {exact:true});
+        await price.fill("6500000");
+        expect(/R\$[\s\u00a0]*65\.000,00/.test(await price.inputValue()),"Preço deve usar a máscara de Real");
+        await page.getByLabel(/Descrição \*/).fill("Muito curto");
+        const history = page.getByRole("group", {name:"Histórico e condições do veículo"});
+        for (const answer of await history.getByRole("combobox").all()) await answer.selectOption("NAO");
+        await next.click();
+        expect(await page.getByLabel(/Descrição \*/).getAttribute("aria-invalid") === "true",
+          "A descrição curta precisa ser identificada na etapa 4");
+        await page.getByLabel(/Descrição \*/).fill("Veículo fictício para testar formulário e documentos juntos.");
+        await next.click();
+        await page.getByLabel("Estado *", {exact:true}).selectOption("MG");
+        await page.getByLabel("Cidade *", {exact:true}).fill("Pirapora");
         await page.getByLabel("Documento do veículo (CRLV)", {exact:true}).setInputFiles(file);
-        await page.getByRole("button",{name:"Enviar anúncio e documentos",exact:true}).click();
-        await page.waitForURL(/\/meus-anuncios\?salvo=/);
-        const saved=new URL(page.url()).searchParams.get("salvo");
+        await next.click();
+        const save = page.waitForResponse(response => response.url().endsWith("/api/cars") &&
+          response.request().method() === "POST" && response.status() === 201);
+        await page.getByRole("button",{name:"Enviar para análise",exact:true}).click();
+        const saved = (await (await save).json()).id;
+        await page.getByRole("heading",{name:"Anúncio enviado para verificação!"}).waitFor();
         await page.goto(BASE + "/verificacoes?anuncio="+saved);
         await page.getByLabel("Escolha seu veículo",{exact:true}).waitFor();
         await page.getByText("Documento em análise",{exact:true}).waitFor();
@@ -172,7 +197,7 @@ async function main() {
         await page.getByRole("dialog",{name:"Documento privado para análise"}).waitFor();
         await inspect(page,"moderacao-documentos",width);
         await page.getByRole("button",{name:"Fechar documento",exact:true}).click();
-        const vehicleReview=card.getByRole("heading",{name:"Documento do veículo",exact:true}).locator("..");
+        const vehicleReview=card.getByRole("heading",{name:"Documento do veículo (CRLV)",exact:true}).locator("..");
         await vehicleReview.getByLabel("Justificativa para correção ou reavaliação").fill("Documento ilegível: envie uma nova foto do CRLV.");
         await vehicleReview.getByRole("button",{name:"Solicitar correção",exact:true}).click();
         await card.getByText("Correção necessária",{exact:true}).first().waitFor();
@@ -211,12 +236,11 @@ async function main() {
         await page.goto(BASE+"/meus-anuncios");
         await page.getByText("Motivo da rejeição: "+reason,{exact:true}).waitFor();
         await page.goto(BASE+"/conta");
-        await page.getByLabel("Foto pública do perfil").setInputFiles(file);
-        await page.getByRole("button",{name:"Salvar foto"}).click();
-        await page.getByText("Foto pública atualizada.",{exact:true}).waitFor();
-        await page.getByRole("link",{name:"Ver meu perfil"}).click();
-        await page.getByText("Nível 1 · Revisão documental concluída",{exact:true}).waitFor();
-        const photo=page.getByRole("img",{name:/^Foto de /});
+        await page.goto(BASE+"/conta/editar");
+        await page.locator('.profile-edit-reference-form input[type="file"]').setInputFiles(file);
+        await page.getByRole("button",{name:/Salvar alterações/}).click();
+        await page.getByText("Perfil atualizado.",{exact:true}).waitFor();
+        const photo=page.getByRole("img",{name:"Foto do perfil"});
         await photo.waitFor();
         await photo.evaluate(img=>img.decode());
 
@@ -270,7 +294,8 @@ async function main() {
         await login(context,"comprador-demo@auto-minas.test",process.env.STAGING_DEMO_BUYER_PASSWORD);
         await page.goto(BASE+"/privacidade/solicitacoes");
         await page.getByText(publicReply,{exact:true}).waitFor();
-        await page.getByText("Exclusão de dados · Aguardando suas informações",{exact:true}).waitFor();
+        await page.getByText("Aguardando suas informações",{exact:true}).waitFor();
+        expect(await page.getByText(/AM-DADOS-/).count() === 0,"O protocolo interno deve ficar fora da tela do titular");
         await inspect(page,"privacidade-titular",width);
       }
       if (width === 1280) {
@@ -289,19 +314,20 @@ async function main() {
     await signupPage.getByRole("button", { name: "Aceitar cookies necessários", exact:true }).click();
     await signupPage.getByRole("button", { name: "Criar conta", exact: true }).click();
     await signupPage.getByLabel("Nome completo", { exact: true }).fill("Pessoa fictícia de teste");
-    await signupPage.getByLabel(/Telefone com DDD/).fill("38000000000");
+    await signupPage.getByLabel("Telefone", {exact:true}).fill("38000000000");
     const signupEmail = `cadastro-${Date.now()}@auto-minas.test`;
     await signupPage.getByLabel("E-mail", { exact: true }).fill(signupEmail);
-    await signupPage.getByLabel("Senha", { exact: true }).fill("Senha-ficticia-CI-2026!");
+    await signupPage.locator("#password").fill("Senha-ficticia-CI-2026!");
+    await signupPage.locator("#confirmPassword").fill("Senha-ficticia-CI-2026!");
     await signupPage.getByRole("checkbox", { name: /Li e concordo/ }).check();
-    await signupPage.getByRole("button", { name: "Criar conta e entrar", exact: true }).click();
+    await signupPage.getByRole("button", { name: "Criar conta", exact: true }).click();
     await signupPage.waitForURL(BASE + "/");
-    await signupPage.getByRole("button", { name: "Abrir menu da conta", exact:true }).waitFor();
+    await signupPage.getByRole("link", { name: "Negociações", exact:true }).waitFor();
     const sessionCookie = (await signupContext.cookies()).find(cookie => cookie.name === "auto_minas_access");
     expect(sessionCookie?.httpOnly && sessionCookie?.secure, "Cadastro deve criar sessão Secure e HttpOnly");
     await signupPage.goto(BASE + "/conta");
-    await signupPage.getByRole("heading", { name: "Olá, Pessoa." }).waitFor();
-    await signupPage.getByText("E-mail pendente de confirmação", { exact: true }).waitFor();
+    await signupPage.getByRole("heading", { name: "Pessoa fictícia de teste" }).waitFor();
+    await signupPage.getByText("E-mail pendente de verificação", { exact: true }).waitFor();
     await inspect(signupPage, "cadastro-conectado", 390);
     const logout = await signupContext.request.post(BASE + "/api/auth/logout");
     expect(logout.ok(), "Logout falhou");
@@ -309,11 +335,11 @@ async function main() {
     await signupPage.waitForURL(/\/login/);
     await signupPage.getByLabel("E-mail", {exact:true}).fill(signupEmail);
     await signupPage.getByLabel("Senha", {exact:true}).fill("senha-incorreta123");
-    await signupPage.getByRole("button", {name:"Entrar na minha conta",exact:true}).click();
-    await signupPage.getByText("Credenciais inválidas", {exact:true}).waitFor();
+    await signupPage.getByRole("button", {name:"Entrar",exact:true}).click();
+    await signupPage.getByRole("alert").filter({hasText:/credenciais inválidas/i}).waitFor();
     expect(new URL(signupPage.url()).pathname === "/login", "Credenciais inválidas devem manter o login");
     await signupPage.getByLabel("Senha", {exact:true}).fill("Senha-ficticia-CI-2026!");
-    await signupPage.getByRole("button", {name:"Entrar na minha conta",exact:true}).click();
+    await signupPage.getByRole("button", {name:"Entrar",exact:true}).click();
     await signupPage.waitForURL(BASE + "/");
     await signupPage.getByRole("button", {name:"Abrir menu da conta",exact:true}).waitFor();
     await signupPage.goto(BASE + "/login");
