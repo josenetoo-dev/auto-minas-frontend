@@ -98,7 +98,7 @@ export default function CarCard({
         <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e12]/80 via-transparent to-transparent" />
         {car.isDemo && (
           <span className="absolute right-3 top-3 rounded-md border border-[#d4af37]/60 bg-[#15120a]/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.13em] text-[#e7c96c]">
-            {image.startsWith("/images/demo/") ? "DEMO · Foto ilustrativa" : "DEMO"}
+            Anúncio demonstrativo
           </span>
         )}
         {sold && (

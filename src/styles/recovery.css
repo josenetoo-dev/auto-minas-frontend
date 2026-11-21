@@ -530,3 +530,7 @@ body:has(.recovery-reference-screen) > div[role="note"] {
     padding-bottom: 130px;
   }
 }
+
+.recovery-reference-content {
+  margin-top: clamp(36px, 8vh, 84px);
+}

@@ -9,6 +9,7 @@ import "@/styles/account-plans.css";
 type Perfil = {
   nome: string;
   temFoto: boolean;
+  equipeAutoMinas?: boolean;
   nivel: number;
   veiculos: { id: number; titulo: string }[];
   temMais: boolean;
@@ -52,7 +53,7 @@ export default async function PerfilPage({
       <section className="public-profile-hero">
         <div className="public-profile-hero-car" aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/demo/hb20.jpg" alt="" />
+          <img src="/images/vehicle-illustration.svg" alt="" />
         </div>
 
         <div className="public-profile-person">
@@ -70,7 +71,7 @@ export default async function PerfilPage({
               {perfil.nome}
               {level > 0 && <span className="public-profile-check" aria-label="Perfil verificado">✓</span>}
             </h1>
-            <p>{level > 0 ? "Vendedor verificado" : "Vendedor"}</p>
+            <p>{perfil.equipeAutoMinas ? "Equipe Auto Minas" : level > 0 ? "Anunciante verificado" : "Anunciante"}</p>
             <strong>Nível {level} · {LEVEL_LABELS[level]}</strong>
           </div>
         </div>
@@ -81,7 +82,7 @@ export default async function PerfilPage({
           <div className="public-profile-section-heading">
             <div>
               <h2>Nível de verificação</h2>
-              <p>O nível exibido vem da análise registrada pelo Auto Minas.</p>
+              <p>Confira o nível de verificação deste perfil.</p>
             </div>
             <span>Nível {level}</span>
           </div>
@@ -97,17 +98,9 @@ export default async function PerfilPage({
           </div>
         </section>
 
-        <section className="public-profile-trust-note">
-          <span>◈</span>
-          <div>
-            <strong>Transparência de verificação</strong>
-            <p>O Auto Minas mostra apenas níveis e análises realmente registrados. Não exibimos métricas de reputação que ainda não são coletadas.</p>
-          </div>
-        </section>
-
         <section className="public-profile-listings">
           <div className="public-profile-listings-heading">
-            <h2>Anúncios deste vendedor</h2>
+            <h2>Anúncios deste perfil</h2>
             {perfil.temMais && <span>Há mais anúncios</span>}
           </div>
 

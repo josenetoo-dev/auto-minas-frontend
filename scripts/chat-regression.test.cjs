@@ -54,7 +54,7 @@ test('conversation identity includes the announcement',()=>{
  const chat=fs.readFileSync('src/lib/chat.ts','utf8');
  const route=fs.readFileSync('src/app/api/conversations/route.ts','utf8');
  assert.match(chat,/item\.carId/);
- assert.match(route,/item\.carId===data\.carId/);
+ assert.match(route,/anuncioId: carId, valor: price, descricao: message\.trim\(\), envioId: requestId/);
  assert.match(chat,/\/v1\/proposta\/\$\{id\}\/relacionadas/);
 });
 

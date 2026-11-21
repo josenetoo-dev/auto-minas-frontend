@@ -37,7 +37,7 @@ test('valid image URLs are proxied to same origin and arbitrary domains are neve
   {id:12,url:'http://localhost:8080/uploads/fotos/00000000-0000-4000-8000-000000000001.png',ordem:0,tipoFoto:'OUTRO',anuncioId:55},
   {id:13,url:'https://evil.example/image.jpg',ordem:1,tipoFoto:'OUTRO',anuncioId:55}
  ]);
- assert.deepEqual(c.images,['/api/media/00000000-0000-4000-8000-000000000001.png']);assert.deepEqual(Array.from(c.imageIds),[12,13]);
+ assert.deepEqual(Array.from(c.images),['/api/media/00000000-0000-4000-8000-000000000001.png']);assert.deepEqual(Array.from(c.imageIds),[12]);
 });
 test('ad creation payload uses names and enums of AnuncioRequest exactly',()=>{
  const p=apiAdPayload({brand:'Chevrolet',model:'Onix',version:'LT',year:2022,price:64900,mileageKm:58000,fuel:'flex',transmission:'manual',color:'Branco',city:'Várzea da Palma',state:'MG',vehicleHistory:validHistory,description:'Carro revisado e em boas condições.'});

@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useListingDocuments } from "@/components/listing-documents";
-import { BRANDS, FUEL_OPTIONS, TRANSMISSION_OPTIONS } from "@/lib/constants";
+import { BRANDS, FUEL_OPTIONS, TRANSMISSION_OPTIONS, UF_OPTIONS } from "@/lib/constants";
 import { formatPrice } from "@/lib/format";
 import HistoryBackButton from "@/components/history-back-button";
-import { HISTORY_QUESTIONS, HISTORY_OPTIONS, EMPTY_HISTORY, historyDetailKey, completeHistory, normalizeHistory, type VehicleHistory } from "@/lib/vehicle-history";
+import { HISTORY_QUESTIONS, HISTORY_OPTIONS, EMPTY_HISTORY, historyDetailKey, normalizeHistory, type VehicleHistory } from "@/lib/vehicle-history";
 
 export type SellFormData = {
   brand: string;
@@ -44,7 +44,7 @@ const EMPTY: SellFormData = {
   transmission: "",
   color: "",
   city: "",
-  state: "MG",
+  state: "",
   description: "",
   category: "SEMINOVOS",
   secondHand: true,
@@ -54,7 +54,10 @@ const EMPTY: SellFormData = {
   images: [],
 };
 
-const UF_LIST = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"] as const;
+const MIN_PHOTOS = 2;
+const MAX_PHOTOS = 20;
+const MIN_DESCRIPTION = 20;
+const PRICE_FORMAT = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const MAX_FILE = 4 * 1024 * 1024;
 const YEARS = Array.from(
   { length: new Date().getFullYear() + 2 - 1900 },
@@ -97,6 +100,7 @@ export default function SellForm({
   const [previews, setPreviews] = useState<string[]>([]);
   const [removed, setRemoved] = useState<number[]>([]);
   const [error, setError] = useState("");
+  const [validationAttempted, setValidationAttempted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [createdId, setCreatedId] = useState<number | null>(null);
   const [successId, setSuccessId] = useState<number | null>(null);
@@ -129,57 +133,67 @@ export default function SellForm({
       setError("Envie apenas JPG ou PNG de até 4 MiB por imagem.");
       return;
     }
-    if (files.length + next.length + data.images.length - removed.length > 20) {
-      setError("O limite é 20 fotos por anúncio.");
+    if (files.length + next.length + visibleExistingImages.length > MAX_PHOTOS) {
+      setError(`O limite é ${MAX_PHOTOS} fotos por anúncio.`);
       return;
     }
     setFiles((list) => [...list, ...next]);
     setError("");
   }
 
-  const visibleExistingImages = useMemo(
-    () => data.images.filter((_, index) => !removed.includes(data.imageIds?.[index] ?? -1)),
-    [data.images, data.imageIds, removed],
-  );
+  const existingImages = data.images.map((url, index) => ({ url, id: data.imageIds?.[index] }));
+  const visibleExistingImages = existingImages.filter(({ id }) => id === undefined || !removed.includes(id));
+  const photoCount = visibleExistingImages.length + files.length;
+  const reviewImage = visibleExistingImages[0]?.url ?? previews[0] ?? "/images/car-placeholder.svg";
 
-  const allPreviewImages = [...visibleExistingImages, ...previews];
-  const reviewImage = allPreviewImages[0] ?? "/images/car-placeholder.svg";
-
-  function stepValid(target = step) {
-    if (target === 1) {
-      return Boolean(data.brand.trim() && data.model.trim() && YEARS.includes(data.year) && data.mileageKm !== "");
-    }
-    if (target === 2) {
-      return Boolean(data.fuel && data.transmission && data.color.trim() && data.category);
-    }
-    if (target === 3) return true;
-    if (target === 4) {
-      return Boolean(Number(data.price) > 0 && data.description.trim().length >= 20 && completeHistory(data.vehicleHistory));
-    }
-    if (target === 5) {
-      return Boolean(data.city.trim() && data.state);
-    }
-    return true;
+  function invalidFields(target: number): string[] {
+    const fields: Record<string, boolean> =
+      target === 1 ? {
+        brand: !!data.brand.trim(), model: !!data.model.trim(), year: YEARS.includes(data.year),
+        mileageKm: data.mileageKm !== "" && Number.isInteger(Number(data.mileageKm)) && Number(data.mileageKm) >= 0,
+      } : target === 2 ? {
+        fuel: !!data.fuel, transmission: !!data.transmission, color: !!data.color.trim(), category: !!data.category,
+      } : target === 3 ? {
+        photos: photoCount >= MIN_PHOTOS,
+      } : target === 4 ? {
+        price: Number(data.price) > 0, description: data.description.trim().length >= MIN_DESCRIPTION,
+        ...Object.fromEntries(HISTORY_QUESTIONS.map(({ key }) => [
+          key, HISTORY_OPTIONS.some(option => option.value === data.vehicleHistory[key]),
+        ])),
+      } : target === 5 ? {
+        city: !!data.city.trim(), state: UF_OPTIONS.some(({ value }) => value === data.state),
+      } : {};
+    return Object.keys(fields).filter((key) => !fields[key]);
   }
 
-  function nextStep() {
-    setError("");
-    if (!stepValid()) {
-      setError("Preencha os campos obrigatórios desta etapa antes de continuar.");
-      return;
-    }
-    setStep((value) => Math.min(6, value + 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const invalid = validationAttempted ? invalidFields(step) : [];
+
+  function fieldState(key: string) {
+    return { "aria-invalid": invalid.includes(key) || undefined };
   }
 
-  function previousStep() {
+  function navigate(target: number) {
+    const firstInvalid = target > step
+      ? STEPS.find(({ number }) => number < target && invalidFields(number).length > 0)
+      : undefined;
+    setStep(firstInvalid?.number ?? target);
+    setValidationAttempted(!!firstInvalid);
     setError("");
-    setStep((value) => Math.max(1, value - 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if ((firstInvalid?.number ?? target) !== step) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
 
   async function save() {
     if (busy) return;
+    const firstInvalid = STEPS.find(({ number }) => invalidFields(number).length > 0);
+    if (firstInvalid) {
+      setStep(firstInvalid.number);
+      setValidationAttempted(true);
+      setError("");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     setBusy(true);
     setError("");
     let id = createdId || carId;
@@ -187,6 +201,8 @@ export default function SellForm({
     try {
       const payloadObject = {
         ...data,
+        images: undefined,
+        imageIds: undefined,
         year: Number(data.year),
         price: Number(data.price),
         mileageKm: Number(data.mileageKm),
@@ -219,19 +235,36 @@ export default function SellForm({
       if (!id) throw new Error("Não foi possível identificar o anúncio salvo.");
 
       for (const photoId of removed) {
-        if (photoId < 0) continue;
         const response = await fetch(`/api/cars/${id}/photos?fotoId=${photoId}`, { method: "DELETE" });
         if (!response.ok) throw new Error("Anúncio salvo, mas uma imagem antiga não pôde ser removida.");
+        setData((current) => {
+          const index = current.imageIds?.indexOf(photoId) ?? -1;
+          if (index < 0) return current;
+          return {
+            ...current,
+            images: current.images.filter((_, i) => i !== index),
+            imageIds: current.imageIds?.filter((value) => value !== photoId),
+          };
+        });
+        setRemoved((current) => current.filter((value) => value !== photoId));
       }
 
       for (const file of files) {
         const form = new FormData();
         form.append("fotos", file);
         const response = await fetch(`/api/cars/${id}/photos`, { method: "POST", body: form });
+        const json = await response.json().catch(() => ({}));
         if (!response.ok) {
-          const json = await response.json().catch(() => ({}));
           throw new Error(json.error || "Anúncio salvo, mas uma foto não pôde ser enviada.");
         }
+        const photo = json.photos?.[0];
+        if (!photo?.image) throw new Error("Não foi possível identificar a foto enviada.");
+        setData((current) => ({
+          ...current,
+          images: [...current.images, photo.image],
+          imageIds: [...(current.imageIds ?? []), photo.id],
+        }));
+        setFiles((current) => current.filter((item) => item !== file));
       }
 
       if (mode === "create") {
@@ -257,6 +290,7 @@ export default function SellForm({
     <label className="sell-field">
       <span>{label}{opts?.required && <em>*</em>}</span>
       <input
+        {...fieldState(key)}
         type={opts?.type || "text"}
         required={opts?.required}
         min={opts?.min}
@@ -300,6 +334,7 @@ export default function SellForm({
               setSuccessId(null);
               setStep(1);
               setError("");
+              setValidationAttempted(false);
               savedPayload.current = null;
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
@@ -323,7 +358,7 @@ export default function SellForm({
           </div>
           <div className="sell-wizard-car-accent" aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/demo/hb20.jpg" alt="" />
+            <img src="/images/vehicle-illustration.svg" alt="" />
           </div>
         </header>
 
@@ -335,12 +370,8 @@ export default function SellForm({
               <li key={item.number} className={`${done ? "is-done" : ""} ${active ? "is-active" : ""}`}>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (item.number <= step || STEPS.slice(0, item.number - 1).every((_, index) => stepValid(index + 1))) {
-                      setStep(item.number);
-                      setError("");
-                    }
-                  }}
+                  onClick={() => navigate(item.number)}
+                  disabled={busy}
                   aria-current={active ? "step" : undefined}
                 >
                   <span>{done ? "✓" : item.number}</span>
@@ -370,16 +401,16 @@ export default function SellForm({
             <div className="sell-fields-grid">
               <label className="sell-field">
                 <span>Marca <em>*</em></span>
-                <select required value={data.brand} onChange={(event) => update("brand", event.target.value)}>
-                  <option value="">Selecione</option>
+                <select required {...fieldState("brand")} value={data.brand} onChange={(event) => update("brand", event.target.value)}>
+                  <option value="" disabled hidden>Selecione a marca</option>
                   {BRANDS.map((brand) => <option key={brand}>{brand}</option>)}
                 </select>
               </label>
               {input("Modelo", "model", { required: true, placeholder: "Ex.: Hilux" })}
               <label className="sell-field">
                 <span>Ano <em>*</em></span>
-                <select required value={data.year} onChange={(event) => update("year",event.target.value)}>
-                  <option value="" disabled>Selecione o ano</option>
+                <select required {...fieldState("year")} value={data.year} onChange={(event) => update("year",event.target.value)}>
+                  <option value="" disabled hidden>Selecione o ano</option>
                   {YEARS.map((year) => <option key={year} value={year}>{year}</option>)}
                 </select>
               </label>
@@ -391,16 +422,16 @@ export default function SellForm({
             <div className="sell-fields-grid">
               <label className="sell-field">
                 <span>Combustível <em>*</em></span>
-                <select required value={data.fuel} onChange={(event) => update("fuel", event.target.value)}>
-                  <option value="">Selecione</option>
+                <select required {...fieldState("fuel")} value={data.fuel} onChange={(event) => update("fuel", event.target.value)}>
+                  <option value="" disabled hidden>Selecione o combustível</option>
                   {FUEL_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                 </select>
               </label>
 
               <label className="sell-field">
                 <span>Câmbio <em>*</em></span>
-                <select required value={data.transmission} onChange={(event) => update("transmission", event.target.value)}>
-                  <option value="">Selecione</option>
+                <select required {...fieldState("transmission")} value={data.transmission} onChange={(event) => update("transmission", event.target.value)}>
+                  <option value="" disabled hidden>Selecione o câmbio</option>
                   {TRANSMISSION_OPTIONS.filter((option) => option.value !== "cvt").map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                 </select>
               </label>
@@ -409,7 +440,7 @@ export default function SellForm({
 
               <label className="sell-field">
                 <span>Categoria <em>*</em></span>
-                <select value={data.category} onChange={(event) => update("category", event.target.value)}>
+                <select required {...fieldState("category")} value={data.category} onChange={(event) => update("category", event.target.value)}>
                   <option value="SEMINOVOS">Seminovos</option>
                   <option value="PREMIUM">Premium</option>
                   <option value="BLINDADOS">Blindados</option>
@@ -426,6 +457,7 @@ export default function SellForm({
               <label className="sell-photo-drop">
                 <input
                   type="file"
+                  {...fieldState("photos")}
                   accept="image/jpeg,image/png"
                   multiple
                   onChange={(event) => {
@@ -435,16 +467,16 @@ export default function SellForm({
                 />
                 <svg viewBox="0 0 24 24" aria-hidden="true"><StepIcon type="photo" /></svg>
                 <strong>Adicionar fotos</strong>
-                <span>JPG ou PNG, até 20 imagens</span>
+                <span>JPG ou PNG, de {MIN_PHOTOS} a {MAX_PHOTOS} imagens</span>
               </label>
 
               <div className="sell-photo-grid">
-                {visibleExistingImages.map((url, index) => (
-                  <div key={url} className="sell-photo-thumb">
+                {visibleExistingImages.map(({ url, id }, index) => (
+                  <div key={id ?? url} className="sell-photo-thumb">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={url} alt={`Foto ${index + 1} do veículo`} />
                     {index === 0 && <span>Principal</span>}
-                    <button type="button" aria-label="Remover foto" onClick={() => setRemoved((current) => [...current, data.imageIds?.[index] ?? -1])}>×</button>
+                    {id !== undefined && <button type="button" aria-label="Remover foto" onClick={() => setRemoved((current) => [...current, id])}>×</button>}
                   </div>
                 ))}
                 {previews.map((url, index) => (
@@ -457,26 +489,41 @@ export default function SellForm({
                 ))}
               </div>
 
-              <p className="sell-photo-note">{allPreviewImages.length} de 20 fotos adicionadas · máximo de 4 MiB por arquivo.</p>
+              <p className="sell-photo-note">{photoCount} de {MAX_PHOTOS} fotos adicionadas. Envie pelo menos {MIN_PHOTOS}, de preferência uma externa e uma interna. Até 4 MiB por arquivo.</p>
             </div>
           )}
 
           {step === 4 && (
             <div className="sell-price-step">
-              {input("Preço do veículo", "price", { type: "number", min: 1, required: true, placeholder: "289900" })}
+              <label className="sell-field">
+                <span>Preço do veículo <em>*</em></span>
+                <input
+                  {...fieldState("price")}
+                  required
+                  inputMode="numeric"
+                  placeholder="R$ 0,00"
+                  value={data.price === "" ? "" : PRICE_FORMAT.format(Number(data.price))}
+                  onChange={(event) => {
+                    const digits = event.target.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+                    if (digits.length <= 12) update("price", digits ? (Number(digits) / 100).toFixed(2) : "");
+                  }}
+                />
+              </label>
 
 
               <label className="sell-field">
                 <span>Descrição <em>*</em></span>
                 <textarea
                   required
-                  minLength={20}
+                  {...fieldState("description")}
+                  aria-describedby="sell-description-length"
+                  minLength={MIN_DESCRIPTION}
                   maxLength={255}
                   value={data.description}
                   onChange={(event) => update("description", event.target.value)}
                   placeholder="Descreva o estado de conservação, revisões e detalhes do veículo."
                 />
-                <small>{data.description.length}/255</small>
+                <small id="sell-description-length">Mínimo de {MIN_DESCRIPTION} caracteres · {data.description.trim().length}/255</small>
               </label>
 
 
@@ -490,11 +537,12 @@ export default function SellForm({
                     </label>
                     <select
                       id={`history-${key}`}
+                      {...fieldState(key)}
                       required
                       value={data.vehicleHistory[key]}
                       onChange={(event)=>updateHistory(key, event.target.value)}
                     >
-                      <option value="" disabled>Selecione uma resposta</option>
+                      <option value="" disabled hidden>Selecione uma resposta</option>
                       {HISTORY_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>{option.label}</option>
                       ))}
@@ -524,9 +572,9 @@ export default function SellForm({
               <div className="sell-fields-grid">
                 <label className="sell-field">
                   <span>Estado <em>*</em></span>
-                  <select required value={data.state} onChange={(event) => update("state", event.target.value)}>
-                    <option value="">Selecione</option>
-                    {UF_LIST.map((uf) => <option key={uf} value={uf}>{uf}</option>)}
+                  <select required {...fieldState("state")} value={data.state} onChange={(event) => update("state", event.target.value)}>
+                    <option value="" disabled hidden>Selecione o estado</option>
+                    {UF_OPTIONS.map(({ value }) => <option key={value} value={value}>{value}</option>)}
                   </select>
                 </label>
                 {input("Cidade", "city", { required: true, placeholder: "Ex.: Belo Horizonte" })}
@@ -555,11 +603,11 @@ export default function SellForm({
               {[
                 ["Dados do veículo", `${data.brand} · ${data.model} · ${data.year} · ${data.mileageKm || 0} km`, 1],
                 ["Características", `${data.fuel || "—"} · ${data.transmission || "—"} · ${data.color || "—"} · ${data.category}`, 2],
-                ["Fotos", `${allPreviewImages.length} foto(s) adicionada(s)`, 3],
+                ["Fotos", `${photoCount} foto(s) adicionada(s)`, 3],
                 ["Preço e anúncio", `${formatPrice(Number(data.price || 0))} · Histórico declarado`, 4],
                 ["Localização", `${data.city || "—"} · ${data.state || "—"}`, 5],
               ].map(([title, summary, target]) => (
-                <button key={String(title)} type="button" className="sell-review-row" onClick={() => setStep(Number(target))}>
+                <button key={String(title)} type="button" className="sell-review-row" disabled={busy} onClick={() => navigate(Number(target))}>
                   <span>
                     <strong>{title}</strong>
                     <small>{summary}</small>
@@ -575,18 +623,24 @@ export default function SellForm({
             </div>
           )}
 
-          {error && <p className="sell-wizard-error" role="alert">{error}</p>}
+          {(error || invalid.length > 0) && (
+            <p className="sell-wizard-error" role="alert">
+              {error || (step === 3
+                ? `Adicione pelo menos ${MIN_PHOTOS} fotos para continuar.`
+                : "Confira os campos destacados para continuar.")}
+            </p>
+          )}
         </section>
 
         <div className="sell-wizard-actions">
           {step > 1 ? (
-            <button type="button" className="sell-back-action" onClick={previousStep}>← Voltar</button>
+            <button type="button" className="sell-back-action" disabled={busy} onClick={() => navigate(step - 1)}>← Voltar</button>
           ) : (
             <HistoryBackButton fallback="/" className="sell-back-action">← Voltar</HistoryBackButton>
           )}
 
           {step < 6 ? (
-            <button type="button" className="sell-primary-action" onClick={nextStep}>Próxima etapa →</button>
+            <button type="button" className="sell-primary-action" onClick={() => navigate(step + 1)}>Próxima etapa →</button>
           ) : (
             <button type="button" className="sell-primary-action" disabled={busy} onClick={() => void save()}>
               {busy ? "Enviando…" : mode === "edit" ? "Salvar alterações" : "Enviar para análise"}

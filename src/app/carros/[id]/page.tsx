@@ -115,9 +115,9 @@ export default async function Detail({ params }: Props) {
       <main>
         <ImageGallery images={car.images} title={`${car.brand} ${car.model}`} />
 
-        {car.demoPhoto && (
+        {car.isDemo && (
           <p className="vehicle-detail-demo-note">
-            Anúncio demonstrativo · Foto ilustrativa do modelo.
+            Anúncio demonstrativo.
           </p>
         )}
 

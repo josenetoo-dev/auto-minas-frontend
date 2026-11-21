@@ -15,7 +15,7 @@ export default async function Moderation(){
     <AdminShell
       role={user.role}
       title="Painel de moderação"
-      description="Revise anúncios, documentos e denúncias com rastreabilidade e controle de acesso."
+      description="Revise anúncios, documentos e denúncias."
       active="moderation"
     >
       <ModerationDashboard role={user.role} reviewerId={user.id}/>

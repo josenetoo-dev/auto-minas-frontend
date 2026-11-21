@@ -9,18 +9,10 @@ export type BackendAd = {
  segundaMao:boolean; categoria:string; historicoVeiculo?:VehicleHistory|null; fotoCapaUrl:string|null; usuarioId:number; usuarioNome:string;
  criadoEm:string; veiculoId:number|null; cidade?:string|null; uf?:string|null; motivoRejeicao?:string|null; laudoCautelar?:string|null; documentacao:string; garantia:string;
 };
-type DemoPhoto = { model: string; brand: string; year: number; image: string; author: string; file: string; license: string };
-const demoPhotos: Record<string, DemoPhoto> = {
-  "DEMO-001": {"model": "Onix", "brand": "Chevrolet", "year": 2022, "image": "/images/demo/onix.jpg", "author": "Just a Man", "file": "2022 Chevrolet Onix 1.2 LT hatchback.jpg", "license": "by/4.0"},
-  "DEMO-002": {"model": "Corolla", "brand": "Toyota", "year": 2021, "image": "/images/demo/corolla.jpg", "author": "MercurySable99", "file": "2021 Toyota Corolla LE, front right, 07-13-2024.jpg", "license": "by-sa/4.0"},
-  "DEMO-003": {"model": "HB20", "brand": "Hyundai", "year": 2023, "image": "/images/demo/hb20.jpg", "author": "Autosdeprimera", "file": "2023 Hyundai HB20 1.0 T-GDi Platinum Plus (Brazil) front view.png", "license": "by/3.0"},
-  "DEMO-004": {"model": "Gol", "brand": "Volkswagen", "year": 2020, "image": "/images/demo/gol.jpg", "author": "RL GNZLZ", "file": "2020 Volkswagen Gol 1.6 Trendline.jpg", "license": "by-sa/2.0"},
-  "DEMO-005": {"model": "Argo", "brand": "Fiat", "year": 2022, "image": "/images/demo/argo.jpg", "author": "RL GNZLZ", "file": "2022 Fiat Argo 1.3 Drive ELX.jpg", "license": "by-sa/2.0"},
-};
 export type CarData = {
  id:number;userId:number;name:string; brand:string;model:string;version:string;year:number;price:number;mileageKm:number;
  fuel:string;transmission:string;color:string;description:string;images:string[];imageIds:number[];
- status:string; statusApi:AdStatus; isDemo?:boolean; demoPhoto?:DemoPhoto; createdAt:string; city:string;state:string;vehicleId:number|null;rejectionReason:string|null;
+ status:string; statusApi:AdStatus; isDemo?:boolean; createdAt:string; city:string;state:string;vehicleId:number|null;rejectionReason:string|null;
  category:string;secondHand:boolean;vehicleHistory:VehicleHistory|null;documentation:string;warranty:string;inspectionReport:string;
 };
 export type BackendPhoto = {id:number;url:string;ordem:number;tipoFoto:string;anuncioId:number};
@@ -29,7 +21,7 @@ const fromApiStatus: Record<AdStatus, string>={
  ATIVO:"ativo",PENDENTE:"pendente",REJEITADO:"rejeitado",PAUSADO:"pausado",
  VENDIDO:"vendido",ARQUIVADO:"arquivado",SUSPENSO:"suspenso",
 };
-function photoUrl(raw: string | null | undefined): string | null {
+export function photoUrl(raw: string | null | undefined): string | null {
  if (!raw) return null;
  // Photos are delivered by our same-origin BFF, including owner-only previews.
  const filename=raw.split("/").pop()?.split("?")[0] ?? "";
@@ -37,17 +29,22 @@ function photoUrl(raw: string | null | undefined): string | null {
   ? `/api/media/${filename}` : null;
 }
 export function fromBackendAd(ad:BackendAd, photos:BackendPhoto[]=[]):CarData {
- const imgs=photos.sort((a,b)=>a.ordem-b.ordem).map(p=>photoUrl(p.url)).filter((x):x is string=>!!x);
- const cover=photoUrl(ad.fotoCapaUrl);
- if (cover && !imgs.includes(cover) && photos.length === 0) imgs.unshift(cover);
- const candidate = demoPhotos[ad.codigo];
- const demoPhoto = !imgs.length && candidate?.model === ad.modelo && candidate?.brand === ad.marca && candidate?.year === ad.ano ? candidate : undefined;
- if (demoPhoto) imgs.push(demoPhoto.image);
+ const images: string[] = [];
+ const imageIds: number[] = [];
+ for (const photo of [...photos].sort((a, b) => a.ordem - b.ordem)) {
+  const url = photoUrl(photo.url);
+  if (url) {
+   images.push(url);
+   imageIds.push(photo.id);
+  }
+ }
+ const cover = photoUrl(ad.fotoCapaUrl);
+ if (cover && photos.length === 0) images.push(cover);
  return {
-  demoPhoto, id:ad.id,userId:ad.usuarioId,name:ad.usuarioNome,brand:ad.marca,model:ad.modelo,version:ad.versao,
+  id:ad.id,userId:ad.usuarioId,name:ad.usuarioNome,brand:ad.marca,model:ad.modelo,version:ad.versao,
   year:ad.ano,price:Number(ad.preco),mileageKm:ad.quilometragem,
   fuel:ad.combustivel.toLowerCase(),transmission:ad.cambio.toLowerCase(),color:ad.cor,
-  description:ad.descricao, images:imgs,imageIds:photos.map(p=>p.id),status:fromApiStatus[ad.status]||"pendente",
+  description:ad.descricao, images,imageIds,status:fromApiStatus[ad.status]||"pendente",
   statusApi:ad.status, isDemo:ad.codigo?.startsWith("DEMO-") ?? false, createdAt:ad.criadoEm,city:ad.cidade ?? "",state:ad.uf ?? "",vehicleId:ad.veiculoId,rejectionReason:ad.motivoRejeicao??null,
   category:ad.categoria,secondHand:ad.segundaMao,vehicleHistory:ad.historicoVeiculo?normalizeHistory(ad.historicoVeiculo):null,documentation:ad.documentacao,warranty:ad.garantia,inspectionReport:ad.laudoCautelar||"",
  };

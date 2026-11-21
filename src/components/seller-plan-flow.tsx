@@ -2,20 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { CommercialContract, CommercialPlan } from "@/lib/commercial";
+import type { CommercialPlan } from "@/lib/commercial";
 
-type Props = { plan: CommercialPlan; contract: CommercialContract };
-type Intent = {
-  id: number;
-  codigoPlano: string;
-  nomePlano: string;
-  mensalidade: number;
-  status: string;
-  situacaoFinanceira: string;
-};
-
-export default function SellerPlanFlow({ plan, contract }: Props) {
-  const [intent, setIntent] = useState<Intent | null>(null);
+export default function SellerPlanFlow({ plan }: { plan: CommercialPlan }) {
+  const [requested, setRequested] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -31,8 +21,8 @@ export default function SellerPlanFlow({ plan, contract }: Props) {
         body: JSON.stringify({ codigoPlano: plan.codigo }),
       });
       const body = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(body.error || "Não foi possível registrar a intenção.");
-      setIntent(body);
+      if (!response.ok) throw new Error(body.error || "Não foi possível enviar a solicitação.");
+      setRequested(true);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Falha de conexão.");
     } finally {
@@ -59,55 +49,41 @@ export default function SellerPlanFlow({ plan, contract }: Props) {
       <section className="plan-intent-steps">
         <div className="is-done"><i>✓</i><span>Plano</span></div>
         <div className={acknowledged ? "is-done" : "is-active"}><i>{acknowledged ? "✓" : "2"}</i><span>Revisão</span></div>
-        <div className={intent ? "is-done" : acknowledged ? "is-active" : ""}><i>{intent ? "✓" : "3"}</i><span>Intenção</span></div>
+        <div className={requested ? "is-done" : acknowledged ? "is-active" : ""}><i>{requested ? "✓" : "3"}</i><span>Solicitação</span></div>
       </section>
 
       <section className="plan-intent-contract">
-        <div className="plan-intent-contract-heading">
-          <div>
-            <small>DEMO · versão {contract.versao}</small>
-            <h2>{contract.titulo}</h2>
-          </div>
-          <span>Não publicado</span>
-        </div>
-
-        <div className="plan-intent-contract-copy">
-          {contract.conteudo}
-        </div>
+        <h2>Como funciona a solicitação</h2>
+        <p>O envio é gratuito. A assinatura só é ativada após a confirmação do pagamento.</p>
 
         <label className="plan-intent-ack">
           <input
             type="checkbox"
             checked={acknowledged}
             onChange={(event) => setAcknowledged(event.target.checked)}
-            disabled={!!intent}
+            disabled={requested}
           />
           <span>
-            Li a minuta demonstrativa e entendo que este registro <strong>não é pagamento, não ativa assinatura e não constitui aceite contratual definitivo.</strong>
+            Entendo que estou solicitando o plano e que nenhuma cobrança será feita agora.
           </span>
         </label>
-      </section>
-
-      <section className="plan-intent-warning">
-        <strong>Fluxo comercial ainda demonstrativo</strong>
-        <p>O backend registra apenas a intenção. Pagamento, cartão, cobrança e ativação automática continuam desabilitados.</p>
       </section>
 
       <button
         type="button"
         className="plan-intent-submit"
-        disabled={busy || !!intent || !acknowledged}
+        disabled={busy || requested || !acknowledged}
         onClick={() => void registerIntent()}
       >
-        {intent ? "Intenção registrada" : busy ? "Registrando…" : "Registrar intenção"}
+        {requested ? "Solicitação enviada" : busy ? "Enviando…" : "Solicitar plano"}
       </button>
 
-      {intent && (
+      {requested && (
         <section className="plan-intent-success" role="status">
           <span>✓</span>
           <div>
-            <strong>Intenção registrada</strong>
-            <p>Status: {intent.status} · situação financeira: {intent.situacaoFinanceira}</p>
+            <strong>Solicitação enviada</strong>
+            <p>Acompanhe o andamento em Minha assinatura.</p>
           </div>
           <Link href="/assinatura">Acompanhar →</Link>
         </section>

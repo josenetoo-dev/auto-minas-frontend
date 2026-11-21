@@ -19,7 +19,7 @@ export default async function CommercialAdminPage() {
     <AdminShell
       role="ADMIN"
       title="Administração comercial"
-      description="Gerencie planos, intenções comerciais e versões contratuais sem simular cobranças."
+      description="Gerencie os planos, as solicitações de contratação e os contratos."
       active="commercial"
     >
       {plans.length

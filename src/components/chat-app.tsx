@@ -368,7 +368,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
           </div>
           <div className="chat-reference-list-car" aria-hidden="true">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/demo/hb20.jpg" alt="" />
+            <img src="/images/vehicle-illustration.svg" alt="" />
           </div>
         </section>
 

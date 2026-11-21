@@ -116,12 +116,21 @@ try {
   photo.set("arquivo",new Blob([Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGO8st6cARtgwio6aCUAXZAByo07EaIAAAAASUVORK5CYII=","base64")],{type:"image/png"}),"perfil.png");
   const upload=await fetch(base+"/api/backend/v1/usuario/me/foto-perfil",{method:"POST",headers:{Origin:base,Cookie:buyer},body:photo});
   if(upload.status!==204)throw new Error("Falha ao salvar foto de perfil: "+upload.status);
-  const publish=await request("/api/backend/v1/moderacao/anuncios/"+newAd.json.id+"/aprovar",{method:"POST",cookie:admin,body:{requisitosConferidos:true}});
+  const publishPath = "/api/backend/v1/moderacao/anuncios/" + newAd.json.id + "/aprovar";
+  const decision = { method:"POST", cookie:admin, body:{requisitosConferidos:true} };
+  expectCode(await request(publishPath, decision),409,"Anúncio sem fotos continua pendente");
+  for (const name of ["externa.png", "interna.png"]) {
+    const form = new FormData();
+    form.set("fotos", photo.get("arquivo"), name);
+    const result = await fetch(base+"/api/cars/"+newAd.json.id+"/photos",{method:"POST",headers:{Origin:base,Cookie:buyer},body:form});
+    if (result.status !== 201) throw new Error("Envio de foto do anúncio retornou HTTP " + result.status);
+  }
+  const publish = await request(publishPath, decision);
   expectCode(publish,200,"Publicar gratuitamente após revisão");
   if(publish.json.status!=="ATIVO") throw new Error("Publicação gratuita não foi confirmada");
   const publicProfile=await request("/perfil/"+publish.json.usuarioId);
   expectCode(publicProfile,200,"Perfil público");
-  if(!publicProfile.raw.includes("Nível") || !publicProfile.raw.includes("Vendedor"))throw new Error("Nível do vendedor não reconhecido");
+  if(!publicProfile.raw.includes("Nível") || !publicProfile.raw.includes("Anunciante"))throw new Error("Nível do vendedor não reconhecido");
   const forbiddenPublicDocs=await request("/api/cars/"+newAd.json.id+"/documents",{cookie:seller});
   expectCode(forbiddenPublicDocs,403,"Documentos privados mesmo após publicação");
   const details=await request("/carros/"+newAd.json.id);
@@ -138,14 +147,22 @@ try {
   if(!myAds.raw.includes("Pirapora") || !myAds.raw.includes("MG"))
     throw new Error("Localização enviada ao Spring não retornou corretamente para a interface");
 
-  const proposal=await request("/api/conversations",{
-    method:"POST",cookie:buyer,body:{
-      carId,price:60000,
-      message:"Proposta fictícia de homologação, não constitui oferta real."
-    }
-  });
+  const initialMessage = "Proposta fictícia de homologação, não constitui oferta real.";
+  const proposalRequest = { method:"POST", cookie:buyer, body:{
+    carId, price:60000, message:initialMessage, requestId:crypto.randomUUID(),
+  }};
+  const proposal = await request("/api/conversations", proposalRequest);
   expectCode(proposal,201,"Proposta a anúncio de demonstração");
-  if(!proposal.json?.id) throw new Error("Proposta sem ID retornado");
+  if (!proposal.json?.id) throw new Error("Proposta sem ID retornado");
+
+  const retry = await request("/api/conversations", proposalRequest);
+  expectCode(retry,201,"Repetir o mesmo envio");
+  if (retry.json?.id !== proposal.json.id) throw new Error("O mesmo envio abriu outra negociação");
+  const thread = await request("/api/conversations/"+proposal.json.id+"/messages", { cookie:seller });
+  expectCode(thread,200,"Vendedor recebe a mensagem inicial");
+  if (thread.json.messages.filter(item => item.content === initialMessage).length !== 1) {
+    throw new Error("A mensagem inicial não apareceu exatamente uma vez no chat");
+  }
 
   const message=await request("/api/conversations/"+proposal.json.id+"/messages",{
     method:"POST",cookie:buyer,body:{

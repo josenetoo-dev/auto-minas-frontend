@@ -30,7 +30,7 @@ jobs:
         with:
           repository: josenetoo-dev/veiculos-api
           # Mantém o par de frontend/API usado na validação deste PR.
-          ref: ${{ github.head_ref == 'fix/qa-12-bugs-20261118' && 'fix/qa-12-bugs-20261118' || (github.head_ref == 'feat/atendimento-privacidade-email' && 'f3b8c47861d10ee9b5bc3993aef216d6016f6edc' || 'main') }}
+          ref: ${{ github.head_ref == 'fix/qa-matheus-nov21' && 'fix/qa-matheus-nov21' || github.head_ref == 'fix/qa-12-bugs-20261118' && 'fix/qa-12-bugs-20261118' || (github.head_ref == 'feat/atendimento-privacidade-email' && 'f3b8c47861d10ee9b5bc3993aef216d6016f6edc' || 'main') }}
           path: veiculos-api
 
       - name: Configurar Node.js para checagens de contratos
