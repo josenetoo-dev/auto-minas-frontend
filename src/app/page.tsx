@@ -161,7 +161,7 @@ export default async function HomePage() {
 
       <section className="home-reference-section home-brand-section">
         <div className="home-section-heading">
-          <h2>Busque por marca</h2>
+          <h2>Busque por <span>marca</span></h2>
           <Link href="/carros">Ver todas <span aria-hidden="true">›</span></Link>
         </div>
         <BrandLogoCarousel />
