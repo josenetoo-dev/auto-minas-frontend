@@ -3,6 +3,7 @@ import Image from "next/image";
 import { featuredCars } from "@/lib/car";
 import { formatPrice } from "@/lib/format";
 import HomeHoverVideo from "@/components/home-hover-video";
+import BrandLogoCarousel from "@/components/brand-logo-carousel";
 import "@/styles/home.css";
 
 // Nunca manter anúncio suspenso no destaque por cache da página inicial.
@@ -15,8 +16,6 @@ const categories = [
   { label: "Caminhões", href: "/carros?tipo=CARRO", icon: "truck" },
   { label: "Outros", href: "/carros", icon: "more" },
 ] as const;
-
-const brands = ["Volkswagen", "Chevrolet", "Fiat", "Toyota", "Hyundai"];
 
 function CategoryIcon({ type }: { type: (typeof categories)[number]["icon"] }) {
   if (type === "car") {
@@ -162,17 +161,10 @@ export default async function HomePage() {
 
       <section className="home-reference-section home-brand-section">
         <div className="home-section-heading">
-          <h2>Busque por marca</h2>
+          <h2>Busque por <span>marca</span></h2>
           <Link href="/carros">Ver todas <span aria-hidden="true">›</span></Link>
         </div>
-        <div className="home-brand-row">
-          {brands.map((brand) => (
-            <Link key={brand} href={`/carros?q=${encodeURIComponent(brand)}`} className="home-brand-card">
-              <span className="home-brand-mark" aria-hidden="true">{brand.slice(0, 2).toUpperCase()}</span>
-              <span>{brand}</span>
-            </Link>
-          ))}
-        </div>
+        <BrandLogoCarousel />
       </section>
     </div>
   );
