@@ -327,7 +327,8 @@ export default function SellForm({
           </div>
         </header>
 
-        <ol className="sell-stepper" aria-label="Etapas do anúncio">
+        <div className="cult-wizard-progress" role="progressbar" aria-label="Progresso do cadastro de veículo" aria-valuemin={1} aria-valuemax={6} aria-valuenow={step}><span style={{ width: `${(step / 6) * 100}%` }} /></div>
+        <ol className="sell-stepper cult-wizard-stepper" aria-label="Etapas do anúncio">
           {STEPS.map((item) => {
             const done = item.number < step;
             const active = item.number === step;
@@ -351,7 +352,7 @@ export default function SellForm({
           })}
         </ol>
 
-        <div className="sell-step-meta">Etapa {step} de 6</div>
+        <div className="sell-step-meta cult-wizard-current">Etapa {step} de 6</div>
 
         <section className="sell-step-card">
           <div className="sell-step-title">
