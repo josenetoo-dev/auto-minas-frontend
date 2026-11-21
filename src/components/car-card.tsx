@@ -33,7 +33,7 @@ export default function CarCard({
 
   if (variant === "catalog") {
     return (
-      <Link href={`/carros/${car.id}`} className={`cars-result-card ${sold ? "is-sold" : ""}`}>
+      <Link href={`/carros/${car.id}`} className={`cars-result-card cult-cutout-card ${sold ? "is-sold" : ""}`}>
         <div className="cars-result-media relative">
           <Image
             src={image}
@@ -69,7 +69,7 @@ export default function CarCard({
 
           <div className="cars-result-badges">
             {car.status === "ativo" && (
-              <span className="cars-result-verified">
+              <span className="cars-result-verified cult-halo-badge">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 2.9 8.1 7 10 4.1-1.9 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
                 Anúncio ativo
               </span>
@@ -84,7 +84,7 @@ export default function CarCard({
   return (
     <Link
       href={`/carros/${car.id}`}
-      className={`vehicle-card card-dark card-dark-hover group flex flex-col overflow-hidden ${sold ? "opacity-70" : ""}`}
+      className={`vehicle-card cult-cutout-card card-dark card-dark-hover group flex flex-col overflow-hidden ${sold ? "opacity-70" : ""}`}
     >
       <div className="vehicle-card-media relative aspect-[16/10] overflow-hidden bg-[#16161c]">
         <Image
