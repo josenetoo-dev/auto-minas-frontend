@@ -847,3 +847,9 @@ body:has(.sell-wizard-screen) .home-bottom-nav-icon svg {
   font-size:16px;line-height:1.4;
 }
 .sell-history-question textarea {min-height:80px;resize:vertical}
+
+/* Cult UI-inspired wizard: presentation only; existing six-step validation remains authoritative. */
+.cult-wizard-progress{height:6px;width:100%;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.12);margin:12px 0 18px;}
+.cult-wizard-progress>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#b58b2b,#f2d87e);transition:width .25s ease;}
+.cult-wizard-current{font-variant-numeric:tabular-nums;}
+@media(prefers-reduced-motion:reduce){.cult-wizard-progress>span{transition:none;}}
