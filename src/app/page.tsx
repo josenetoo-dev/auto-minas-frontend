@@ -152,7 +152,7 @@ export default async function HomePage() {
 
       <section className="home-reference-section home-video-section" aria-label="Prévia em vídeo do Auto Minas">
         <div className="home-section-heading"><h2>Uma nova forma de encontrar seu próximo carro</h2></div>
-        <p className="home-video-caption">Veja uma prévia em vídeo. No celular, toque para reproduzir.</p>
+        <p className="home-video-caption">O vídeo começa automaticamente quando você chega a esta seção.</p>
         <HomeHoverVideo
           title="Seu próximo caminho começa aqui."
           posterSrc="/images/demo/corolla.jpg"
