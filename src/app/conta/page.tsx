@@ -111,6 +111,11 @@ export default async function Account() {
         </Link>
 
         <nav className="account-hub-grid" aria-label="Área da conta">
+          <Link href="/favoritos">
+            <span>♡</span>
+            <div><strong>Favoritos</strong><small>Carros salvos por você</small></div>
+            <b>›</b>
+          </Link>
           <Link href="/meus-anuncios">
             <span>▤</span>
             <div><strong>Meus anúncios</strong><small>Gerencie seus veículos</small></div>
@@ -147,6 +152,12 @@ export default async function Account() {
           <Link href="/privacidade/solicitacoes">
             <span>☷</span>
             <div><strong>Privacidade</strong><small>Dados e solicitações</small></div>
+            <b>›</b>
+          </Link>
+
+          <Link href="/denuncias">
+            <span>⚑</span>
+            <div><strong>Minhas denúncias</strong><small>Acompanhe seus protocolos</small></div>
             <b>›</b>
           </Link>
 

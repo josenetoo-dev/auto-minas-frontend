@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { featuredCars } from "@/lib/car";
+import { featuredCars, recommendedHomeCars, type CarData } from "@/lib/car";
 import { formatPrice } from "@/lib/format";
 import HomeHoverVideo from "@/components/home-hover-video";
 import BrandLogoCarousel from "@/components/brand-logo-carousel";
@@ -31,7 +31,32 @@ function CategoryIcon({ type }: { type: (typeof categories)[number]["icon"] }) {
 }
 
 export default async function HomePage() {
-  const featured = await featuredCars(6).catch(() => null);
+  const recommendation = await recommendedHomeCars(6).catch(() => null);
+  const fallback = recommendation?.organic.length ? null : await featuredCars(6).catch(() => null);
+  const featured = recommendation?.organic.length ? recommendation.organic : fallback;
+  const sponsored = recommendation?.sponsored ?? [];
+
+  function cards(cars:CarData[], sponsoredSection=false) {
+    return <div className="home-recommended-row">
+      {cars.map((car) => {
+        const photo = car.images[0] ?? "/images/car-placeholder.svg";
+        return <Link href={`/carros/${car.id}`} key={car.id} className="home-reference-vehicle-card">
+          <div className="home-reference-vehicle-media">
+            <Image src={photo} alt={`${car.brand} ${car.model}`} fill
+              sizes="(max-width: 767px) 55vw, 280px" quality={72} className="object-cover" />
+            {car.isDemo ? <span className="home-published-badge">DEMO · Não está à venda</span>
+              : sponsoredSection ? <span className="home-published-badge">Patrocinado</span>
+              : car.status === "ativo" ? <span className="home-published-badge">Publicado</span> : null}
+          </div>
+          <div className="home-reference-vehicle-info">
+            <h3>{car.brand} {car.model} {car.year}</h3>
+            <strong>{formatPrice(car.price)}</strong>
+            <p>{car.city && car.state ? `${car.city} · ${car.state}` : "Localização não informada"}</p>
+          </div>
+        </Link>;
+      })}
+    </div>;
+  }
 
   return (
     <div className="home-exact-screen">
@@ -105,7 +130,7 @@ export default async function HomePage() {
 
       <section className="home-reference-section">
         <div className="home-section-heading">
-          <h2><span className="home-heading-icon" aria-hidden="true">◎</span> Veículos em destaque</h2>
+          <h2><span className="home-heading-icon" aria-hidden="true">◎</span> Veículos para você</h2>
           <Link href="/carros">Ver mais <span aria-hidden="true">›</span></Link>
         </div>
 
@@ -117,37 +142,13 @@ export default async function HomePage() {
           <div className="home-empty-state">Novos veículos aparecerão aqui após a aprovação dos anúncios.</div>
         )}
 
-        {featured && featured.length > 0 && (
-          <div className="home-recommended-row">
-            {featured.map((car) => {
-              const image = car.images[0] ?? "/images/car-placeholder.svg";
-              return (
-                <Link href={`/carros/${car.id}`} key={car.id} className="home-reference-vehicle-card">
-                  <div className="home-reference-vehicle-media">
-                    <Image
-                      src={image}
-                      alt={`${car.brand} ${car.model}`}
-                      fill
-                      sizes="(max-width: 767px) 55vw, 280px"
-                      quality={72}
-                      className="object-cover"
-                    />
-                    {car.status === "ativo" && <span className="home-published-badge">Publicado</span>}
-                  </div>
-                  <div className="home-reference-vehicle-info">
-                    <h3>{car.brand} {car.model} {car.year}</h3>
-                    <strong>{formatPrice(car.price)}</strong>
-                    <p>
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-                      {car.city && car.state ? `${car.city} · ${car.state}` : "Localização não informada"}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+        {featured && featured.length > 0 && cards(featured)}
       </section>
+
+      {sponsored.length > 0 && <section className="home-reference-section" aria-label="Anúncios patrocinados">
+        <div className="home-section-heading"><h2>Patrocinados</h2><Link href="/carros">Ver catálogo <span aria-hidden="true">›</span></Link></div>
+        {cards(sponsored,true)}
+      </section>}
 
       <section className="home-reference-section home-video-section" aria-label="Prévia em vídeo do Auto Minas">
         <div className="home-section-heading"><h2>Uma nova forma de encontrar seu próximo carro</h2></div>

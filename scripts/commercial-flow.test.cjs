@@ -24,13 +24,13 @@ test("the request acknowledgement stays local and does not activate a subscripti
   assert.match(flow, /checked=\{acknowledged\}/);
   assert.match(flow, /setAcknowledged\(event\.target\.checked\)/);
   assert.doesNotMatch(flow, /contracts\/\$\{contract\.id\}\/accept/);
-  assert.match(flow, /disabled=\{busy \|\| requested \|\| !acknowledged\}/);
+  assert.match(flow, /disabled=\{busy \|\| requested \|\| !acknowledged \|\| plan\.mensalidade === null\}/);
   assert.match(flow, /nenhuma cobrança será feita agora/);
 });
 
 test("only the existing authenticated intent API is used, with server-side plan validation", () => {
   assert.match(flow, /fetch\("\/api\/commercial\/intents",\s*\{\s*method: "POST"/);
   assert.match(intentRoute, /\/v1\/assinaturas\/intencoes/);
-  assert.match(intentRoute, /\["AVULSO", "RECORRENTE"\]/);
+  assert.match(intentRoute, /AUTO_MINAS_PRO/);
   assert.match(flow, /response\.json\(\)\.catch\(\(\) => \(\{\}\)\)/);
 });

@@ -14,6 +14,7 @@ export default function AdminCommercialConsole({ plans: initialPlans }: { plans:
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [contracts, setContracts] = useState<ContractSummary[]>([]);
   const [benefits, setBenefits] = useState<Record<string, string>>(() => Object.fromEntries(initialPlans.map(plan => [plan.codigo, readBenefits(plan.beneficiosJson).join("\n")])));
+  const [proPrice, setProPrice] = useState("");
   const [form, setForm] = useState({ versao: "", titulo: "", conteudo: "" });
   const [refs, setRefs] = useState<Record<number, string>>({});
   const [busy, setBusy] = useState(false);
@@ -47,6 +48,14 @@ export default function AdminCommercialConsole({ plans: initialPlans }: { plans:
   return <div className="space-y-8">
     <section className="card-dark space-y-4 p-5 sm:p-7">
       <div><p className="text-xs font-bold uppercase tracking-wider text-[#d4af37]">Planos · configuração</p><h2 className="font-display mt-2 text-2xl font-bold">Benefícios configuráveis</h2><p className="mt-2 text-sm leading-6 text-[#a9a9b2]">Cadastre um benefício aprovado por linha.</p></div>
+      {initialPlans.some(plan => plan.codigo === "AUTO_MINAS_PRO") && <form className="flex flex-wrap items-end gap-3" onSubmit={event => {
+        event.preventDefault();
+        if (window.confirm("Confirma o preço mensal aprovado para novas solicitações PRO?"))
+          void mutate("/api/commercial/admin/plans/pro-price", "PUT", { mensalidade: Number(proPrice.replace(",", ".")) });
+      }}><label className="grid gap-2 text-sm">Mensalidade PRO em reais
+        <input required type="number" inputMode="decimal" step="0.01" min="0.01" max="99999999.99"
+          value={proPrice} onChange={event => setProPrice(event.target.value)} className="input-dark" placeholder="Preço aprovado" />
+      </label><button disabled={busy || !proPrice} className="btn-outline min-h-11">Definir preço</button></form>}
       <div className="grid gap-4 lg:grid-cols-3">{initialPlans.map(plan => <form key={plan.codigo} onSubmit={event => { event.preventDefault(); void mutate(`/api/commercial/admin/plans/${plan.codigo}/benefits`, "PUT", { beneficios: benefits[plan.codigo].split("\n").map(item => item.trim()).filter(Boolean) }); }} className="space-y-3 rounded-xl border border-white/[.08] p-4"><h3 className="font-semibold">{plan.nome}</h3><textarea aria-label={`Benefícios ${plan.nome}`} value={benefits[plan.codigo]} onChange={event => setBenefits(current => ({ ...current, [plan.codigo]: event.target.value }))} rows={4} maxLength={3000} className="input-dark resize-y" placeholder="Um benefício por linha; deixe vazio se ainda não definido."/><button disabled={busy} className="btn-outline min-h-10 w-full">Salvar benefícios</button></form>)}</div>
     </section>
 

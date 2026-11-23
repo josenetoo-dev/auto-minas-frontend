@@ -30,7 +30,7 @@ export default function SellerPlanFlow({ plan }: { plan: CommercialPlan }) {
     }
   }
 
-  const price = Number(plan.mensalidade).toLocaleString("pt-BR", {
+  const price = plan.mensalidade === null ? "Preço a definir" : Number(plan.mensalidade).toLocaleString("pt-BR", {
     style: "currency",
     currency: plan.moeda,
   });
@@ -72,11 +72,12 @@ export default function SellerPlanFlow({ plan }: { plan: CommercialPlan }) {
       <button
         type="button"
         className="plan-intent-submit"
-        disabled={busy || requested || !acknowledged}
+        disabled={busy || requested || !acknowledged || plan.mensalidade === null}
         onClick={() => void registerIntent()}
       >
         {requested ? "Solicitação enviada" : busy ? "Enviando…" : "Solicitar plano"}
       </button>
+      {plan.mensalidade === null && <p role="status">A contratação ficará disponível após a definição do preço.</p>}
 
       {requested && (
         <section className="plan-intent-success" role="status">

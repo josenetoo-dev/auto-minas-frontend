@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { formatPrice } from "@/lib/format";
 
 /** A API Spring abre conversas somente vinculadas a propostas comerciais. */
@@ -105,6 +106,7 @@ export default function ChatCta({
             >
               {busy ? "Enviando…" : "Enviar proposta e abrir negociação"}
             </button>
+            <p className="text-sm">Antes de negociar, confirme quem vende e não transfira dinheiro a terceiros. <Link href="/seguranca/encontro" className="underline">Checklist de encontro seguro</Link>.</p>
             {error && <p role="alert" className="vehicle-offer-error">{error}</p>}
           </div>
         )}
@@ -125,6 +127,7 @@ export default function ChatCta({
       <button type="button" onClick={send} disabled={busy || Number(value) <= 0 || !message.trim()} className="btn-gold w-full py-3">
         {busy ? "Enviando…" : "Enviar proposta e abrir negociação"}
       </button>
+      <p className="text-sm text-[#b7b3a9]">Confira identidade e documentação; evite pagamentos antecipados a terceiros. <Link href="/seguranca/encontro" className="underline">Veja o checklist</Link>.</p>
       {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
     </div>
   );

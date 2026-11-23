@@ -103,8 +103,9 @@ async function main() {
           "Escape não atualizou aria-expanded em " + width + "px");
       }
       await page.goto(BASE + "/planos", { waitUntil: "domcontentloaded" });
-      await page.getByRole("heading", { name: "Anúncio avulso", exact: true }).waitFor();
-      await page.getByRole("heading", { name: "Assinatura mensal", exact: true }).waitFor();
+      await page.getByRole("heading", { name: "Auto Minas PRO", exact: true }).waitFor();
+      expect(await page.getByRole("heading", { name: "Anúncio avulso", exact: true }).count() === 0,
+        "A oferta antiga não deve aparecer para novas contratações");
       await inspect(page, "modalidades", width);
       await page.goto(BASE + "/feira", { waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: /Conheça o Auto Minas/ }).waitFor({ state: "visible" });
@@ -131,7 +132,8 @@ async function main() {
       await conversation.click();
       const composer = page.getByRole("textbox", { name: "Mensagem", exact:true });
       await composer.waitFor();
-      const composerAboveHotbar = () => page.waitForFunction(() => {
+      const composerAboveHotbar = async () => {
+        try { await page.waitForFunction(() => {
         const input = document.querySelector(".chat-thread-composer textarea");
         const send = document.querySelector(".chat-thread-send");
         const hotbar = document.querySelector(".site-global-hotbar");
@@ -143,7 +145,16 @@ async function main() {
           const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
           return box.top >= 0 && box.bottom <= navbar.top + 1 && element.contains(hit);
         });
-      }, undefined, { timeout:10000 });
+        }, undefined, { timeout:10000 }); }
+        catch (error) {
+          const state=await page.evaluate(() => {
+            const rect=selector=>{ const node=document.querySelector(selector); return node ? {box:node.getBoundingClientRect().toJSON(),display:getComputedStyle(node).display} : null; };
+            return {viewport:{innerHeight,visualHeight:visualViewport?.height},keyboard:document.querySelector('.chat-reference-screen')?.hasAttribute('data-keyboard-open'),
+              frame:rect('.chat-reference-screen'),input:rect('.chat-thread-composer textarea'),send:rect('.chat-thread-send'),hotbar:rect('.site-global-hotbar')};
+          });
+          throw new Error(`Composer obstruído: ${JSON.stringify(state)}; ${error.message}`);
+        }
+      };
       await composerAboveHotbar();
       const scrollsIndependently = await page.locator(".chat-thread-messages").evaluate(messages => {
         const composer = document.querySelector(".chat-thread-composer");
@@ -248,15 +259,20 @@ async function main() {
         await page.getByText("Veículo verificado",{exact:true}).waitFor();
         await page.getByText("Vendedor analisado · Nível 1",{exact:true}).waitFor();
         await inspect(page,"analises-publicas",width);
-        await page.goto(BASE+"/moderacao");
-        const toReject=page.getByRole("heading",{name:"Fiat Pulse 2023",exact:true}).locator("..");
-        const reason="Corrija a descrição do veículo para uma nova análise.";
-        await toReject.getByLabel("Motivo da rejeição enviado ao anunciante").fill(reason);
-        await toReject.getByRole("button",{name:"Rejeitar anúncio",exact:true}).click();
-        await page.getByText("Decisão registrada e auditada.",{exact:true}).waitFor();
+        await page.getByRole("button",{name:"Adicionar à comparação"}).click();
+        await page.goto(BASE+"/carros");
+        const other=await page.locator('a[href^="/carros/"]').evaluateAll((links,savedId)=>
+          links.map(link=>link.getAttribute("href")).find(href=>href && href!==`/carros/${savedId}`),saved);
+        expect(!!other,"Catálogo de homologação precisa de outro veículo para comparar");
+        await page.goto(BASE+other);
+        await page.getByRole("button",{name:"Adicionar à comparação"}).click();
+        await page.getByRole("link",{name:"Comparar dois veículos"}).click();
+        await page.getByRole("heading",{name:"Comparar dois veículos"}).waitFor();
+        await page.getByRole("region",{name:"Comparação de dois veículos"}).waitFor();
+        await page.getByText("Fiat Argo 2024",{exact:true}).waitFor();
+        await inspect(page,"comparador",width);
+        await page.goto(BASE+"/carros/"+saved);
         await login(context,"comprador-demo@auto-minas.test",process.env.STAGING_DEMO_BUYER_PASSWORD);
-        await page.goto(BASE+"/meus-anuncios");
-        await page.locator(".my-ad-rejection-note").getByText(reason,{exact:true}).waitFor();
         await page.goto(BASE+"/conta");
         await page.goto(BASE+"/conta/editar");
         await page.locator('.profile-edit-reference-form input[type="file"]').setInputFiles(file);
@@ -266,17 +282,17 @@ async function main() {
         await photo.waitFor();
         await photo.evaluate(img=>img.decode());
 
-        const summaries=await browserJson(page,"/api/conversations");
-        const conversation=summaries.conversations.find(item=>item.other.name && item.id);
-        expect(!!conversation,"Negociação fictícia ausente");
         const sellerContext=await browser.newContext();
         try {
           await login(sellerContext,"vendedor-demo@auto-minas.test",process.env.STAGING_DEMO_SELLER_PASSWORD);
           const sellerPage=await sellerContext.newPage();
           await sellerPage.goto(BASE+"/conta");
-          const sellerConversations=await browserJson(sellerPage,"/api/conversations");
-          const shared=sellerConversations.conversations.find(item=>summaries.conversations.some(b=>b.id===item.id));
-          expect(!!shared,"Comprador e vendedor precisam negociar o mesmo anúncio");
+          const shared=await browserJson(sellerPage,"/api/conversations",{
+            carId:saved, price:65000,
+            message:"Proposta fictícia para o anúncio publicado neste teste.",
+            requestId:require("node:crypto").randomUUID(),
+          });
+          expect(!!shared.id,"A negociação deve apontar para o anúncio real deste teste");
           const unreadURL="/api/backend/v1/proposta/mensagens-nao-lidas";
           await page.bringToFront();
           const baseline=await browserJson(page,unreadURL);
@@ -334,7 +350,7 @@ async function main() {
     }
     const signupContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const signupPage = await signupContext.newPage();
-    await signupPage.goto(BASE + "/vender?modalidade=avulso");
+    await signupPage.goto(BASE + "/vender");
     await signupPage.getByRole("button", { name: "Aceitar cookies necessários", exact:true }).click();
     await signupPage.getByRole("button", { name: "Criar conta", exact: true }).click();
     await signupPage.getByLabel("Nome completo", { exact: true }).fill("Pessoa fictícia de teste");

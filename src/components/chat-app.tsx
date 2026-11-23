@@ -182,7 +182,9 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
       const unzoomed = viewport.scale === 1;
       frame.style.setProperty("--chat-visual-height", unzoomed ? `${viewport.height}px` : "100dvh");
       frame.style.setProperty("--chat-visual-top", unzoomed ? `${viewport.offsetTop}px` : "0px");
-      frame.toggleAttribute("data-keyboard-open", unzoomed && window.innerHeight - viewport.height > 120);
+      const focused = document.activeElement;
+      const typing = frame.contains(focused) && (focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement);
+      frame.toggleAttribute("data-keyboard-open", unzoomed && typing && window.innerHeight - viewport.height > 120);
     };
     sync();
     viewport.addEventListener("resize", sync);
@@ -469,6 +471,9 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
             )}
 
             <div ref={messagesRef} className="chat-thread-messages">
+              <aside className="mx-1 mb-3 rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 text-xs leading-5 text-[#e6d5aa]" aria-label="Cuidados contra golpes">
+                Confirme a identidade de quem negocia. Desconfie de intermediários e mudanças de interlocutor; não transfira dinheiro antecipadamente a terceiros. Confira titularidade e documentos presencialmente. <Link href="/seguranca/encontro" className="underline">Checklist de encontro seguro</Link>.
+              </aside>
               {thread.messages.length === 0 && (
                 <div className="chat-thread-empty">
                   Diga olá para <strong>{other.name}</strong> e comece a negociar.

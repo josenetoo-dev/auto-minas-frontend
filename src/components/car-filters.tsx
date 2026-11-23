@@ -24,6 +24,7 @@ type Props = {
   transmissionOptions: { value: string; label: string }[];
   total: number;
 };
+type Suggestion = { kind: "marca" | "modelo" | "cidade"; value: string };
 
 const YEAR_OPTIONS = Array.from({length:new Date().getFullYear()+2-1900},(_,i)=>String(new Date().getFullYear()+1-i));
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
@@ -37,6 +38,23 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
   const [state, setState] = useState<FilterState>(initial);
   const [open, setOpen] = useState(false);
   const [typing, setTyping] = useState(initial.q);
+  const [suggestionResult, setSuggestionResult] = useState<{ query: string; items: Suggestion[] }>({ query: "", items: [] });
+  const query = typing.trim();
+  const suggestions = query.length >= 2 && suggestionResult.query === query ? suggestionResult.items : [];
+
+  useEffect(() => {
+    if (query.length < 2 || query.length > 40) return;
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/cars/suggestions?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (!controller.signal.aborted) setSuggestionResult({ query, items: Array.isArray(data.suggestions) ? data.suggestions.slice(0, 8) : [] });
+      } catch { /* Sugestões são opcionais; a busca normal continua. */ }
+    }, 350);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [query]);
 
   useEffect(() => {
     let canceled = false;
@@ -119,9 +137,18 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
           <input
             value={typing}
             onChange={(event) => setTyping(event.target.value)}
+            aria-label="Buscar marca ou modelo"
             placeholder="Busque por marca ou modelo..."
           />
         </form>
+        {suggestions.length > 0 && <ul aria-label="Sugestões de busca" className="cars-suggestion-list">
+          {suggestions.map(item => <li key={`${item.kind}:${item.value}`}>
+            <button type="button" onClick={() => {
+              if (item.kind === "cidade") { setTyping(""); quickApply({ city: item.value, q: "" }); }
+              else { setTyping(item.value); quickApply({ q: item.value, brand: "" }); }
+              setSuggestionResult({ query: "", items: [] });
+            }}><span>{item.value}</span><small>{item.kind}</small></button>
+          </li>)}</ul>}
 
         <div className="cars-filter-chips">
           <button type="button" className="cars-filter-button" onClick={() => setOpen((value) => !value)}>
