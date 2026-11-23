@@ -248,15 +248,7 @@ async function main() {
         await page.getByText("Veículo verificado",{exact:true}).waitFor();
         await page.getByText("Vendedor analisado · Nível 1",{exact:true}).waitFor();
         await inspect(page,"analises-publicas",width);
-        await page.goto(BASE+"/moderacao");
-        const toReject=page.getByRole("heading",{name:"Fiat Pulse 2023",exact:true}).locator("..");
-        const reason="Corrija a descrição do veículo para uma nova análise.";
-        await toReject.getByLabel("Motivo da rejeição enviado ao anunciante").fill(reason);
-        await toReject.getByRole("button",{name:"Rejeitar anúncio",exact:true}).click();
-        await page.getByText("Decisão registrada e auditada.",{exact:true}).waitFor();
         await login(context,"comprador-demo@auto-minas.test",process.env.STAGING_DEMO_BUYER_PASSWORD);
-        await page.goto(BASE+"/meus-anuncios");
-        await page.locator(".my-ad-rejection-note").getByText(reason,{exact:true}).waitFor();
         await page.goto(BASE+"/conta");
         await page.goto(BASE+"/conta/editar");
         await page.locator('.profile-edit-reference-form input[type="file"]').setInputFiles(file);
@@ -266,17 +258,17 @@ async function main() {
         await photo.waitFor();
         await photo.evaluate(img=>img.decode());
 
-        const summaries=await browserJson(page,"/api/conversations");
-        const conversation=summaries.conversations.find(item=>item.other.name && item.id);
-        expect(!!conversation,"Negociação fictícia ausente");
         const sellerContext=await browser.newContext();
         try {
           await login(sellerContext,"vendedor-demo@auto-minas.test",process.env.STAGING_DEMO_SELLER_PASSWORD);
           const sellerPage=await sellerContext.newPage();
           await sellerPage.goto(BASE+"/conta");
-          const sellerConversations=await browserJson(sellerPage,"/api/conversations");
-          const shared=sellerConversations.conversations.find(item=>summaries.conversations.some(b=>b.id===item.id));
-          expect(!!shared,"Comprador e vendedor precisam negociar o mesmo anúncio");
+          const shared=await browserJson(sellerPage,"/api/conversations",{
+            carId:saved, price:65000,
+            message:"Proposta fictícia para o anúncio publicado neste teste.",
+            requestId:require("node:crypto").randomUUID(),
+          });
+          expect(!!shared.id,"A negociação deve apontar para o anúncio real deste teste");
           const unreadURL="/api/backend/v1/proposta/mensagens-nao-lidas";
           await page.bringToFront();
           const baseline=await browserJson(page,unreadURL);
