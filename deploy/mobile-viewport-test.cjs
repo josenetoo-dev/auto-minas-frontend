@@ -103,8 +103,9 @@ async function main() {
           "Escape não atualizou aria-expanded em " + width + "px");
       }
       await page.goto(BASE + "/planos", { waitUntil: "domcontentloaded" });
-      await page.getByRole("heading", { name: "Anúncio avulso", exact: true }).waitFor();
-      await page.getByRole("heading", { name: "Assinatura mensal", exact: true }).waitFor();
+      await page.getByRole("heading", { name: "Auto Minas PRO", exact: true }).waitFor();
+      expect(await page.getByRole("heading", { name: "Anúncio avulso", exact: true }).count() === 0,
+        "A oferta antiga não deve aparecer para novas contratações");
       await inspect(page, "modalidades", width);
       await page.goto(BASE + "/feira", { waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: /Conheça o Auto Minas/ }).waitFor({ state: "visible" });
@@ -249,9 +250,15 @@ async function main() {
         await page.getByText("Vendedor analisado · Nível 1",{exact:true}).waitFor();
         await inspect(page,"analises-publicas",width);
         await page.getByRole("button",{name:"Adicionar à comparação"}).click();
-        await page.getByRole("link",{name:"Comparar 1 veículo"}).click();
-        await page.getByRole("heading",{name:"Comparar veículos"}).waitFor();
-        await page.getByRole("table",{name:"Comparação de até três anúncios ativos"}).waitFor();
+        await page.goto(BASE+"/carros");
+        const other=await page.locator('a[href^="/carros/"]').evaluateAll((links,savedId)=>
+          links.map(link=>link.getAttribute("href")).find(href=>href && href!==`/carros/${savedId}`),saved);
+        expect(!!other,"Catálogo de homologação precisa de outro veículo para comparar");
+        await page.goto(BASE+other);
+        await page.getByRole("button",{name:"Adicionar à comparação"}).click();
+        await page.getByRole("link",{name:"Comparar dois veículos"}).click();
+        await page.getByRole("heading",{name:"Comparar dois veículos"}).waitFor();
+        await page.getByRole("region",{name:"Comparação de dois veículos"}).waitFor();
         await page.getByText("Fiat Argo 2024",{exact:true}).waitFor();
         await inspect(page,"comparador",width);
         await page.goto(BASE+"/carros/"+saved);
@@ -333,7 +340,7 @@ async function main() {
     }
     const signupContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const signupPage = await signupContext.newPage();
-    await signupPage.goto(BASE + "/vender?modalidade=avulso");
+    await signupPage.goto(BASE + "/vender");
     await signupPage.getByRole("button", { name: "Aceitar cookies necessários", exact:true }).click();
     await signupPage.getByRole("button", { name: "Criar conta", exact: true }).click();
     await signupPage.getByLabel("Nome completo", { exact: true }).fill("Pessoa fictícia de teste");
