@@ -111,6 +111,35 @@ body:has(.cars-exact-screen) > div[role="note"] {
 .cars-search-box input::placeholder {
   color: #aaa9a2;
 }
+.cars-suggestion-list {
+  position: absolute;
+  z-index: 10;
+  top: 58px;
+  left: 18px;
+  right: 18px;
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 0 0 14px 14px;
+  background: #171716;
+  box-shadow: 0 16px 32px rgba(0,0,0,.65);
+}
+.cars-suggestion-list button {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  color: #f1f0ea;
+  text-align: left;
+}
+.cars-suggestion-list button:hover,
+.cars-suggestion-list button:focus-visible {
+  background: #2b281f;
+}
+.cars-suggestion-list small { color: #d4af37; text-transform: capitalize; }
 
 .cars-filter-chips {
   display: flex;
