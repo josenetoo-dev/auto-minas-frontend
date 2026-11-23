@@ -63,7 +63,7 @@ export default async function PlanosPage() {
 
           <div className="plans-reference-grid">
             {plans?.filter((plan) => plan.codigo !== current?.codigoPlano).map((plan) => {
-              const comparable = current?.periodicidade === "MENSAL" && plan.periodicidade === "MENSAL";
+              const comparable = plan.mensalidade !== null && current?.periodicidade === "MENSAL" && plan.periodicidade === "MENSAL";
               const upgrade = Boolean(comparable && current && Number(plan.mensalidade)>Number(current.mensalidade));
               const downgradeBlocked = Boolean(comparable && current && Number(plan.mensalidade)<=Number(current.mensalidade));
               return (

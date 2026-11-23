@@ -20,7 +20,7 @@ function benefitsFrom(plan: CommercialPlan) {
 export default function PlanCard({ plan, href, upgrade = false, downgradeBlocked = false }: Props) {
   const unique = plan.periodicidade === "UNICO";
   const benefits = benefitsFrom(plan);
-  const price = Number(plan.mensalidade).toLocaleString("pt-BR", {
+  const price = plan.mensalidade === null ? "Preço a definir" : Number(plan.mensalidade).toLocaleString("pt-BR", {
     style: "currency",
     currency: plan.moeda,
   });
@@ -41,7 +41,7 @@ export default function PlanCard({ plan, href, upgrade = false, downgradeBlocked
 
         <strong>
           {price}
-          <small>{unique ? " / contratação" : " / mês"}</small>
+          {plan.mensalidade !== null && <small>{unique ? " / contratação" : " / mês"}</small>}
         </strong>
 
         {benefits.length > 0 && (
@@ -51,7 +51,9 @@ export default function PlanCard({ plan, href, upgrade = false, downgradeBlocked
         )}
       </div>
 
-      {downgradeBlocked
+      {plan.mensalidade === null
+        ? <span className="plans-reference-locked">Contratação indisponível até definir o preço</span>
+        : downgradeBlocked
         ? <span className="plans-reference-locked" aria-label="Downgrade indisponível">Downgrade indisponível</span>
         : <Link href={href} className={upgrade ? "is-current" : ""}>
             {upgrade ? "Melhorar plano" : "Escolher plano"}

@@ -1,9 +1,9 @@
 import { allPages, backendFetch, getApiToken, privateApi } from "@/lib/backend";
 
 export type CommercialPlan = {
-  codigo: "AVULSO" | "RECORRENTE" | "BASIC" | "PROFESSIONAL" | "PREMIUM";
+  codigo: "AUTO_MINAS_PRO" | "AVULSO" | "RECORRENTE" | "BASIC" | "PROFESSIONAL" | "PREMIUM";
   nome: string;
-  mensalidade: number;
+  mensalidade: number | null;
   moeda: "BRL";
   periodicidade: "MENSAL" | "UNICO";
   comissaoPercentual: number;
