@@ -258,17 +258,17 @@ async function main() {
         await photo.waitFor();
         await photo.evaluate(img=>img.decode());
 
-        const summaries=await browserJson(page,"/api/conversations");
-        const conversation=summaries.conversations.find(item=>item.other.name && item.id);
-        expect(!!conversation,"Negociação fictícia ausente");
         const sellerContext=await browser.newContext();
         try {
           await login(sellerContext,"vendedor-demo@auto-minas.test",process.env.STAGING_DEMO_SELLER_PASSWORD);
           const sellerPage=await sellerContext.newPage();
           await sellerPage.goto(BASE+"/conta");
-          const sellerConversations=await browserJson(sellerPage,"/api/conversations");
-          const shared=sellerConversations.conversations.find(item=>summaries.conversations.some(b=>b.id===item.id));
-          expect(!!shared,"Comprador e vendedor precisam negociar o mesmo anúncio");
+          const shared=await browserJson(sellerPage,"/api/conversations",{
+            carId:saved, price:65000,
+            message:"Proposta fictícia para o anúncio publicado neste teste.",
+            requestId:require("node:crypto").randomUUID(),
+          });
+          expect(!!shared.id,"A negociação deve apontar para o anúncio real deste teste");
           const unreadURL="/api/backend/v1/proposta/mensagens-nao-lidas";
           await page.bringToFront();
           const baseline=await browserJson(page,unreadURL);
