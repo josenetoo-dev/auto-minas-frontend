@@ -160,6 +160,12 @@ export default async function Account() {
             <b>›</b>
           </Link>
 
+          <Link href="/denuncias">
+            <span>⚑</span>
+            <div><strong>Minhas denúncias</strong><small>Acompanhe seus protocolos</small></div>
+            <b>›</b>
+          </Link>
+
           {user.role !== "USER" && (
             <Link href="/moderacao" className="account-hub-admin-link">
               <span>⌘</span>
