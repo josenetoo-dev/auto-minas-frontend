@@ -24,7 +24,7 @@ test("the request acknowledgement stays local and does not activate a subscripti
   assert.match(flow, /checked=\{acknowledged\}/);
   assert.match(flow, /setAcknowledged\(event\.target\.checked\)/);
   assert.doesNotMatch(flow, /contracts\/\$\{contract\.id\}\/accept/);
-  assert.match(flow, /disabled=\{busy \|\| requested \|\| !acknowledged\}/);
+  assert.match(flow, /disabled=\{busy \|\| requested \|\| !acknowledged \|\| plan\.mensalidade === null\}/);
   assert.match(flow, /nenhuma cobrança será feita agora/);
 });
 
