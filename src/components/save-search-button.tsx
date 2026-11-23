@@ -26,7 +26,8 @@ export default function SaveSearchButton({ signedIn }: { signedIn: boolean }) {
     finally { setBusy(false); }
   }
   return <div className="mx-4 my-4 text-sm">
-    <button type="button" className="min-h-11 rounded-lg border border-[#d4af37]/50 px-4 font-semibold" onClick={() => setOpen(value => !value)}>Salvar esta busca</button>
+    <button type="button" className="min-h-11 rounded-lg border border-[#d4af37]/50 px-4 font-semibold" onClick={() => setOpen(value => !value)}>Guardar estes filtros</button>
+    <p className="mt-1 text-[#c5c2b9]">Acesse esta mesma combinação depois em Minha conta → Buscas salvas. Não ativa alertas.</p>
     {open && <form onSubmit={save} className="mt-3 flex flex-wrap items-end gap-2">
       <label>Nome da busca <input className="ml-2 min-h-11 rounded border border-white/30 bg-[#171716] px-3" value={name} maxLength={60} required onChange={event => setName(event.target.value)} /></label>
       <button type="submit" disabled={busy} className="min-h-11 rounded bg-[#d4af37] px-4 font-semibold text-black">{busy ? "Salvando…" : "Salvar"}</button>

@@ -165,7 +165,7 @@ export default async function Detail({ params }: Props) {
           </details>
         </section>
 
-        {!car.isDemo && car.statusApi === "ATIVO" && <div className="px-4"><CompareButton id={car.id} /></div>}
+        {car.statusApi === "ATIVO" && <div className="px-4"><CompareButton id={car.id} /></div>}
 
         {car.vehicleHistory && (
           <section className="vehicle-history-card">
@@ -256,7 +256,7 @@ export default async function Detail({ params }: Props) {
         )}
 
         <section className="px-4 py-8" aria-label="Carros semelhantes">
-          <h2 className="mb-4 text-xl font-bold">Carros semelhantes</h2>
+          <h2 className="mb-4 text-xl font-bold">{car.isDemo ? "Outros carros demonstrativos" : "Carros semelhantes"}</h2>
           {related.length ? <div className="cars-results-list">
             {related.map(item => <CarCard key={item.id} car={item} variant="catalog" />)}
           </div> : <p className="text-sm text-[#c5c2b9]">Nenhum outro anúncio disponível no momento.</p>}
