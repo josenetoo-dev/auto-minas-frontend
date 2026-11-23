@@ -11,7 +11,9 @@ import ReportButton from "@/components/report-button";
 import HistoryBackButton from "@/components/history-back-button";
 import FavoriteButton from "@/components/favorite-button";
 import CarCard from "@/components/car-card";
+import CompareButton from "@/components/compare-button";
 import { similarCars } from "@/lib/similar-cars";
+import type { VerificationSummary } from "@/lib/verification-summary";
 import { formatPrice, formatKm } from "@/lib/format";
 import { FUEL_LABEL, TRANSMISSION_LABEL } from "@/lib/constants";
 import "@/styles/vehicle-detail.css";
@@ -28,12 +30,6 @@ type PublicProfile = {
   nivel: number;
   veiculos: { id: number; titulo: string }[];
   temMais: boolean;
-};
-
-type VerificationSummary = {
-  vendedor: { analisadaManualmente: boolean; analisadaEm: string | null };
-  veiculo: { analisadaManualmente: boolean; analisadaEm: string | null };
-  aviso: string;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -168,6 +164,8 @@ export default async function Detail({ params }: Props) {
             </dl>
           </details>
         </section>
+
+        {!car.isDemo && car.statusApi === "ATIVO" && <div className="px-4"><CompareButton id={car.id} /></div>}
 
         {car.vehicleHistory && (
           <section className="vehicle-history-card">
