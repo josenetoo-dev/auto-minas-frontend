@@ -19,11 +19,13 @@ export async function similarCars(car: CarData, limit = 4): Promise<CarData[]> {
     }
   };
   const find = async (filters: Parameters<typeof searchPublicCars>[0]) => {
-    try { add((await searchPublicCars({ ...filters, tipo: "CARRO" })).cars); } catch { /* Catálogo indisponível: preservar a página do anúncio. */ }
+    try { add((await searchPublicCars({ ...filters, tipo: "CARRO" })).cars); return true; }
+    catch { return false; /* Catálogo indisponível: preservar a página do anúncio. */ }
   };
-  await find({ brand: car.brand, minPrice, maxPrice, page: 0 });
-  if (candidates.size < limit) await find({ minPrice, maxPrice, state: car.state || undefined, page: 0 });
-  if (candidates.size < limit) await find({ minPrice, maxPrice, page: 0 });
+  const ranked = () => [...candidates.values()].sort((a, b) => score(b) - score(a) || a.id - b.id).slice(0, limit);
+  if (!await find({ brand: car.brand, minPrice, maxPrice, page: 0 })) return [];
+  if (candidates.size < limit && !await find({ minPrice, maxPrice, state: car.state || undefined, page: 0 })) return ranked();
+  if (candidates.size < limit && !await find({ minPrice, maxPrice, page: 0 })) return ranked();
   if (candidates.size < limit) await find({ page: 0 });
-  return [...candidates.values()].sort((a, b) => score(b) - score(a) || a.id - b.id).slice(0, limit);
+  return ranked();
 }
