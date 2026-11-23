@@ -248,6 +248,13 @@ async function main() {
         await page.getByText("Veículo verificado",{exact:true}).waitFor();
         await page.getByText("Vendedor analisado · Nível 1",{exact:true}).waitFor();
         await inspect(page,"analises-publicas",width);
+        await page.getByRole("button",{name:"Adicionar à comparação"}).click();
+        await page.getByRole("link",{name:"Comparar 1 veículo"}).click();
+        await page.getByRole("heading",{name:"Comparar veículos"}).waitFor();
+        await page.getByRole("table",{name:"Comparação de até três anúncios ativos"}).waitFor();
+        await page.getByText("Fiat Argo 2024",{exact:true}).waitFor();
+        await inspect(page,"comparador",width);
+        await page.goto(BASE+"/carros/"+saved);
         await login(context,"comprador-demo@auto-minas.test",process.env.STAGING_DEMO_BUYER_PASSWORD);
         await page.goto(BASE+"/conta");
         await page.goto(BASE+"/conta/editar");
