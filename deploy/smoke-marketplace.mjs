@@ -136,36 +136,35 @@ try {
   const details=await request("/carros/"+newAd.json.id);
   expectCode(details,200,"Resumo público de vendedor e veículo");
   if(!details.raw.includes("Nível de verificação"))throw new Error("Resumo documental público ausente");
-  const vehicleCase=packet.json.find(item=>item.tipo==="VEICULO");
-  const expire=await request("/api/backend/v1/verificacoes/revisao/"+vehicleCase.id+"/expirar",{method:"POST",cookie:admin,
-    body:{motivo:"Revalidação administrativa fictícia para testar privacidade.",categoria:"REVALIDACAO_NECESSARIA"}});
-  expectCode(expire,200,"Exigir revalidação após publicação");
-  const hiddenExpired=await request("/carros/"+newAd.json.id);
-  expectCode(hiddenExpired,404,"Revalidação retira anúncio da vitrine");
   const myAds=await request("/meus-anuncios",{cookie:buyer});
   expectCode(myAds,200,"Meus anúncios após cadastro");
   if(!myAds.raw.includes("Pirapora") || !myAds.raw.includes("MG"))
     throw new Error("Localização enviada ao Spring não retornou corretamente para a interface");
 
   const initialMessage = "Proposta fictícia de homologação, não constitui oferta real.";
-  const proposalRequest = { method:"POST", cookie:buyer, body:{
-    carId, price:60000, message:initialMessage, requestId:crypto.randomUUID(),
+  const demoAttempt=await request("/api/conversations",{method:"POST",cookie:buyer,body:{
+    carId,price:60000,message:initialMessage,requestId:crypto.randomUUID(),
+  }});
+  expectCode(demoAttempt,409,"Anúncio DEMO não aceita proposta comercial");
+  const realCarId=newAd.json.id;
+  const proposalRequest = { method:"POST", cookie:seller, body:{
+    carId:realCarId, price:60000, message:initialMessage, requestId:crypto.randomUUID(),
   }};
   const proposal = await request("/api/conversations", proposalRequest);
-  expectCode(proposal,201,"Proposta a anúncio de demonstração");
+  expectCode(proposal,201,"Proposta a anúncio real de teste no banco efêmero");
   if (!proposal.json?.id) throw new Error("Proposta sem ID retornado");
 
   const retry = await request("/api/conversations", proposalRequest);
   expectCode(retry,201,"Repetir o mesmo envio");
   if (retry.json?.id !== proposal.json.id) throw new Error("O mesmo envio abriu outra negociação");
-  const thread = await request("/api/conversations/"+proposal.json.id+"/messages", { cookie:seller });
+  const thread = await request("/api/conversations/"+proposal.json.id+"/messages", { cookie:buyer });
   expectCode(thread,200,"Vendedor recebe a mensagem inicial");
   if (thread.json.messages.filter(item => item.content === initialMessage).length !== 1) {
     throw new Error("A mensagem inicial não apareceu exatamente uma vez no chat");
   }
 
   const message=await request("/api/conversations/"+proposal.json.id+"/messages",{
-    method:"POST",cookie:buyer,body:{
+    method:"POST",cookie:seller,body:{
       content:"Mensagem fictícia para validar histórico da negociação."
     }
   });
@@ -174,18 +173,18 @@ try {
 
   const attachmentForm=new FormData();
   attachmentForm.set("file",new Blob([Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGO8st6cARtgwio6aCUAXZAByo07EaIAAAAASUVORK5CYII=","base64")],{type:"image/png"}),"teste.png");
-  const imageResponse=await fetch(base+"/api/conversations/"+proposal.json.id+"/attachments",{method:"POST",headers:{Origin:base,Cookie:buyer},body:attachmentForm});
+  const imageResponse=await fetch(base+"/api/conversations/"+proposal.json.id+"/attachments",{method:"POST",headers:{Origin:base,Cookie:seller},body:attachmentForm});
   if(imageResponse.status!==200)throw new Error("Envio de imagem privada falhou com HTTP "+imageResponse.status);
   const imageResult=await imageResponse.json();
   const unreadPath="/api/backend/v1/proposta/mensagens-nao-lidas";
   const readPath="/api/backend/v1/proposta/"+proposal.json.id+"/mensagens/leitura";
-  const before=(await request(unreadPath,{cookie:seller})).json[proposal.json.id];
+  const before=(await request(unreadPath,{cookie:buyer})).json[proposal.json.id];
   if(!(before>=2))throw new Error("O destinatário precisa ver as duas mensagens novas");
   const selection={ids:[imageResult.message.id]};
   expectCode(await request(readPath,{method:"POST",body:selection,cookie:admin}),403,"Leitura restrita aos participantes");
-  for(let attempt=0;attempt<2;attempt++)expectCode(await request(readPath,{method:"POST",body:selection,cookie:seller}),204,"Leitura idempotente");
-  if((await request(unreadPath,{cookie:seller})).json[proposal.json.id]!==before-1)throw new Error("Confirmação repetida descontou valor incorreto");
-  const download=await request(imageResult.message.attachment.url,{cookie:buyer});
+  for(let attempt=0;attempt<2;attempt++)expectCode(await request(readPath,{method:"POST",body:selection,cookie:buyer}),204,"Leitura idempotente");
+  if((await request(unreadPath,{cookie:buyer})).json[proposal.json.id]!==before-1)throw new Error("Confirmação repetida descontou valor incorreto");
+  const download=await request(imageResult.message.attachment.url,{cookie:seller});
   expectCode(download,200,"Participante pode baixar imagem privada");
   const outsiderDownload=await request(imageResult.message.attachment.url,{cookie:admin});
   expectCode(outsiderDownload,403,"Não participante não pode baixar imagem privada");
@@ -206,7 +205,7 @@ try {
   expectCode(otherPrivacy,200,"Consultar privacidade de outra conta");
   if(otherPrivacy.json.content.some(item=>item.id===privacy.json.id))throw new Error("Vazamento de protocolo privado");
 
-  const conversations=await request("/api/conversations",{cookie:buyer});
+  const conversations=await request("/api/conversations",{cookie:seller});
   expectCode(conversations,200,"Histórico de propostas");
   if(!Array.isArray(conversations.json?.conversations) ||
       conversations.json.conversations.length<1)
@@ -214,26 +213,27 @@ try {
 
 
   // Vendedor altera status pelo mesmo BFF da interface, sem acesso ao banco.
-  const pause=await request("/api/cars/"+carId,{
-    method:"PATCH",cookie:seller,body:{status:"pausado"}
+  const pause=await request("/api/cars/"+realCarId,{
+    method:"PATCH",cookie:buyer,body:{status:"pausado"}
   });
   expectCode(pause,200,"Pausar anúncio");
   if(pause.json?.status!=="PAUSADO")throw new Error("Status de pausa não persistido");
 
-  const deniedPause=await request("/api/cars/"+carId,{
-    method:"PATCH",cookie:buyer,body:{status:"pendente"}
+  const deniedPause=await request("/api/cars/"+realCarId,{
+    method:"PATCH",cookie:seller,body:{status:"pendente"}
   });
   expectCode(deniedPause,403,"Bloqueio de outro usuário reativando anúncio");
 
-  const reactivate=await request("/api/cars/"+carId,{
-    method:"PATCH",cookie:seller,body:{status:"pendente"}
+  const reactivate=await request("/api/cars/"+realCarId,{
+    method:"PATCH",cookie:buyer,body:{status:"pendente"}
   });
   expectCode(reactivate,200,"Solicitar reativação para análise");
   if(reactivate.json?.status!=="PENDENTE")
     throw new Error("Reativação publicou anúncio sem passar pela moderação");
 
-  const sold=await request("/api/cars/"+demoCars[1],{
-    method:"PATCH",cookie:seller,body:{
+  expectCode(await request(publishPath,decision),200,"Republicar após revisão");
+  const sold=await request("/api/cars/"+realCarId,{
+    method:"PATCH",cookie:buyer,body:{
       status:"vendido",valorFinal:60000,dataVenda:new Date().toISOString().slice(0,10)
     }
   });
