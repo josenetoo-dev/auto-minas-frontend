@@ -10,9 +10,12 @@ import CarOwnerActions from "@/components/car-owner-actions";
 import ReportButton from "@/components/report-button";
 import HistoryBackButton from "@/components/history-back-button";
 import FavoriteButton from "@/components/favorite-button";
+import CarCard from "@/components/car-card";
+import { similarCars } from "@/lib/similar-cars";
 import { formatPrice, formatKm } from "@/lib/format";
 import { FUEL_LABEL, TRANSMISSION_LABEL } from "@/lib/constants";
 import "@/styles/vehicle-detail.css";
+import "@/styles/cars.css";
 import { HISTORY_QUESTIONS, HISTORY_OPTIONS, historyDetailKey } from "@/lib/vehicle-history";
 
 export const dynamic = "force-dynamic";
@@ -74,10 +77,11 @@ export default async function Detail({ params }: Props) {
     throw error;
   }
 
-  const [profile, verification, favorite] = await Promise.all([
+  const [profile, verification, favorite, related] = await Promise.all([
     backendFetch<PublicProfile>(`/v1/perfis/${car.userId}?pagina=0`).catch(() => null),
     backendFetch<VerificationSummary>(`/v1/anuncio/${car.id}/verificacoes`, {}, token || undefined).catch(() => null),
     token && !car.isDemo ? backendFetch<boolean>(`/v1/favoritos/${car.id}`, {}, token).catch(() => false) : false,
+    similarCars(car),
   ]);
 
   const owner = session?.id === car.userId;
@@ -252,6 +256,13 @@ export default async function Detail({ params }: Props) {
             <ReportButton carId={car.id} loggedIn={!!session} />
           </div>
         )}
+
+        <section className="px-4 py-8" aria-label="Carros semelhantes">
+          <h2 className="mb-4 text-xl font-bold">Carros semelhantes</h2>
+          {related.length ? <div className="cars-results-list">
+            {related.map(item => <CarCard key={item.id} car={item} variant="catalog" />)}
+          </div> : <p className="text-sm text-[#c5c2b9]">Nenhum outro anúncio disponível no momento.</p>}
+        </section>
       </main>
     </div>
   );
