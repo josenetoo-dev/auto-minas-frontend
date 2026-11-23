@@ -249,7 +249,7 @@ async function main() {
         await page.getByText("Vendedor analisado · Nível 1",{exact:true}).waitFor();
         await inspect(page,"analises-publicas",width);
         await page.goto(BASE+"/moderacao");
-        const toReject=page.getByRole("heading",{name:"Fiat Pulse 2023",exact:true}).locator("..");
+        const toReject=page.getByRole("heading",{name:"Fiat Argo 2024",exact:true}).locator("..");
         const reason="Corrija a descrição do veículo para uma nova análise.";
         await toReject.getByLabel("Motivo da rejeição enviado ao anunciante").fill(reason);
         await toReject.getByRole("button",{name:"Rejeitar anúncio",exact:true}).click();
