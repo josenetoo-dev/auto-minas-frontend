@@ -9,6 +9,7 @@ import ChatCta from "@/components/chat-cta";
 import CarOwnerActions from "@/components/car-owner-actions";
 import ReportButton from "@/components/report-button";
 import HistoryBackButton from "@/components/history-back-button";
+import FavoriteButton from "@/components/favorite-button";
 import { formatPrice, formatKm } from "@/lib/format";
 import { FUEL_LABEL, TRANSMISSION_LABEL } from "@/lib/constants";
 import "@/styles/vehicle-detail.css";
@@ -73,9 +74,10 @@ export default async function Detail({ params }: Props) {
     throw error;
   }
 
-  const [profile, verification] = await Promise.all([
+  const [profile, verification, favorite] = await Promise.all([
     backendFetch<PublicProfile>(`/v1/perfis/${car.userId}?pagina=0`).catch(() => null),
     backendFetch<VerificationSummary>(`/v1/anuncio/${car.id}/verificacoes`, {}, token || undefined).catch(() => null),
+    token && !car.isDemo ? backendFetch<boolean>(`/v1/favoritos/${car.id}`, {}, token).catch(() => false) : false,
   ]);
 
   const owner = session?.id === car.userId;
@@ -103,9 +105,7 @@ export default async function Detail({ params }: Props) {
         </Link>
 
         <div className="vehicle-detail-top-actions">
-          <button type="button" className="vehicle-detail-icon-button is-disabled" aria-label="Favoritos ainda não disponível" disabled>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
-          </button>
+          {!car.isDemo && <FavoriteButton id={car.id} initial={favorite} signedIn={Boolean(session)} />}
           <button type="button" className="vehicle-detail-icon-button is-disabled" aria-label="Compartilhamento pelo navegador" disabled>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3M7 8l5-5 5 5" /><path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8" /></svg>
           </button>
