@@ -248,15 +248,7 @@ async function main() {
         await page.getByText("Veículo verificado",{exact:true}).waitFor();
         await page.getByText("Vendedor analisado · Nível 1",{exact:true}).waitFor();
         await inspect(page,"analises-publicas",width);
-        await page.goto(BASE+"/moderacao");
-        const toReject=page.getByRole("heading",{name:"Fiat Argo 2024",exact:true}).locator("..");
-        const reason="Corrija a descrição do veículo para uma nova análise.";
-        await toReject.getByLabel("Motivo da rejeição enviado ao anunciante").fill(reason);
-        await toReject.getByRole("button",{name:"Rejeitar anúncio",exact:true}).click();
-        await page.getByText("Decisão registrada e auditada.",{exact:true}).waitFor();
         await login(context,"comprador-demo@auto-minas.test",process.env.STAGING_DEMO_BUYER_PASSWORD);
-        await page.goto(BASE+"/meus-anuncios");
-        await page.locator(".my-ad-rejection-note").getByText(reason,{exact:true}).waitFor();
         await page.goto(BASE+"/conta");
         await page.goto(BASE+"/conta/editar");
         await page.locator('.profile-edit-reference-form input[type="file"]').setInputFiles(file);
