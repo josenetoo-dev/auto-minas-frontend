@@ -74,6 +74,23 @@ export async function featuredCars(limit=6):Promise<CarData[]> {
  );
  return page.content.map(ad=>fromBackendAd(ad));
 }
+
+type HomeListing = { id: number; sponsored: boolean };
+type HomeRecommendations = { sponsored: HomeListing[]; recommendations: HomeListing[] };
+
+/** Ranking da API, seguido por leitura do anúncio público para obter status e foto atuais. */
+export async function recommendedHomeCars(limit=6):Promise<{sponsored:CarData[];organic:CarData[]}> {
+ const token=await getApiToken();
+ const home=await backendFetch<HomeRecommendations>("/v1/recommendations/home",{},token??undefined);
+ const load=async (list:HomeListing[]) => {
+  const unique=[...new Set(list.slice(0,limit*2).map(item=>item.id))];
+  const results=await Promise.all(unique.map(id=>carSummaryById(id,token??undefined).catch(()=>null)));
+  return results.filter((car):car is CarData=>Boolean(car&&car.statusApi==="ATIVO")).slice(0,limit);
+ };
+ const sponsored=await load(home.sponsored??[]);
+ const organic=(await load(home.recommendations??[])).filter(car=>!sponsored.some(ad=>ad.id===car.id));
+ return {sponsored,organic};
+}
 export type PublicCarFilters={q?:string;tipo?:string;brand?:string;city?:string;state?:string;fuel?:string;transmission?:string;minPrice?:number;maxPrice?:number;yearMin?:number;sort?:string;page?:number};
 export async function searchPublicCars(filters:PublicCarFilters):Promise<{cars:CarData[];total:number;totalPages:number;page:number}> {
  const params=new URLSearchParams();
