@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { clientError, privateApi, sameOrigin } from "@/lib/backend";
+import { BackendError, clientError, privateApi, sameOrigin } from "@/lib/backend";
 
 type Props = { params: Promise<{ id: string }> };
 async function target({ params }: Props) {
   const { id } = await params;
-  if (!/^[1-9]\d*$/.test(id)) throw new Error("Anúncio inválido");
+  if (!/^[1-9]\d{0,17}$/.test(id)) throw new BackendError(400, "Anúncio inválido");
   return `/v1/favoritos/${id}`;
 }
 export async function PUT(request: Request, props: Props) {
