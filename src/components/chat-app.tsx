@@ -182,7 +182,9 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
       const unzoomed = viewport.scale === 1;
       frame.style.setProperty("--chat-visual-height", unzoomed ? `${viewport.height}px` : "100dvh");
       frame.style.setProperty("--chat-visual-top", unzoomed ? `${viewport.offsetTop}px` : "0px");
-      frame.toggleAttribute("data-keyboard-open", unzoomed && window.innerHeight - viewport.height > 120);
+      const focused = document.activeElement;
+      const typing = frame.contains(focused) && (focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement);
+      frame.toggleAttribute("data-keyboard-open", unzoomed && typing && window.innerHeight - viewport.height > 120);
     };
     sync();
     viewport.addEventListener("resize", sync);

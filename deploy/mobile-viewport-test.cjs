@@ -132,7 +132,8 @@ async function main() {
       await conversation.click();
       const composer = page.getByRole("textbox", { name: "Mensagem", exact:true });
       await composer.waitFor();
-      const composerAboveHotbar = () => page.waitForFunction(() => {
+      const composerAboveHotbar = async () => {
+        try { await page.waitForFunction(() => {
         const input = document.querySelector(".chat-thread-composer textarea");
         const send = document.querySelector(".chat-thread-send");
         const hotbar = document.querySelector(".site-global-hotbar");
@@ -144,7 +145,16 @@ async function main() {
           const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
           return box.top >= 0 && box.bottom <= navbar.top + 1 && element.contains(hit);
         });
-      }, undefined, { timeout:10000 });
+        }, undefined, { timeout:10000 }); }
+        catch (error) {
+          const state=await page.evaluate(() => {
+            const rect=selector=>{ const node=document.querySelector(selector); return node ? {box:node.getBoundingClientRect().toJSON(),display:getComputedStyle(node).display} : null; };
+            return {viewport:{innerHeight,visualHeight:visualViewport?.height},keyboard:document.querySelector('.chat-reference-screen')?.hasAttribute('data-keyboard-open'),
+              frame:rect('.chat-reference-screen'),input:rect('.chat-thread-composer textarea'),send:rect('.chat-thread-send'),hotbar:rect('.site-global-hotbar')};
+          });
+          throw new Error(`Composer obstruído: ${JSON.stringify(state)}; ${error.message}`);
+        }
+      };
       await composerAboveHotbar();
       const scrollsIndependently = await page.locator(".chat-thread-messages").evaluate(messages => {
         const composer = document.querySelector(".chat-thread-composer");
