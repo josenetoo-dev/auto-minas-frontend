@@ -4,8 +4,6 @@ import Image from "next/image";
 import { searchPublicCars } from "@/lib/car";
 import CarCard from "@/components/car-card";
 import CarFilters from "@/components/car-filters";
-import SaveSearchButton from "@/components/save-search-button";
-import { getSession } from "@/lib/auth";
 import { BRANDS, FUEL_OPTIONS, TRANSMISSION_OPTIONS } from "@/lib/constants";
 import "@/styles/cars.css";
 
@@ -37,7 +35,6 @@ export default async function CarrosPage({
   searchParams: Promise<SearchParams>;
 }) {
   const sp = await searchParams;
-  const session = await getSession();
   const q = str(sp.q)?.trim() || undefined;
   const rawBrand = str(sp.brand)?.trim();
   const brand = rawBrand && BRANDS.includes(rawBrand as typeof BRANDS[number]) ? rawBrand : undefined;
@@ -109,7 +106,6 @@ export default async function CarrosPage({
         transmissionOptions={TRANSMISSION_OPTIONS}
         total={catalog?.total ?? 0}
       />
-      <SaveSearchButton signedIn={Boolean(session)} />
 
       <section className="cars-results-section">
         {!catalog && (

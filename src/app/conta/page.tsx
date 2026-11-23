@@ -111,11 +111,6 @@ export default async function Account() {
         </Link>
 
         <nav className="account-hub-grid" aria-label="Área da conta">
-          <Link href="/buscas-salvas">
-            <span>⌕</span>
-            <div><strong>Buscas salvas</strong><small>Retome seus filtros</small></div>
-            <b>›</b>
-          </Link>
           <Link href="/favoritos">
             <span>♡</span>
             <div><strong>Favoritos</strong><small>Carros salvos por você</small></div>
