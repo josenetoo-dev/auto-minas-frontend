@@ -21,6 +21,12 @@ body:has(.chat-reference-screen) > div[role="note"] {
 .chat-reference-thread {
   min-width:0;
 }
+.chat-reference-list-title {
+  padding:18px 18px 6px;
+  color:#f5f4ee;
+  font-size:1.45rem;
+  font-weight:900;
+}
 
 .chat-reference-brandbar {
   display:flex;
@@ -184,7 +190,9 @@ body:has(.chat-reference-screen) > div[role="note"] {
   text-align:left;
 }
 .chat-reference-conversation.is-active {
-  background:linear-gradient(90deg,rgba(212,175,55,.055),transparent);
+  border-radius:12px;
+  background:#292929;
+  box-shadow:inset 3px 0 #d4af37;
 }
 .chat-reference-car-thumb {
   overflow:hidden;
@@ -372,48 +380,6 @@ body:has(.chat-reference-screen) > div[role="note"] {
   place-items:center;
   color:#d8d6ce;
   font-size:1.25rem;
-}
-
-.chat-thread-car-card {
-  display:grid;
-  grid-template-columns:94px minmax(0,1fr) 24px;
-  align-items:center;
-  gap:12px;
-  margin:10px 10px 0;
-  border:1px solid rgba(255,255,255,.11);
-  border-radius:13px;
-  background:linear-gradient(180deg,#151514,#10100f);
-  padding:9px;
-}
-.chat-thread-car-card img {
-  width:94px;
-  height:68px;
-  border-radius:9px;
-  object-fit:cover;
-}
-.chat-thread-car-card span {
-  min-width:0;
-}
-.chat-thread-car-card strong {
-  display:block;
-  overflow:hidden;
-  color:#f3f2ec;
-  font-size:.78rem;
-  font-weight:900;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.chat-thread-car-card b {
-  display:block;
-  margin-top:6px;
-  color:#f2d87e;
-  font-size:1.05rem;
-  font-weight:900;
-}
-.chat-thread-car-card em {
-  color:#d5d3cb;
-  font-size:1.5rem;
-  font-style:normal;
 }
 
 .chat-thread-messages {
@@ -730,9 +696,6 @@ body:has(.chat-reference-screen.is-list) .home-bottom-nav-icon svg {
     min-height:74px;
     padding-inline:14px;
   }
-  .chat-thread-car-card {
-    margin:12px 14px 0;
-  }
   .chat-thread-messages {
     padding:16px 14px 12px;
   }
@@ -781,7 +744,6 @@ body:has(.chat-reference-screen.is-list) .home-bottom-nav-icon svg {
   overflow:hidden;
 }
 .chat-thread-header,
-.chat-thread-car-card,
 .chat-thread-quick-actions,
 .chat-thread-selected-file,
 .chat-thread-composer {
@@ -823,6 +785,9 @@ body:has(.chat-reference-screen.has-thread) > .cookie-banner {
   margin-block:0;
   overflow:hidden;
   container:chat-frame / size;
+  width:100%;
+  max-width:none;
+  border-radius:0;
 }
 .chat-reference-screen.has-thread .chat-reference-thread {
   height:100%;
@@ -842,8 +807,9 @@ body:has(.chat-reference-screen.has-thread[data-keyboard-open]) > .site-global-h
 
 @media (min-width:768px) {
   .chat-reference-screen.has-thread {
-    --chat-top-gap:18px;
-    --chat-bottom-space:calc(var(--site-hotbar-height) + var(--site-hotbar-bottom) + 8px);
+    --chat-top-gap:0px;
+    --chat-bottom-space:calc(var(--site-hotbar-height) + var(--site-hotbar-bottom));
+    grid-template-columns:minmax(280px,25%) minmax(0,1fr);
   }
   .chat-reference-screen.has-thread[data-keyboard-open] {
     --chat-top-gap:0px;
@@ -851,11 +817,13 @@ body:has(.chat-reference-screen.has-thread[data-keyboard-open]) > .site-global-h
 }
 
 @container chat-frame (max-height: 300px) {
-  .chat-thread-car-card {
-    grid-template-columns:minmax(0,1fr) 24px;
-  }
-  .chat-thread-car-card img,
   .chat-thread-quick-actions {
     display:none;
   }
 }
+
+body:has(.chat-reference-screen) > .home-topbar {display:none;}
+.chat-reference-conversation-list {padding:8px;}
+.chat-reference-conversation {padding:10px 8px;gap:9px;}
+.chat-reference-filters {margin-top:7px;}
+.chat-thread-person span {font-size:.78rem;color:#b8b7b0;}

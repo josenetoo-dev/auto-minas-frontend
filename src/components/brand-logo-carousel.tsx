@@ -1,21 +1,26 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import type { CSSProperties, PointerEvent } from "react";
 
 const brands = [
   ["Toyota","toyota"],["Volkswagen","volkswagen"],["Chevrolet","chevrolet"],
   ["Fiat","fiat"],["Honda","honda"],["Hyundai","hyundai"],["Jeep","jeep"],
-  ["Renault","renault"],["Nissan","nissan"],["Ford","ford"],["BMW","bmw"],["Audi","audi"]
+  ["Renault","renault"],["Nissan","nissan"],["Ford","ford"],["BMW","bmw"],["Audi","audi"],
+  ["BYD","byd"],["Citroën","citroen"],["GWM","great-wall"],["Kia","kia"],
+  ["Mercedes-Benz","mercedes-benz"],["Mitsubishi","mitsubishi"],["Peugeot","peugeot"],["Volvo","volvo"]
 ] as const;
 const count = brands.length;
 const wrap = (n: number) => ((n % count) + count) % count;
 
 export default function BrandLogoCarousel() {
+  const router = useRouter();
   const [position,setPosition] = useState(0);
   const [drag,setDrag] = useState(0);
-  const pointer = useRef<{id:number; x:number; width:number; delta:number} | null>(null);
+  const pointer = useRef<{id:number; x:number; y:number; width:number; delta:number; swiping:boolean} | null>(null);
+  const suppressClick = useRef(false);
   const [dragging,setDragging] = useState(false);
   const selected = wrap(position);
   const brand = brands[selected];
@@ -23,14 +28,18 @@ export default function BrandLogoCarousel() {
   function move(n:number) { setPosition(old => wrap(old+n)); }
   function start(e:PointerEvent<HTMLDivElement>) {
     if(e.button!==0 || pointer.current) return;
-    pointer.current={id:e.pointerId,x:e.clientX,width:e.currentTarget.clientWidth,delta:0};
+    pointer.current={id:e.pointerId,x:e.clientX,y:e.clientY,width:e.currentTarget.clientWidth,delta:0,swiping:false};
   }
   function onMove(e:PointerEvent<HTMLDivElement>) {
     const p=pointer.current;
     if(!p || p.id!==e.pointerId) return;
     const dx=e.clientX-p.x;
-    if(Math.abs(dx)<7 && !p.delta) return;
-    if(!e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.setPointerCapture(e.pointerId);
+    if(!p.swiping) {
+      if(Math.abs(dx)<9 && Math.abs(e.clientY-p.y)<9) return;
+      if(Math.abs(e.clientY-p.y)>Math.abs(dx)) { pointer.current=null; return; }
+      p.swiping=true;
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
     p.delta=Math.max(-1.2,Math.min(1.2,dx/Math.max(70,p.width*(p.width<600?.33:.21))));
     setDragging(true);
     setDrag(p.delta);
@@ -39,13 +48,13 @@ export default function BrandLogoCarousel() {
     const p=pointer.current;
     if(!p || p.id!==e.pointerId) return;
     pointer.current=null;
-    if(!cancel && Math.abs(p.delta)>.16) move(p.delta<0?1:-1);
+    if(p.swiping) {
+      suppressClick.current=true;
+      window.setTimeout(()=>{suppressClick.current=false;},0);
+    }
+    if(!cancel && p.swiping && Math.abs(p.delta)>.16) move(p.delta<0?1:-1);
     setDrag(0);setDragging(false);
   }
-
-  const dots= <div className="am-brand-dots" aria-label="Selecionar grupo de marcas">
-    {Array.from({length:4},(_,i)=><button key={i} type="button" aria-label={`Grupo ${i+1} de marcas`} aria-current={Math.floor(selected/3)===i?"true":undefined} onClick={()=>setPosition(i*3)} />)}
-  </div>;
 
   return (
     <div className="am-brand-3d" role="region" aria-label="Carrossel de marcas" onKeyDown={e=>{if(e.key==="ArrowLeft"||e.key==="ArrowRight"){e.preventDefault();move(e.key==="ArrowLeft"?-1:1);}}}>
@@ -55,21 +64,19 @@ export default function BrandLogoCarousel() {
           const offset=((i-selected+count+count/2)%count)-count/2;
           const d=offset+drag;
           const distance=Math.abs(d);
-          return <button key={slug} type="button" className={`am-brand-3d-card ${offset===0?"is-active":""}`} data-offset={Math.abs(offset)} tabIndex={offset===0?0:-1} aria-label={`Selecionar ${name}`} aria-hidden={Math.abs(offset)>2} onClick={()=>{if(!dragging)setPosition(i)}} style={{"--offset":d,"--depth":distance,"--turn":`${-Math.max(-2,Math.min(2,d))*13}deg`,"--scale":Math.max(.68,1-distance*.10),zIndex:10-Math.round(distance*2)} as CSSProperties}>
+          return <button key={slug} type="button" className={`am-brand-3d-card ${offset===0?"is-active":""}`} data-offset={Math.abs(offset)} tabIndex={Math.abs(offset)<=2?0:-1} aria-label={`${offset===0?"Ver veículos da marca":"Selecionar"} ${name}`} aria-hidden={Math.abs(offset)>2} onClick={()=>{if(suppressClick.current || dragging)return; if(offset===0)router.push(`/carros?brand=${encodeURIComponent(name)}`); else setPosition(i)}} style={{"--offset":d,"--depth":distance,"--turn":`${-Math.max(-2,Math.min(2,d))*13}deg`,"--scale":Math.max(.68,1-distance*.10),zIndex:10-Math.round(distance*2)} as CSSProperties}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`https://cdn.simpleicons.org/${slug}/${slug==="chevrolet"?"E7B54F":slug==="bmw"?"B9D9F3":"F4F3EE"}`} alt="" draggable={false} loading="lazy" onError={e=>{e.currentTarget.hidden=true}}/>
+            <img src={`/images/brands/${slug}-logo.${["chevrolet","ford","honda","great-wall"].includes(slug)?"png":"svg"}`} alt="" draggable={false} loading="lazy"/>
             <span>{name}</span>
           </button>;
         })}
       </div>
-      <div className="am-brand-mobile-dots">{dots}</div>
       <div className="am-brand-active-name" aria-live="polite">{brand[0]}</div>
       <div className="am-brand-3d-controls">
         <button type="button" onClick={()=>move(-1)} aria-label="Marca anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="m15 5-7 7 7 7"/></svg></button>
         <Link className="am-brand-cta" href={`/carros?brand=${encodeURIComponent(brand[0])}`}>Ver veículos <span aria-hidden="true">→</span></Link>
         <button type="button" onClick={()=>move(1)} aria-label="Próxima marca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="m9 5 7 7-7 7"/></svg></button>
       </div>
-      <div className="am-brand-desktop-dots">{dots}</div>
     </div>
   );
 }

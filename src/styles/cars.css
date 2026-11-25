@@ -1,4 +1,7 @@
 /* ---------- Cars page redesign: referência mobile 17/11/2026 ---------- */
+html:has(.cars-exact-screen) {
+  scroll-behavior: auto;
+}
 body:has(.cars-exact-screen) {
   background: #080808;
   padding-bottom: calc(78px + env(safe-area-inset-bottom));
@@ -11,7 +14,7 @@ body:has(.cars-exact-screen) > div[role="note"] {
 .cars-exact-screen {
   width: min(100%, 1180px);
   margin-inline: auto;
-  overflow: hidden;
+  overflow-x: clip;
   background:
     radial-gradient(circle at 82% 8%, rgba(212,175,55,.055), transparent 20rem),
     #090909;

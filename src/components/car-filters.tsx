@@ -75,7 +75,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
       else params.delete(key);
     });
     params.delete("page");
-    router.replace(`/carros${params.size ? `?${params.toString()}` : ""}`, { scroll: false });
+    router.replace(`/carros${params.size ? `?${params.toString()}` : ""}`);
   }
 
   function applyAll() {
@@ -107,7 +107,7 @@ export default function CarFilters({ initial, brands, fuelOptions, transmissionO
     };
     setTyping("");
     setState(next);
-    router.replace("/carros", { scroll: false });
+    router.replace("/carros");
   }
 
   const activeCount = useMemo(() =>
