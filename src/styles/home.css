@@ -577,6 +577,7 @@ body:has(.home-exact-screen) > div[role="note"] {
     min-height: 500px;
   }
   .home-reference-hero-copy {
+    max-width: 680px;
     padding: 70px clamp(46px, 6vw, 96px) 56px;
   }
   .home-reference-hero-copy p {
