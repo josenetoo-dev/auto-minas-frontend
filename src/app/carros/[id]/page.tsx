@@ -76,7 +76,7 @@ export default async function Detail({ params }: Props) {
   const [profile, verification, favorite, related] = await Promise.all([
     backendFetch<PublicProfile>(`/v1/perfis/${car.userId}?pagina=0`).catch(() => null),
     backendFetch<VerificationSummary>(`/v1/anuncio/${car.id}/verificacoes`, {}, token || undefined).catch(() => null),
-    token && !car.isDemo ? backendFetch<boolean>(`/v1/favoritos/${car.id}`, {}, token).catch(() => false) : false,
+    token ? backendFetch<boolean>(`/v1/favoritos/${car.id}`, {}, token).catch(() => false) : false,
     similarCars(car),
   ]);
 
@@ -105,7 +105,7 @@ export default async function Detail({ params }: Props) {
         </Link>
 
         <div className="vehicle-detail-top-actions">
-          {!car.isDemo && <FavoriteButton id={car.id} initial={favorite} signedIn={Boolean(session)} />}
+          <FavoriteButton id={car.id} initial={favorite} signedIn={Boolean(session)} />
           <button type="button" className="vehicle-detail-icon-button is-disabled" aria-label="Compartilhamento pelo navegador" disabled>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3M7 8l5-5 5 5" /><path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8" /></svg>
           </button>
@@ -117,7 +117,7 @@ export default async function Detail({ params }: Props) {
 
         {car.isDemo && (
           <p className="vehicle-detail-demo-note">
-            Anúncio demonstrativo.
+            Anúncio demonstrativo · negociações e mensagens são simulações para apresentação.
           </p>
         )}
 
