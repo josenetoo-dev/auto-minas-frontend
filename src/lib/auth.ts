@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { backendFetch, SESSION_COOKIE } from "@/lib/backend";
+import { backendFetch, SESSION_COOKIE, SESSION_REFRESH_COOKIE } from "@/lib/backend";
 
 export type SessionPayload = {
   id: number;
@@ -11,12 +11,15 @@ export type SessionPayload = {
   status: "ACTIVE" | "PENDING_CONTACT_VERIFICATION" | "SUSPENDED" | "BLOCKED" | "DELETED";
 };
 
-export async function createSession(accessToken: string) {
+export async function createSession(accessToken: string, refreshToken?: string) {
   // Never trust client identity; get account details from Spring with issued JWT.
   const me = await backendFetch<{id:number;email:string;nome:string;role:SessionPayload["role"];status:SessionPayload["status"]}>("/v1/usuario/me", {}, accessToken);
   if (!me.id) throw new Error("A API não retornou uma identidade válida.");
   (await cookies()).set(SESSION_COOKIE, accessToken, {
     httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 30,
+  });
+  if (refreshToken) (await cookies()).set(SESSION_REFRESH_COOKIE, refreshToken, {
+    httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 60,
   });
   return toSession(me);
 }
@@ -32,7 +35,10 @@ export async function getSession(): Promise<SessionPayload | null> {
   catch { return null; } // JWT revocation and account deletion enforced by Spring
 }
 
-export async function destroySession() { (await cookies()).delete(SESSION_COOKIE); }
+export async function destroySession() {
+  (await cookies()).delete(SESSION_COOKIE);
+  (await cookies()).delete(SESSION_REFRESH_COOKIE);
+}
 export async function requireUser():Promise<SessionPayload> {
   const user = await getSession();
   if (!user) redirect("/login?error=expired");

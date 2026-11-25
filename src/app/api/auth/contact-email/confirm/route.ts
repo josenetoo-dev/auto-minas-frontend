@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSession } from "@/lib/auth";
-import { backendFetch, clientError, getApiToken, sameOrigin } from "@/lib/backend";
+import { backendFetch, clientError, getApiToken, sameOrigin, SESSION_REFRESH_COOKIE } from "@/lib/backend";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   if (!sameOrigin(request)) {
@@ -23,7 +24,11 @@ export async function POST(request: Request) {
       { method: "POST", body: JSON.stringify(body) },
       currentToken,
     );
-    const session = await createSession(result.token);
+    const previousRefresh = (await cookies()).get(SESSION_REFRESH_COOKIE)?.value;
+    const renewed = previousRefresh ? await backendFetch<{ token:string; refreshToken:string }>(
+      "/auth/session/renew", {method:"POST",body:JSON.stringify({refreshToken:previousRefresh})}, result.token,
+    ) : null;
+    const session = await createSession(renewed?.token ?? result.token,renewed?.refreshToken);
     const redirect = session.role === "ADMIN" || session.role === "REVIEWER"
       ? "/moderacao"
       : "/conta";

@@ -655,25 +655,22 @@ body:has(.chat-reference-screen.is-list) .home-bottom-nav-icon svg {
 
 @media (min-width:768px) {
   .chat-reference-screen {
-    width:min(100% - 36px,1180px);
-    min-height:760px;
-    margin-block:18px 36px;
+    width:100%;
+    min-height:0;
+    margin:0;
     overflow:hidden;
-    border:1px solid rgba(255,255,255,.06);
-    border-radius:24px;
+    border:0;
+    border-radius:0;
   }
-  .chat-reference-screen.has-thread {
+  .chat-reference-screen {
     display:grid;
-    grid-template-columns:minmax(290px,340px) minmax(0,1fr);
-  }
-  .chat-reference-screen.is-list {
-    max-width:820px;
+    grid-template-columns:clamp(300px,25vw,410px) minmax(0,1fr);
   }
   .chat-reference-list {
     min-height:0;
     overflow:hidden;
   }
-  .chat-reference-screen.has-thread .chat-reference-list {
+  .chat-reference-screen .chat-reference-list {
     display:flex;
     flex-direction:column;
     border-right:1px solid rgba(255,255,255,.08);
@@ -687,7 +684,7 @@ body:has(.chat-reference-screen.is-list) .home-bottom-nav-icon svg {
   .chat-reference-screen.has-thread .chat-reference-list-hero p {
     font-size:.72rem;
   }
-  .chat-reference-screen.has-thread .chat-reference-conversation-list {
+  .chat-reference-screen .chat-reference-conversation-list {
     flex:1;
     overflow-y:auto;
     padding-bottom:18px;
@@ -714,11 +711,8 @@ body:has(.chat-reference-screen.is-list) .home-bottom-nav-icon svg {
 }
 
 @media (min-width:1024px) {
-  .chat-reference-screen.has-thread {
-    grid-template-columns:340px minmax(0,1fr);
-  }
   .chat-thread-message-wrap {
-    max-width:62%;
+    max-width:min(62%,680px);
   }
 }
 
@@ -808,7 +802,7 @@ body:has(.chat-reference-screen.has-thread[data-keyboard-open]) > .site-global-h
 @media (min-width:768px) {
   .chat-reference-screen.has-thread {
     --chat-top-gap:0px;
-    --chat-bottom-space:calc(var(--site-hotbar-height) + var(--site-hotbar-bottom));
+    --chat-bottom-space:var(--site-hotbar-height);
     grid-template-columns:minmax(280px,25%) minmax(0,1fr);
   }
   .chat-reference-screen.has-thread[data-keyboard-open] {
@@ -827,3 +821,26 @@ body:has(.chat-reference-screen) > .home-topbar {display:none;}
 .chat-reference-conversation {padding:10px 8px;gap:9px;}
 .chat-reference-filters {margin-top:7px;}
 .chat-thread-person span {font-size:.78rem;color:#b8b7b0;}
+
+@media (min-width:768px) {
+  html:has(.chat-reference-screen),
+  body:has(.chat-reference-screen) {overflow:hidden;}
+  body:has(.chat-reference-screen):has(.site-global-hotbar) {padding-bottom:0 !important;}
+  .chat-reference-screen.is-list {
+    position:fixed;
+    inset:0 0 var(--site-hotbar-height) 0;
+    height:calc(100dvh - var(--site-hotbar-height));
+  }
+  .chat-reference-screen.is-list .chat-reference-thread {height:100%;}
+  .chat-reference-screen.has-thread {grid-template-columns:clamp(300px,25vw,410px) minmax(0,1fr);}
+  body:has(.chat-reference-screen) > .site-global-hotbar.home-bottom-nav {
+    right:0;
+    bottom:0;
+    left:0;
+    width:100%;
+    transform:none;
+    border:0;
+    border-top:1px solid rgba(212,175,55,.2);
+    border-radius:0;
+  }
+}

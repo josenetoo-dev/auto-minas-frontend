@@ -38,7 +38,7 @@ test("signup logs in the newly registered account and establishes its session", 
   const backend = {
     backendFetch: async (path, options) => {
       calls.push({ path, body: options.body ? JSON.parse(options.body) : undefined });
-      if (path === "/auth/login") return { token: "issued-jwt" };
+      if (path === "/auth/login") return { token: "issued-jwt", refreshToken: "renewable-session" };
       if (path === "/v1/usuario/me") return {
         id: 54, email: "teste@example.com", nome: "Teste", role: "USER", status: "PENDING_CONTACT_VERIFICATION",
       };
@@ -50,7 +50,7 @@ test("signup logs in the newly registered account and establishes its session", 
   const auth = loadRoute("src/lib/auth.ts", {
     "next/headers": { cookies: async () => cookieStore },
     "next/navigation": { redirect: (path) => { throw new Error(`redirect ${path}`); } },
-    "@/lib/backend": { ...backend, SESSION_COOKIE: "auto_minas_access" },
+    "@/lib/backend": { ...backend, SESSION_COOKIE: "auto_minas_access", SESSION_REFRESH_COOKIE: "auto_minas_refresh" },
   });
   const { POST } = loadRoute("src/app/api/auth/signup/route.ts", {
     "next/server": { NextResponse: { json: (body, init) => Response.json(body, init) } },
@@ -68,10 +68,10 @@ test("signup logs in the newly registered account and establishes its session", 
 
   assert.equal(response.status, 200);
   assert.deepEqual(calls.map(({ path }) => path), ["/auth/register", "/auth/login", "/v1/usuario/me"]);
+  assert.equal(cookieValues.get("auto_minas_access"), "issued-jwt");
   assert.deepEqual(JSON.parse(JSON.stringify(writtenCookie)), {
-    name: "auto_minas_access",
-    value: "issued-jwt",
-    options: { httpOnly: true, sameSite: "lax", secure: false, path: "/", maxAge: 1800 },
+    name: "auto_minas_refresh", value: "renewable-session",
+    options: { httpOnly: true, sameSite: "lax", secure: false, path: "/", maxAge: 5184000 },
   });
   assert.equal(body.redirect, "/");
 });
@@ -86,7 +86,7 @@ test("email confirmation replaces the revoked JWT without logging the user out",
 test("confirmation BFF requires the current session and replaces it with the backend-issued JWT", async () => {
   let currentToken = "pending-session-jwt";
   const upstreamCalls = [];
-  const cookieValues = new Map([["auto_minas_access", currentToken]]);
+  const cookieValues = new Map([["auto_minas_access", currentToken], ["auto_minas_refresh", "old-session"]]);
   let writtenCookie;
   const cookieStore = {
     get: (name) => cookieValues.has(name) ? { value: cookieValues.get(name) } : undefined,
@@ -100,6 +100,7 @@ test("confirmation BFF requires the current session and replaces it with the bac
     backendFetch: async (path, options, token) => {
       upstreamCalls.push({ path, body: options.body ? JSON.parse(options.body) : undefined, token });
       if (path === "/v1/usuario/me/contato/email/confirmar") return { token: "active-session-jwt" };
+      if (path === "/auth/session/renew") return { token: "active-session-jwt", refreshToken: "new-session" };
       if (path === "/v1/usuario/me") return {
         id: 54, email: "teste@example.com", nome: "Teste", role: "USER", status: "ACTIVE",
       };
@@ -108,16 +109,18 @@ test("confirmation BFF requires the current session and replaces it with the bac
     clientError: (error) => Response.json({ error: error.message }, { status: 500 }),
     getApiToken: async () => currentToken,
     sameOrigin: () => true,
+    SESSION_REFRESH_COOKIE: "auto_minas_refresh",
   };
   const auth = loadRoute("src/lib/auth.ts", {
     "next/headers": { cookies: async () => cookieStore },
     "next/navigation": { redirect: (path) => { throw new Error(`redirect ${path}`); } },
-    "@/lib/backend": { ...backend, SESSION_COOKIE: "auto_minas_access" },
+    "@/lib/backend": { ...backend, SESSION_COOKIE: "auto_minas_access", SESSION_REFRESH_COOKIE: "auto_minas_refresh" },
   });
   const { POST } = loadRoute("src/app/api/auth/contact-email/confirm/route.ts", {
     "next/server": { NextResponse: { json: (body, init) => Response.json(body, init) } },
     "@/lib/auth": auth,
     "@/lib/backend": backend,
+    "next/headers": { cookies: async () => cookieStore },
   });
   const request = () => new Request("http://localhost/api/auth/contact-email/confirm", {
     method: "POST",
@@ -128,20 +131,20 @@ test("confirmation BFF requires the current session and replaces it with the bac
   const response = await POST(request());
   assert.equal(response.status, 200);
   assert.deepEqual(upstreamCalls.map(({ path }) => path), [
-    "/v1/usuario/me/contato/email/confirmar", "/v1/usuario/me",
+    "/v1/usuario/me/contato/email/confirmar", "/auth/session/renew", "/v1/usuario/me",
   ]);
   assert.equal(upstreamCalls[0].token, "pending-session-jwt");
+  assert.equal(upstreamCalls[1].token, "active-session-jwt");
   assert.deepEqual(JSON.parse(JSON.stringify(writtenCookie)), {
-    name: "auto_minas_access",
-    value: "active-session-jwt",
-    options: { httpOnly: true, sameSite: "lax", secure: false, path: "/", maxAge: 1800 },
+    name: "auto_minas_refresh", value: "new-session",
+    options: { httpOnly: true, sameSite: "lax", secure: false, path: "/", maxAge: 5184000 },
   });
   assert.deepEqual(await response.json(), { ok: true, redirect: "/conta" });
 
   currentToken = null;
   const anonymousResponse = await POST(request());
   assert.equal(anonymousResponse.status, 401);
-  assert.equal(upstreamCalls.length, 2);
+  assert.equal(upstreamCalls.length, 3);
 });
 
 

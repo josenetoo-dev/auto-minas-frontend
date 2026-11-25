@@ -10,10 +10,10 @@ export async function POST(request:Request) {
   if(!b.name?.trim()||!b.email?.trim()||!b.password||!/^\d{10,11}$/.test(phone))
    return NextResponse.json({error:"Informe nome, e-mail, senha forte e telefone com DDD."},{status:400});
   await backendFetch("/auth/register",{method:"POST",body:JSON.stringify({nome:b.name.trim(),email:b.email.trim().toLowerCase(),senha:b.password,telefone:phone,aceiteTermos:true})});
-  const result=await backendFetch<{token:string}>("/auth/login",{
+  const result=await backendFetch<{token:string;refreshToken?:string}>("/auth/login",{
    method:"POST",body:JSON.stringify({email:b.email.trim().toLowerCase(),senha:b.password})
   });
-  await createSession(result.token);
+  await createSession(result.token,result.refreshToken);
   return NextResponse.json({ok:true,redirect:"/",message:"Conta criada. Confirme seu e-mail para liberar os anúncios."});
  }catch(e){return clientError(e);}
 }

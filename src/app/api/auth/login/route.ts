@@ -6,10 +6,10 @@ export async function POST(request:Request) {
  try {
   const body=await request.json() as {email?:string;password?:string;next?:string};
   if(!body.email||!body.password)return NextResponse.json({error:"Informe e-mail e senha."},{status:400});
-  const result=await backendFetch<{token:string}>("/auth/login",{
+  const result=await backendFetch<{token:string;refreshToken?:string}>("/auth/login",{
    method:"POST",body:JSON.stringify({email:body.email.trim().toLowerCase(),senha:body.password})
   });
-  await createSession(result.token);
+  await createSession(result.token,result.refreshToken);
   return NextResponse.json({ok:true,redirect:"/"});
  }catch(e){return clientError(e);}
 }
