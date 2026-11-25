@@ -557,9 +557,15 @@ body:has(.home-exact-screen) > div[role="note"] {
   body:has(.home-exact-screen) {
     padding-bottom: 0;
   }
+  .home-exact-screen {
+    width: 100%;
+    max-width: none;
+  }
   .home-topbar-inner {
+    width: 100%;
+    max-width: none;
     min-height: 86px;
-    padding-inline: 28px;
+    padding-inline: clamp(28px, 4vw, 72px);
   }
   .home-brand-lockup {
     font-size: 1.55rem;
@@ -571,15 +577,16 @@ body:has(.home-exact-screen) > div[role="note"] {
     min-height: 500px;
   }
   .home-reference-hero-copy {
-    padding: 70px 46px 56px;
+    padding: 70px clamp(46px, 6vw, 96px) 56px;
   }
   .home-reference-hero-copy p {
     font-size: 1.08rem;
   }
   .home-reference-car {
-    right: -3%;
+    right: 0;
     bottom: -4%;
-    width: 59%;
+    width: min(59%, 920px);
+    max-width: none;
   }
   .home-trust-item {
     min-height: 130px;
