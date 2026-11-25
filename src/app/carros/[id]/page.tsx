@@ -10,6 +10,7 @@ import CarOwnerActions from "@/components/car-owner-actions";
 import ReportButton from "@/components/report-button";
 import HistoryBackButton from "@/components/history-back-button";
 import FavoriteButton from "@/components/favorite-button";
+import Logo from "@/components/logo";
 import CarCard from "@/components/car-card";
 import CompareButton from "@/components/compare-button";
 import { similarCars } from "@/lib/similar-cars";
@@ -99,10 +100,9 @@ export default async function Detail({ params }: Props) {
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
         </HistoryBackButton>
 
-        <Link href="/" className="vehicle-detail-brand" aria-label="Auto Minas">
-          <span className="vehicle-detail-brand-mark">AM</span>
-          <span>Auto Minas</span>
-        </Link>
+        <div className="vehicle-detail-brand">
+          <Logo compactOnMobile />
+        </div>
 
         <div className="vehicle-detail-top-actions">
           <FavoriteButton id={car.id} initial={favorite} signedIn={Boolean(session)} />
