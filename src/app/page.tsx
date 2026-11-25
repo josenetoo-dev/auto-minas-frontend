@@ -4,7 +4,6 @@ import { featuredCars, recommendedHomeCars, type CarData } from "@/lib/car";
 import { formatPrice } from "@/lib/format";
 import HomeHoverVideo from "@/components/home-hover-video";
 import BrandLogoCarousel from "@/components/brand-logo-carousel";
-import "@/styles/home.css";
 
 // Nunca manter anúncio suspenso no destaque por cache da página inicial.
 export const dynamic = "force-dynamic";
