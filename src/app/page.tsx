@@ -89,17 +89,6 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="home-reference-car" aria-hidden="true">
-          <Image
-            src="/images/home/auto-minas-onix.webp"
-            alt=""
-            fill
-            priority
-            sizes="(max-width: 767px) 78vw, 58vw"
-            quality={86}
-            className="home-reference-car-image"
-          />
-        </div>
       </section>
 
       <section className="home-trust-strip" aria-label="Diferenciais do Auto Minas">
