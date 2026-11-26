@@ -557,9 +557,15 @@ body:has(.home-exact-screen) > div[role="note"] {
   body:has(.home-exact-screen) {
     padding-bottom: 0;
   }
+  .home-exact-screen {
+    width: 100%;
+    max-width: none;
+  }
   .home-topbar-inner {
+    width: 100%;
+    max-width: none;
     min-height: 86px;
-    padding-inline: 28px;
+    padding-inline: clamp(28px, 4vw, 72px);
   }
   .home-brand-lockup {
     font-size: 1.55rem;
@@ -571,15 +577,17 @@ body:has(.home-exact-screen) > div[role="note"] {
     min-height: 500px;
   }
   .home-reference-hero-copy {
-    padding: 70px 46px 56px;
+    max-width: 680px;
+    padding: 70px clamp(46px, 6vw, 96px) 56px;
   }
   .home-reference-hero-copy p {
     font-size: 1.08rem;
   }
   .home-reference-car {
-    right: -3%;
+    right: 0;
     bottom: -4%;
-    width: 59%;
+    width: min(59%, 920px);
+    max-width: none;
   }
   .home-trust-item {
     min-height: 130px;
@@ -663,16 +671,16 @@ body:has(.home-exact-screen) > div[role="note"] {
 .home-brand-section:has(.am-brand-3d) .home-section-heading>a{white-space:nowrap;color:#f2bd55;font-weight:800;}
 .am-brand-3d{--card-w:clamp(120px,20%,250px);--step:21%;text-align:center;color:#f4f3ef;min-width:0;}
 .am-brand-3d-hint{color:#bdbbb9;font-size:clamp(.9rem,1.7vw,1.24rem);text-align:left;margin:0 0 15px;}
-.am-brand-mobile-hint,.am-brand-mobile-dots{display:none;}
+.am-brand-mobile-hint{display:none;}
 .am-brand-3d-stage{position:relative;height:clamp(225px,32vw,365px);perspective:1100px;overflow:hidden;touch-action:pan-y;cursor:grab;user-select:none;}
 .am-brand-3d-stage.is-dragging{cursor:grabbing;}
 .am-brand-3d-card{position:absolute;left:50%;top:50%;width:var(--card-w);aspect-ratio:.85;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(12px,2vw,26px);padding:16px 8px;border-radius:clamp(15px,2vw,29px);border:1px solid #383633;background:linear-gradient(143deg,#272727,#151515 80%);box-shadow:0 10px 24px #0006;color:#f4f3ee;transform:translate(-50%,-50%) translateX(calc(var(--offset)*var(--step-width))) rotateY(var(--turn)) scale(var(--scale));transition:transform .4s cubic-bezier(.2,.75,.25,1),border-color .3s,opacity .3s,box-shadow .3s;overflow:hidden;cursor:pointer;}
 .am-brand-3d-stage{--step-width:clamp(110px,19.8vw,223px);}
 .am-brand-3d-card[data-offset="3"],.am-brand-3d-card[data-offset="4"],.am-brand-3d-card[data-offset="5"],.am-brand-3d-card[data-offset="6"]{opacity:0;pointer-events:none;}
 .am-brand-3d-card.is-active{border-color:#e9b54b;background:radial-gradient(ellipse at bottom,#33291a,#171614 70%);box-shadow:0 0 28px #e1aa3433,inset 0 0 24px #efc15b16,0 12px 26px #0009;}
-.am-brand-3d-card:focus-visible,.am-brand-3d-controls button:focus-visible,.am-brand-cta:focus-visible,.am-brand-dots button:focus-visible{outline:2px solid #ffdc8a;outline-offset:3px;}
+.am-brand-3d-card:focus-visible,.am-brand-3d-controls button:focus-visible,.am-brand-cta:focus-visible{outline:2px solid #ffdc8a;outline-offset:3px;}
 .am-brand-3d-stage.is-dragging .am-brand-3d-card{transition:none;}
-.am-brand-3d-card img{width:68%;height:42%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 3px #0005);}
+.am-brand-3d-card img{width:72%;height:45%;object-fit:contain;pointer-events:none;border-radius:10px;background:#f5f5f2;padding:9px;}
 .am-brand-3d-card span{font-size:clamp(.7rem,1.6vw,1.25rem);font-weight:800;max-width:100%;overflow-wrap:anywhere;}
 .am-brand-active-name{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:850;letter-spacing:-.025em;margin:12px 0 22px;}
 .am-brand-3d-controls{display:flex;align-items:center;justify-content:center;gap:clamp(16px,6vw,70px);}
@@ -680,27 +688,21 @@ body:has(.home-exact-screen) > div[role="note"] {
 .am-brand-3d-controls>button svg{width:20px;height:20px;}
 .am-brand-cta{display:flex;align-items:center;justify-content:center;gap:10px;min-height:49px;padding:0 30px;border-radius:999px;background:linear-gradient(#ffd77d,#dba13c);color:#16110a;font-weight:850;font-size:1rem;box-shadow:0 6px 22px #d9a33519;white-space:nowrap;}
 .am-brand-cta span{font-size:1.3em;}
-.am-brand-dots{display:flex;justify-content:center;align-items:center;margin-top:20px;}
-.am-brand-dots button{display:grid;place-items:center;width:24px;height:24px;background:transparent;border:0;padding:0;}
-.am-brand-dots button::after{content:"";width:10px;height:10px;border-radius:50%;background:#41403e;}
-.am-brand-dots button[aria-current=true]::after{background:#f4bf56;}
 @media(max-width:767px){
 .home-brand-section:has(.am-brand-3d){padding-inline:12px;}
 .home-brand-section:has(.am-brand-3d) .home-section-heading{padding-inline:4px;margin-bottom:22px;gap:8px;}
 .home-brand-section:has(.am-brand-3d) .home-section-heading h2{font-size:clamp(1.1rem,5vw,1.65rem);}
 .home-brand-section:has(.am-brand-3d) .home-section-heading>a{font-size:clamp(.78rem,3.7vw,1rem);}
-.am-brand-3d{--card-w:54%;overflow:hidden;border:1px solid #353432;border-radius:22px;background:linear-gradient(150deg,#181817,#111110);padding:24px 0 28px;}
+.am-brand-3d{--card-w:min(54%,190px);width:100%;max-width:100%;overflow:clip;border:1px solid #353432;border-radius:22px;background:linear-gradient(150deg,#181817,#111110);padding:24px 0 28px;}
 .am-brand-3d-hint{text-align:center;margin:0 12px 12px;}
 .am-brand-desktop-hint,.am-brand-desktop-dots{display:none;}
 .am-brand-mobile-hint{display:flex;flex-direction:column;align-items:center;gap:10px;font-size:.86rem;color:#a9a7a4;}
 .am-brand-mobile-hint svg{width:49px;height:36px;}
-.am-brand-3d-stage{height:clamp(210px,65vw,410px);--step-width:clamp(120px,54vw,400px);perspective:750px;}
+.am-brand-3d-stage{height:clamp(210px,65vw,300px);--step-width:clamp(110px,42vw,180px);perspective:750px;}
 .am-brand-3d-card{border-radius:18px;aspect-ratio:.92;gap:15px;padding:12px 5px;}
 .am-brand-3d-card[data-offset="2"]{opacity:0;pointer-events:none;}
 .am-brand-3d-card span{font-size:clamp(.8rem,4vw,1.3rem);}
-.am-brand-mobile-dots{display:block;}
-.am-brand-dots{margin-top:0;}
-.am-brand-active-name{margin:25px 0 20px;font-size:clamp(1.5rem,6vw,2rem);}
+.am-brand-active-name{margin:15px 0 16px;font-size:clamp(1.5rem,6vw,2rem);}
 .am-brand-3d-controls{gap:12px;padding:0 13px;}
 .am-brand-3d-controls>button{width:44px;height:44px;}
 .am-brand-cta{flex:1;min-width:0;max-width:240px;padding:0 10px;font-size:clamp(.82rem,3.8vw,1.1rem);min-height:48px;}

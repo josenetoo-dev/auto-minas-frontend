@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 
 export const API_URL = (process.env.AUTO_MINAS_API_URL || "http://localhost:8080").replace(/\/$/, "");
 export const SESSION_COOKIE = "auto_minas_access";
+export const SESSION_REFRESH_COOKIE = "auto_minas_refresh";
 export class BackendError extends Error {
   constructor(public status: number, message: string, public code?: string, public traceId?: string, public fieldErrors?: Record<string,string>) { super(message); this.name = "BackendError"; }
 }

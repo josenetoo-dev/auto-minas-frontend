@@ -155,6 +155,50 @@ body:has(.vehicle-detail-screen) > div[role="note"] {
   font-size: .64rem;
 }
 
+.vehicle-favorite-button {
+  position: relative;
+  overflow: visible;
+  transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.vehicle-favorite-button svg {
+  transition: fill .2s ease, transform .25s cubic-bezier(.2,.8,.2,1);
+}
+.vehicle-favorite-button.is-saved {
+  border-color: #f2d87e;
+  background: linear-gradient(135deg,#f2d87e,#d4af37 55%,#a88323);
+  color: #171004;
+  box-shadow: 0 0 0 4px rgba(212,175,55,.12), 0 8px 24px rgba(212,175,55,.38);
+  animation: favorite-pop .42s cubic-bezier(.2,.9,.25,1.35);
+}
+.vehicle-favorite-button.is-saved svg {
+  fill: currentColor;
+  transform: scale(1.08);
+}
+.vehicle-favorite-button.is-saved::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border: 2px solid rgba(242,216,126,.72);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: favorite-ring .55s ease-out both;
+}
+@keyframes favorite-pop {
+  0% { transform: scale(.82); }
+  55% { transform: scale(1.14) rotate(-5deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@keyframes favorite-ring {
+  from { opacity: .9; transform: scale(.75); }
+  to { opacity: 0; transform: scale(1.3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vehicle-favorite-button,
+  .vehicle-favorite-button svg,
+  .vehicle-favorite-button.is-saved,
+  .vehicle-favorite-button.is-saved::after { animation: none; transition: none; }
+}
+
 .vehicle-detail-main-info {
   padding: 18px 14px 0;
 }

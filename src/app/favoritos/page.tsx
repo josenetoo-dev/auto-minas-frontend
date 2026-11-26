@@ -12,7 +12,7 @@ export default async function Favorites() {
   const token = await getApiToken();
   const ids = await backendFetch<number[]>("/v1/favoritos", {}, token || undefined);
   const resolved = await Promise.all(ids.map(id => carSummaryById(id, token || undefined).catch(() => null)));
-  const cars = resolved.filter(car => car?.statusApi === "ATIVO" && !car.isDemo);
+  const cars = resolved.filter(car => car?.statusApi === "ATIVO");
   return <main className="mx-auto max-w-5xl px-4 py-10 text-white">
     <Link href="/conta" className="underline">← Minha conta</Link>
     <h1 className="my-8 text-3xl font-bold">Meus favoritos</h1>

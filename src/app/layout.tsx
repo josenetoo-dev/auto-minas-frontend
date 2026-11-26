@@ -7,6 +7,7 @@ import MobileActions from "@/components/mobile-actions";
 import Footer from "@/components/footer";
 
 import "./globals.css";
+import "@/styles/home.css";
 
 export const metadata: Metadata = {
   title: {

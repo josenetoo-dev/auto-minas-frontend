@@ -12,7 +12,7 @@ export async function GET(request: Request) {
       searchPublicCars({ q, tipo: "CARRO" }),
       searchPublicCars({ city: q, tipo: "CARRO" }),
     ]);
-    const matches = (cars: CarData[]) => cars.filter(car => car.statusApi === "ATIVO" && !car.isDemo);
+    const matches = (cars: CarData[]) => cars.filter(car => car.statusApi === "ATIVO");
     const unique = new Map<string, Suggestion>();
     function add(kind: Suggestion["kind"], value: string) {
       if (!value || unique.size >= 12 || !value.toLocaleLowerCase("pt-BR").includes(q.toLocaleLowerCase("pt-BR"))) return;

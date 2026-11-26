@@ -134,10 +134,7 @@ export default function Header() {
     return (
       <header className="home-topbar">
         <div className="home-topbar-inner">
-          <Link href="/" className="home-brand-lockup" aria-label="Auto Minas — Página inicial">
-            <span className="home-brand-symbol" aria-hidden="true">AM</span>
-            <span>Auto Minas</span>
-          </Link>
+          <Logo size="lg" compactOnMobile />
 
           <div className="home-topbar-actions">
             <Link href={user ? "/chat" : "/login?next=%2Fchat"} className="home-notification-button" aria-label="Negociações">

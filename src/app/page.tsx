@@ -4,7 +4,6 @@ import { featuredCars, recommendedHomeCars, type CarData } from "@/lib/car";
 import { formatPrice } from "@/lib/format";
 import HomeHoverVideo from "@/components/home-hover-video";
 import BrandLogoCarousel from "@/components/brand-logo-carousel";
-import "@/styles/home.css";
 
 // Nunca manter anúncio suspenso no destaque por cache da página inicial.
 export const dynamic = "force-dynamic";
@@ -44,7 +43,7 @@ export default async function HomePage() {
           <div className="home-reference-vehicle-media">
             <Image src={photo} alt={`${car.brand} ${car.model}`} fill
               sizes="(max-width: 767px) 55vw, 280px" quality={72} className="object-cover" />
-            {car.isDemo ? <span className="home-published-badge">DEMO · Não está à venda</span>
+            {car.isDemo ? <span className="home-published-badge">DEMO · Negociação simulada</span>
               : sponsoredSection ? <span className="home-published-badge">Patrocinado</span>
               : car.status === "ativo" ? <span className="home-published-badge">Publicado</span> : null}
           </div>

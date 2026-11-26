@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChatMessageDTO, ChatSummary, ChatThread } from "@/lib/chat";
-import { formatClock, formatPrice, timeAgo } from "@/lib/format";
+import { formatClock, timeAgo } from "@/lib/format";
 import HistoryBackButton from "@/components/history-back-button";
 import { mergeThread } from "@/lib/chat-sync";
 
@@ -355,7 +355,6 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
 
   const car = thread?.car;
   const other = thread?.other;
-  const myRole = thread?.conversation.myRole;
 
   return (
     <div ref={chatRootRef} className={`chat-reference-screen ${activeId ? "has-thread" : "is-list"}`}>
@@ -368,16 +367,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
           {totalUnread > 0 && <span className="chat-reference-unread-total">{totalUnread > 99 ? "99+" : totalUnread}</span>}
         </header>
 
-        <section className="chat-reference-list-hero">
-          <div>
-            <h1>Conversas</h1>
-            <p>Negocie, tire dúvidas e acompanhe seus interesses.</p>
-          </div>
-          <div className="chat-reference-list-car" aria-hidden="true">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/vehicle-illustration.svg" alt="" />
-          </div>
-        </section>
+        <h1 className="chat-reference-list-title">Conversas</h1>
 
         <div className="chat-reference-search">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
@@ -403,6 +393,7 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
               key={conversation.id}
               type="button"
               className={`chat-reference-conversation ${activeId === conversation.id ? "is-active" : ""}`}
+              aria-current={activeId === conversation.id ? "true" : undefined}
               onClick={() => openConversation(conversation.id)}
             >
               <div className="chat-reference-car-thumb">
@@ -450,25 +441,13 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
 
               <div className="chat-thread-person">
                 <strong>{other.name}</strong>
-                <span>{myRole === "seller" ? "Conversa com comprador" : "Conversa com vendedor"}</span>
+                <span>{car ? `${car.brand} ${car.model} ${car.year}` : "Anúncio indisponível"}</span>
               </div>
 
               <Link href={`/perfil/${other.id}`} className="chat-thread-profile-link" aria-label="Ver perfil">
                 ⋮
               </Link>
             </header>
-
-            {car && (
-              <Link href={`/carros/${car.id}`} className="chat-thread-car-card">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={car.image ?? "/images/car-placeholder.svg"} alt={`${car.brand} ${car.model}`} />
-                <span>
-                  <strong>{car.brand} {car.model} {car.year}</strong>
-                  <b>{formatPrice(car.price)}</b>
-                </span>
-                <em>›</em>
-              </Link>
-            )}
 
             <div ref={messagesRef} className="chat-thread-messages">
               <aside className="mx-1 mb-3 rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 text-xs leading-5 text-[#e6d5aa]" aria-label="Cuidados contra golpes">

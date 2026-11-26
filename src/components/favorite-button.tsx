@@ -21,9 +21,9 @@ export default function FavoriteButton({ id, initial, signedIn }: { id: number; 
     finally { setBusy(false); }
   }
   return <>
-    <button type="button" className="vehicle-detail-icon-button" onClick={toggle} disabled={busy}
+    <button type="button" className={`vehicle-detail-icon-button vehicle-favorite-button ${saved ? "is-saved" : ""}`} onClick={toggle} disabled={busy}
       aria-label={saved ? "Remover dos favoritos" : "Adicionar aos favoritos"} aria-pressed={saved}
-      style={saved ? { color: "#d4af37" } : undefined}>
+    >
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" /></svg>
     </button>
     {error && <span role="alert" className="text-xs text-red-300">{error}</span>}

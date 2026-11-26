@@ -62,7 +62,7 @@ export default async function Compare({ searchParams }: { searchParams: Promise<
           {entries.map(({ car }) => <Link key={car.id} href={`/carros/${car.id}`} className="min-w-0 rounded-xl border border-white/20 bg-[#171716] p-3 underline underline-offset-4 sm:p-5">
             <Image src={car.images[0] ?? "/images/car-placeholder.svg"} alt={`${car.brand} ${car.model}`} width={400} height={240} className="mb-3 h-28 w-full rounded-lg object-cover sm:h-44" />
             <strong className="block break-words text-sm sm:text-lg">{car.brand} {car.model} {car.year}</strong>
-            {car.isDemo && <span className="mt-2 inline-block rounded border border-amber-300/50 px-2 py-1 text-xs no-underline">DEMO · não está à venda</span>}
+            {car.isDemo && <span className="mt-2 inline-block rounded border border-amber-300/50 px-2 py-1 text-xs no-underline">DEMO · negociação simulada</span>}
           </Link>)}
           {entries.length === 1 && <div className="flex min-h-40 flex-col justify-center rounded-xl border border-dashed border-white/30 p-3 text-sm sm:p-5">
             <p>Escolha o segundo veículo no catálogo.</p><Link href="/carros" className="mt-3 underline">Explorar carros</Link>

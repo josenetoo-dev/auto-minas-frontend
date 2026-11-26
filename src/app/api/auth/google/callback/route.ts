@@ -1,2 +1,2 @@
-import { NextResponse } from "next/server";
-export async function GET(request:Request){return NextResponse.redirect(new URL("/login?error=google_not_supported",request.url));}
+import { finishOAuth } from "@/lib/oauth";
+export async function GET(request: Request) { return finishOAuth(request, "google"); }

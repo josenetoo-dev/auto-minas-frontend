@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 const STEPS = [
   { number: "01", title: "Explore os veículos", text: "Abra a vitrine, pesquise cidade/UF e visite os anúncios identificados como demonstração.", href: "/carros", action: "Explorar vitrine" },
-  { number: "02", title: "Entenda as negociações", text: "Com a conta de demonstração, veja as conversas de teste. Anúncios DEMO não aceitam novas propostas.", href: "/chat", action: "Ver negociações" },
+  { number: "02", title: "Entenda as negociações", text: "Com a conta de demonstração, envie uma proposta simulada e acompanhe a conversa vinculada ao veículo.", href: "/chat", action: "Ver negociações" },
   { number: "03", title: "Conheça o cadastro", text: "Veja as etapas de anúncio. Não envie documentos reais nem publique um veículo fictício como oferta comercial.", href: "/vender", action: "Ver cadastro" },
   { number: "04", title: "Veja a revisão humana", text: "Com a conta da equipe, conheça a moderação e a verificação documental. Aprovações exigem evidências reais.", href: "/moderacao", action: "Painel da equipe" },
 ];
