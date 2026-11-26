@@ -60,6 +60,16 @@ export default async function HomePage() {
   return (
     <div className="home-exact-screen">
       <section className="home-reference-hero">
+        <Image
+          src="/images/home/auto-minas-road.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          quality={82}
+          className="home-reference-road"
+        />
+
         <div className="home-reference-hero-copy">
           <h1>
             Compre e venda<br />
@@ -80,15 +90,14 @@ export default async function HomePage() {
         </div>
 
         <div className="home-reference-car" aria-hidden="true">
-          <div className="home-reference-glow" />
           <Image
-            src="/images/vehicle-illustration.svg"
+            src="/images/home/auto-minas-onix.webp"
             alt=""
             fill
             priority
-            sizes="(max-width: 767px) 58vw, 520px"
-            quality={74}
-            className="object-contain"
+            sizes="(max-width: 767px) 78vw, 58vw"
+            quality={86}
+            className="home-reference-car-image"
           />
         </div>
       </section>
