@@ -13,7 +13,10 @@ body:has(.home-exact-screen) > div[role="note"] {
   top: 0;
   z-index: 70;
   border-bottom: 1px solid rgba(255,255,255,.04);
-  background: rgba(10,10,10,.97);
+  background:
+    linear-gradient(90deg, rgba(5,5,5,.86), rgba(5,5,5,.5) 58%, rgba(5,5,5,.72)),
+    linear-gradient(180deg, rgba(5,5,5,.28), rgba(5,5,5,.62)),
+    url("/images/home/auto-minas-road.webp") center 22% / cover no-repeat;
   backdrop-filter: blur(16px);
 }
 .home-topbar-inner {
