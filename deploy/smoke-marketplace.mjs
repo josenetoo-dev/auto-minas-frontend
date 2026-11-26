@@ -145,7 +145,8 @@ try {
   const demoAttempt=await request("/api/conversations",{method:"POST",cookie:buyer,body:{
     carId,price:60000,message:initialMessage,requestId:crypto.randomUUID(),
   }});
-  expectCode(demoAttempt,409,"Anúncio DEMO não aceita proposta comercial");
+  expectCode(demoAttempt,201,"Anúncio ilustrativo aceita conversa simulada no ambiente de homologação");
+  if(!demoAttempt.json?.id)throw new Error("Conversa ilustrativa sem ID retornado");
   const realCarId=newAd.json.id;
   const proposalRequest = { method:"POST", cookie:seller, body:{
     carId:realCarId, price:60000, message:initialMessage, requestId:crypto.randomUUID(),

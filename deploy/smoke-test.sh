@@ -36,7 +36,7 @@ echo "Saúde frontend + API: OK"
 vitrine_ok=0
 for i in $(seq 1 30); do
   curl -fsS --max-time 15 "$URL/carros" -o /tmp/auto-minas-carros.html || true
-  if grep -q 'DEMO' /tmp/auto-minas-carros.html; then
+  if grep -q 'Veículo ilustrativo' /tmp/auto-minas-carros.html; then
     vitrine_ok=1
     break
   fi
@@ -45,7 +45,7 @@ done
 if [ "$vitrine_ok" -ne 1 ]; then
   echo "Falha: vitrine não mostrou anúncios fictícios após 60 segundos."
   echo "Estado renderizado do frontend:"
-  grep -oE 'A API está indisponível|Nenhum veículo encontrado|DEMO|Comprar carro' /tmp/auto-minas-carros.html | sort -u | head -10 || true
+  grep -oE 'A API está indisponível|Nenhum veículo encontrado|Veículo ilustrativo|Comprar carro' /tmp/auto-minas-carros.html | sort -u | head -10 || true
   echo "API_URL configurada no processo Next (sem segredos):"
   docker compose --env-file deploy/.env.staging.example -f deploy/compose.staging.yml exec -T frontend \
     node -e 'console.log(process.env.AUTO_MINAS_API_URL)' || true
