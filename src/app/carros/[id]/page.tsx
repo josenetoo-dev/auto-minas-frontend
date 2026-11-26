@@ -117,7 +117,7 @@ export default async function Detail({ params }: Props) {
 
         {car.isDemo && (
           <p className="vehicle-detail-demo-note">
-            Anúncio demonstrativo · negociações e mensagens são simulações para apresentação.
+            Veículo ilustrativo da apresentação. Este carro não está à venda; propostas e mensagens servem para conhecer o atendimento.
           </p>
         )}
 
@@ -256,7 +256,7 @@ export default async function Detail({ params }: Props) {
         )}
 
         <section className="px-4 py-8" aria-label="Carros semelhantes">
-          <h2 className="mb-4 text-xl font-bold">{car.isDemo ? "Outros carros demonstrativos" : "Carros semelhantes"}</h2>
+          <h2 className="mb-4 text-xl font-bold">{car.isDemo ? "Outros veículos ilustrativos" : "Carros semelhantes"}</h2>
           {related.length ? <div className="cars-results-list">
             {related.map(item => <CarCard key={item.id} car={item} variant="catalog" />)}
           </div> : <p className="text-sm text-[#c5c2b9]">Nenhum outro anúncio disponível no momento.</p>}

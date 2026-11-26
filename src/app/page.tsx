@@ -43,7 +43,7 @@ export default async function HomePage() {
           <div className="home-reference-vehicle-media">
             <Image src={photo} alt={`${car.brand} ${car.model}`} fill
               sizes="(max-width: 767px) 55vw, 280px" quality={72} className="object-cover" />
-            {car.isDemo ? <span className="home-published-badge">DEMO · Negociação simulada</span>
+            {car.isDemo ? <span className="home-published-badge">Veículo ilustrativo</span>
               : sponsoredSection ? <span className="home-published-badge">Patrocinado</span>
               : car.status === "ativo" ? <span className="home-published-badge">Publicado</span> : null}
           </div>
@@ -149,11 +149,11 @@ export default async function HomePage() {
 
       <section className="home-reference-section home-video-section" aria-label="Prévia em vídeo do Auto Minas">
         <div className="home-section-heading"><h2>Uma nova forma de encontrar seu próximo carro</h2></div>
-        <p className="home-video-caption">O vídeo começa automaticamente quando você chega a esta seção.</p>
+        <p className="home-video-caption">Vídeo iniciado automaticamente, sem som.</p>
         <HomeHoverVideo
           title="Seu próximo caminho começa aqui."
           posterSrc="/images/vehicle-illustration.svg"
-          videoSrc="https://videos.pexels.com/video-files/13594876/13594876-hd_1920_1080_24fps.mp4"
+          videoSrc="/videos/auto-minas-preview.mp4"
         />
       </section>
 

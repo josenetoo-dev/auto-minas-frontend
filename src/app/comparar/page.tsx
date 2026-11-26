@@ -43,8 +43,8 @@ export default async function Compare({ searchParams }: { searchParams: Promise<
     { label: "Combustível", value: ({ car }) => FUEL_LABEL[car.fuel] ?? car.fuel },
     { label: "Câmbio", value: ({ car }) => TRANSMISSION_LABEL[car.transmission] ?? car.transmission },
     { label: "Localização", value: ({ car }) => car.city && car.state ? `${car.city} - ${car.state}` : "Não informada" },
-    { label: "Identidade do vendedor", value: ({ car, verification }) => car.isDemo ? "Não se aplica a DEMO" : reviewed(verification?.vendedor) },
-    { label: "Documento do veículo", value: ({ car, verification }) => car.isDemo ? "Não se aplica a DEMO" : reviewed(verification?.veiculo) },
+    { label: "Identidade do vendedor", value: ({ car, verification }) => car.isDemo ? "Não verificada neste exemplo" : reviewed(verification?.vendedor) },
+    { label: "Documento do veículo", value: ({ car, verification }) => car.isDemo ? "Não verificado neste exemplo" : reviewed(verification?.veiculo) },
     ...HISTORY_QUESTIONS.map(({ key, label }) => ({
       label: `${label} (declarado)`,
       value: ({ car }: Entry) => HISTORY_OPTIONS.find(option => option.value === car.vehicleHistory?.[key])?.label ?? "Não informado",
@@ -54,7 +54,7 @@ export default async function Compare({ searchParams }: { searchParams: Promise<
   return <main className="mx-auto max-w-6xl px-4 py-10 text-white">
     <Link href="/carros" className="underline">← Explorar carros</Link>
     <h1 className="my-6 text-3xl font-bold">Comparar dois veículos</h1>
-    <p className="mb-6 text-sm text-[#c5c2b9]">Escolha um par para conferir os dados lado a lado. Histórico é declaração do vendedor; verificações só aparecem quando analisadas. Carros DEMO são ilustrativos e não estão à venda.</p>
+    <p className="mb-6 text-sm text-[#c5c2b9]">Escolha um par para conferir os dados lado a lado. Histórico é declaração do vendedor; verificações só aparecem quando analisadas. Veículos ilustrativos não estão à venda.</p>
     {!valid && raw && <p role="alert" className="mb-4 text-red-300">Selecione até dois anúncios válidos.</p>}
     {entries.length === 0 ? <p>Nenhum anúncio disponível para comparação. Abra um veículo e escolha “Adicionar à comparação”.</p>
       : <div className="space-y-4" role="region" aria-label="Comparação de dois veículos">
@@ -62,7 +62,7 @@ export default async function Compare({ searchParams }: { searchParams: Promise<
           {entries.map(({ car }) => <Link key={car.id} href={`/carros/${car.id}`} className="min-w-0 rounded-xl border border-white/20 bg-[#171716] p-3 underline underline-offset-4 sm:p-5">
             <Image src={car.images[0] ?? "/images/car-placeholder.svg"} alt={`${car.brand} ${car.model}`} width={400} height={240} className="mb-3 h-28 w-full rounded-lg object-cover sm:h-44" />
             <strong className="block break-words text-sm sm:text-lg">{car.brand} {car.model} {car.year}</strong>
-            {car.isDemo && <span className="mt-2 inline-block rounded border border-amber-300/50 px-2 py-1 text-xs no-underline">DEMO · negociação simulada</span>}
+            {car.isDemo && <span className="mt-2 inline-block rounded border border-amber-300/50 px-2 py-1 text-xs no-underline">Veículo ilustrativo</span>}
           </Link>)}
           {entries.length === 1 && <div className="flex min-h-40 flex-col justify-center rounded-xl border border-dashed border-white/30 p-3 text-sm sm:p-5">
             <p>Escolha o segundo veículo no catálogo.</p><Link href="/carros" className="mt-3 underline">Explorar carros</Link>

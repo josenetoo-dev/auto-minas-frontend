@@ -9,57 +9,45 @@ type Props = {
 };
 
 export default function HomeHoverVideo({ videoSrc, posterSrc, title }: Props) {
-  const shellRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [visible, setVisible] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const [error, setError] = useState(false);
-
-  useEffect(() => {
-    const shell = shellRef.current;
-    if (!shell) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      setVisible(entry.isIntersecting && entry.intersectionRatio >= 0.35);
-    }, { threshold: [0, 0.35, 0.65] });
-    observer.observe(shell);
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    if (!visible || error) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       video.pause();
-      return;
+      const frame = window.requestAnimationFrame(() => setBlocked(true));
+      return () => window.cancelAnimationFrame(frame);
     }
-    video.muted = true;
-    const attempt = video.play();
-    if (attempt) void attempt.catch(() => {
-      // Some browsers block autoplay despite muted inline playback.
-      // Preserve the poster rather than requiring a tap.
-    });
-    return () => video.pause();
-  }, [visible, error]);
+    void video.play().catch(() => setBlocked(true));
+  }, []);
 
   return (
-    <div ref={shellRef} className="home-hover-video">
+    <div className="home-hover-video">
       <video
         ref={videoRef}
         className="home-hover-video-media"
         src={videoSrc}
         poster={posterSrc}
-        preload="none"
+        preload="auto"
         muted
-        autoPlay={visible}
+        autoPlay
         playsInline
         loop
         aria-label={title}
         onError={() => setError(true)}
+        onPlaying={() => setBlocked(false)}
       />
       <div className="home-hover-video-shade" aria-hidden="true" />
       <div className="home-hover-video-overlay">
         <span className="home-hover-video-eyebrow">AUTO MINAS · EXPERIÊNCIA</span>
         <h3>{title}</h3>
         {error && <p role="status">Prévia indisponível no momento.</p>}
+        {!error && blocked && <button type="button" className="mt-3 rounded-lg border border-white/60 bg-black/70 px-4 py-2 text-sm text-white" onClick={() => {
+          void videoRef.current?.play().then(() => setBlocked(false)).catch(() => setBlocked(true));
+        }}>Reproduzir vídeo</button>}
       </div>
     </div>
   );
