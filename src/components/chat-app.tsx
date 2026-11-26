@@ -470,6 +470,10 @@ export default function ChatApp({ meId, initialConversations, initialThread }: P
               </Link>
             )}
 
+            <aside className="mx-3 my-2 rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 text-xs leading-5 text-[#e6d5aa] sm:mx-5" aria-label="Cuidados contra golpes">
+              Confirme a identidade de quem negocia. Desconfie de intermediários e mudanças de interlocutor; não transfira dinheiro antecipadamente a terceiros. Confira titularidade e documentos presencialmente. <Link href="/seguranca/encontro" className="underline">Checklist de encontro seguro</Link>.
+            </aside>
+
             <div ref={messagesRef} className="chat-thread-messages">
               <aside className="mx-1 mb-3 rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 text-xs leading-5 text-[#e6d5aa]" aria-label="Cuidados contra golpes">
                 Confirme a identidade de quem negocia. Desconfie de intermediários e mudanças de interlocutor; não transfira dinheiro antecipadamente a terceiros. Confira titularidade e documentos presencialmente. <Link href="/seguranca/encontro" className="underline">Checklist de encontro seguro</Link>.
