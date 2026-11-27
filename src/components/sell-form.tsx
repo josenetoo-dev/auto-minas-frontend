@@ -48,7 +48,7 @@ const EMPTY: SellFormData = {
   description: "",
   category: "SEMINOVOS",
   secondHand: true,
-  documentation: "A verificar",
+  documentation: "Não informado",
   warranty: "Não informada",
   inspectionReport: "",
   images: [],
@@ -559,11 +559,6 @@ export default function SellForm({
                 ))}
               </fieldset>
 
-              <div className="sell-fields-grid">
-                {input("Documentação informada", "documentation", { placeholder: "A verificar" })}
-                {input("Garantia declarada", "warranty", { placeholder: "Não informada" })}
-                {input("Laudo cautelar", "inspectionReport", { placeholder: "Não informado" })}
-              </div>
             </div>
           )}
 
