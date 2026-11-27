@@ -152,7 +152,7 @@ export default function EmailVerificationFlow({
             </div>
 
             <h1>Verificar e-mail</h1>
-            <p className="flow-lead">Enviamos um código de verificação para seu e-mail:</p>
+            <p className="flow-lead">Confira o código de 6 dígitos no seu e-mail. Se não chegou, toque em “Enviar código” abaixo.</p>
 
             <div className="flow-email-pill">
               <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m4 7 8 6 8-6" /></svg>
@@ -183,7 +183,7 @@ export default function EmailVerificationFlow({
             <div className="flow-resend">
               <p>Não recebeu o código?</p>
               <button type="button" disabled={busy || remaining > 0} onClick={requestCode}>
-                {remaining > 0 ? `Reenviar código em 00:${String(remaining).padStart(2, "0")}` : "Reenviar código"}
+                {remaining > 0 ? `Reenviar código em 00:${String(remaining).padStart(2, "0")}` : "Enviar código"}
               </button>
             </div>
 

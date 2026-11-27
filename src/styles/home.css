@@ -199,6 +199,19 @@ body:has(.home-exact-screen) .home-topbar {
   gap: 12px;
   margin-top: 28px;
 }
+.home-email-prompt {
+  display: grid;
+  gap: 7px;
+  width: min(100%, 440px);
+  margin-top: 20px;
+  padding: 15px 17px;
+  border: 1px solid #e0b45d;
+  border-radius: 12px;
+  background: rgba(20, 17, 10, .94);
+  color: #f5efe1;
+}
+.home-email-prompt span { font-size: .88rem; line-height: 1.4; }
+.home-email-prompt a { color: #f4ce7d; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
 .home-primary-cta,
 .home-secondary-cta {
   display: inline-flex;

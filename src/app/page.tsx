@@ -4,6 +4,7 @@ import { featuredCars, recommendedHomeCars, type CarData } from "@/lib/car";
 import { formatPrice } from "@/lib/format";
 import HomeHoverVideo from "@/components/home-hover-video";
 import BrandLogoCarousel from "@/components/brand-logo-carousel";
+import { getSession } from "@/lib/auth";
 
 // Nunca manter anúncio suspenso no destaque por cache da página inicial.
 export const dynamic = "force-dynamic";
@@ -30,7 +31,10 @@ function CategoryIcon({ type }: { type: (typeof categories)[number]["icon"] }) {
 }
 
 export default async function HomePage() {
-  const recommendation = await recommendedHomeCars(6).catch(() => null);
+  const [session, recommendation] = await Promise.all([
+    getSession(),
+    recommendedHomeCars(6).catch(() => null),
+  ]);
   const fallback = recommendation?.organic.length ? null : await featuredCars(6).catch(() => null);
   const featured = recommendation?.organic.length ? recommendation.organic : fallback;
   const sponsored = recommendation?.sponsored ?? [];
@@ -87,6 +91,13 @@ export default async function HomePage() {
               Anunciar veículo
             </Link>
           </div>
+          {session?.status === "PENDING_CONTACT_VERIFICATION" && (
+            <div className="home-email-prompt" role="status">
+              <strong>Falta confirmar seu e-mail</strong>
+              <span>Para liberar todas as funções da sua conta, use o código enviado ao seu endereço.</span>
+              <Link href="/verificar-email">Verificar e-mail agora</Link>
+            </div>
+          )}
         </div>
 
       </section>
