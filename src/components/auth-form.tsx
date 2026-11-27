@@ -82,11 +82,6 @@ export default function AuthForm({
     router.replace(`/login${params.size ? `?${params.toString()}` : ""}`, { scroll: false });
   }
 
-  function startOAuth(provider: "google" | "github") {
-    const params = new URLSearchParams({ next });
-    window.location.assign(`/api/auth/${provider}?${params.toString()}`);
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
@@ -264,20 +259,20 @@ export default function AuthForm({
 
       <div className="auth-reference-divider">
         <span />
-        <p>{mode === "login" ? "Ou continue com" : "Ou crie sua conta com"}</p>
+        <p>Outras formas de acesso em desenvolvimento</p>
         <span />
       </div>
 
       <div className="auth-oauth-stack">
-        <button type="button" onClick={() => startOAuth("google")} className="auth-oauth-button">
+        <button type="button" disabled className="auth-oauth-button" title="Em desenvolvimento">
           <span className="auth-google-mark" aria-hidden="true">G</span>
-          {mode === "login" ? "Entrar com Google" : "Continuar com Google"}
+          Google · em desenvolvimento
         </button>
-        <button type="button" onClick={() => startOAuth("github")} className="auth-oauth-button">
+        <button type="button" disabled className="auth-oauth-button" title="Em desenvolvimento">
           <svg className="auth-github-mark" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.88c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.35 1.09 2.92.83.09-.65.35-1.09.64-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.55 9.55 0 0 1 12 6.82a9.5 9.5 0 0 1 2.5.34c1.9-1.29 2.74-1.02 2.74-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.86V21c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/>
           </svg>
-          {mode === "login" ? "Entrar com GitHub" : "Continuar com GitHub"}
+          GitHub · em desenvolvimento
         </button>
       </div>
 
