@@ -159,8 +159,6 @@ export default async function Detail({ params }: Props) {
             <dl>
               <div><dt>Cor</dt><dd>{car.color}</dd></div>
               <div><dt>Categoria</dt><dd>{car.category}</dd></div>
-              <div><dt>Documentação</dt><dd>{car.documentation}</dd></div>
-              <div><dt>Garantia</dt><dd>{car.warranty}</dd></div>
             </dl>
           </details>
         </section>
