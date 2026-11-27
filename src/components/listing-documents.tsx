@@ -31,6 +31,7 @@ export function useListingDocuments(adId?:number|null) {
 
   async function submit(id:number,manual=false) {
     setError("");
+    if (!manual && !Object.values(files).some(Boolean)) return;
     const current=await result(await fetch(`/api/cars/${id}/documents`));
     for(const kind of Object.keys(labels) as Kind[]) {
       const item=(current.cases as Case[]).find(c=>c.tipo===(kind==="DOCUMENTO_VEICULO"?"VEICULO":"IDENTIDADE"));
@@ -52,7 +53,7 @@ export function useListingDocuments(adId?:number|null) {
 
   const fields=<section className="card-dark min-w-0 space-y-4 p-4 sm:p-6">
     <h2 className="font-display text-2xl">Documentos para análise</h2>
-    <p className="text-sm leading-6 text-[#b7b3a9]">Envie os documentos junto com os dados e fotos do carro. Os arquivos são privados e ficam disponíveis apenas para você e a equipe de análise.</p>
+    <p className="text-sm leading-6 text-[#b7b3a9]">O envio de documentos é opcional para cadastrar o anúncio; a verificação é independente. Os arquivos são privados e ficam disponíveis apenas para você e a equipe de análise.</p>
     <div className="grid gap-4 sm:grid-cols-2">
       {(Object.keys(labels) as Kind[]).map(kind=>{
         const item=cases.find(c=>c.tipo===(kind==="DOCUMENTO_VEICULO"?"VEICULO":"IDENTIDADE"));
