@@ -38,7 +38,9 @@ export default function BrandLogoCarousel() {
       if(Math.abs(dx)<9 && Math.abs(e.clientY-p.y)<9) return;
       if(Math.abs(e.clientY-p.y)>Math.abs(dx)) { pointer.current=null; return; }
       p.swiping=true;
-      e.currentTarget.setPointerCapture(e.pointerId);
+      // Touch browsers capture the pointer on the card automatically. Moving that
+      // capture to the stage fires lostpointercapture and cancels the swipe.
+      if(e.pointerType==="mouse") e.currentTarget.setPointerCapture(e.pointerId);
     }
     p.delta=Math.max(-1.2,Math.min(1.2,dx/Math.max(70,p.width*(p.width<600?.33:.21))));
     setDragging(true);
