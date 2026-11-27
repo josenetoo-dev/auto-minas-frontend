@@ -331,6 +331,14 @@ body:has(.auth-reference-screen) > div[role="note"] {
   border-color: rgba(212,175,55,.46);
   background: #15140f;
 }
+.auth-oauth-button:disabled {
+  opacity: .58;
+  cursor: not-allowed;
+}
+.auth-oauth-button:disabled:hover {
+  border-color: rgba(255,255,255,.35);
+  background: #111110;
+}
 .auth-google-mark {
   display: inline-grid;
   width: 26px;
