@@ -85,6 +85,26 @@ async function main() {
       }
       await page.getByRole("button", { name: "Aceitar cookies necessários", exact:true }).click();
       await inspect(page, "inicio", width);
+      if (width === 390) {
+        const stage=page.locator(".am-brand-3d-stage");
+        await stage.scrollIntoViewIfNeeded();
+        const bounds=await stage.boundingBox();
+        expect(Boolean(bounds),"Carrossel de marcas ausente no celular");
+        const before=await page.locator(".am-brand-active-name").innerText();
+        const cdp=await context.newCDPSession(page);
+        const x=Math.round(bounds.x+bounds.width/2);
+        const y=Math.round(bounds.y+bounds.height/2);
+        const point=at=>[{x:at,y,id:1}];
+        await cdp.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:point(x)});
+        for(const offset of [35,70,105,140]) {
+          await cdp.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:point(x-offset)});
+        }
+        await cdp.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+        await page.waitForFunction(previous=>document.querySelector(".am-brand-active-name")?.textContent!==previous,before);
+        expect(await page.locator(".am-brand-active-name").innerText()!==before,
+          "Arraste por toque não moveu o carrossel de marcas");
+        await cdp.detach();
+      }
       if (width <= 768) {
         // O nome acessível muda de "Abrir menu" para "Fechar menu" após o clique.
         // Um seletor pelo nome antigo deixa de localizar o mesmo botão.
